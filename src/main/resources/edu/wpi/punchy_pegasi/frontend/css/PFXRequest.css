@@ -33,6 +33,8 @@
     -fx-background-radius: 6;
     -fx-border-color: -pfx-navy;
     -fx-border-radius: 6;
+    -fx-text-fill: -pfx-text;
+    -fx-prompt-text-fill: gray;
 }
 
 .pfx-request-container > VBox > TextField {
@@ -43,7 +45,8 @@
     -fx-border-radius: 6;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0), 0, 0, 0, 0);
     -fx-border-color: -pfx-navy;
-    -fx-text-fill: -pfx-navy;
+    -fx-text-fill: -pfx-text;
+    -fx-prompt-text-fill: gray;
 }
 
 .pfx-request-container > VBox > MFXFilterComboBox {
@@ -54,7 +57,7 @@
     -fx-font-size: 18;
     -fx-border-radius: 6;
     -fx-border-color: -pfx-navy;
-    -fx-text-fill: -pfx-navy;
+    -fx-text-fill: -pfx-text;
 }
 
 .pfx-request-right-container {

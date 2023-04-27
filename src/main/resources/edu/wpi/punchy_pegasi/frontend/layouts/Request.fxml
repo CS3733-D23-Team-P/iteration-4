@@ -26,7 +26,7 @@
                     <MFXFilterComboBox fx:id="staffAssignment" floatMode="DISABLED" promptText="Employee Name"/>
                 </VBox>
                 <VBox VBox.vgrow="ALWAYS">
-                    <Label text="Additional Notes" textFill="WHITE"/>
+                    <Label text="Additional Notes"/>
                     <TextField fx:id="additionalNotes" promptText="Additional Notes"
                                styleClass="pfx-request-additional-notes" VBox.vgrow="ALWAYS"/>
                 </VBox>
