@@ -13,7 +13,7 @@
             fx:id="root">
     <left>
         <VBox fx:id="pathfinding" styleClass="pathfinding-overlay">
-            <VBox styleClass="pathfinding-overlay-box">
+            <VBox fx:id="menu" styleClass="pathfinding-overlay-box">
                 <MFXFilterComboBox floatingText="Start node" fx:id="nodeStartCombo" maxWidth="Infinity"/>
                 <MFXFilterComboBox floatingText="End node" fx:id="nodeEndCombo" maxWidth="Infinity"/>
                 <MFXFilterComboBox floatingText="Select Algorithm" onAction="#setAlgo"

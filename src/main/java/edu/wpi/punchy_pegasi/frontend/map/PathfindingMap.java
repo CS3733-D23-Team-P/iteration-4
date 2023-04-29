@@ -5,6 +5,8 @@ import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.backend.pathfinding.Graph;
 import edu.wpi.punchy_pegasi.backend.pathfinding.PathfindingSingleton;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
+import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
+import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
 import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
 import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
@@ -97,6 +99,10 @@ public class PathfindingMap {
     private ObservableMap<Node, ObservableList<LocationName>> nodeToLocation;
     private ObservableMap<LocationName, Node> locationToNode;
     private String selectedAlgo;
+    @FXML
+    private VBox menu;
+    @FXML
+    private PFXButton addDestination;
 
     public static byte[] generateMessage(String str, Integer startPos, Integer endPos) {
         byte[] strArray = str.getBytes();
@@ -144,7 +150,9 @@ public class PathfindingMap {
 
     @FXML
     private void initialize() {
-
+        addDestination = new PFXButton("Add Destination", new PFXIcon(MaterialSymbols.ADD_CIRCLE));
+        addDestination.getStyleClass().add("pathfinding-overlay-addButton");
+        menu.getChildren().add(2, addDestination);
         map = new HospitalMap(floors);
         root.setCenter(map.get());
         map.addLayer(container);
