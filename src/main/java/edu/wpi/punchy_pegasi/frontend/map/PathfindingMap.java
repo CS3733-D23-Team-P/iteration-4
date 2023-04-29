@@ -16,6 +16,7 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -45,6 +46,7 @@ public class PathfindingMap {
     }};
     private final AtomicBoolean startSelected = new AtomicBoolean(false);
     private final AtomicBoolean endSelected = new AtomicBoolean(false);
+    private final AtomicBoolean midSelected = new AtomicBoolean(false);
     private final AtomicBoolean selectingGraphically = new AtomicBoolean(false);
     private final StringConverter<LocationName> locationToString = new StringConverter<>() {
         @Override
@@ -103,7 +105,8 @@ public class PathfindingMap {
     private VBox menu;
     @FXML
     private PFXButton addDestination;
-
+    private SortedList<LocationName> filteredSorted;
+    private List<MFXFilterComboBox<LocationName>> midDestinations = new ArrayList<MFXFilterComboBox<LocationName>>();
     public static byte[] generateMessage(String str, Integer startPos, Integer endPos) {
         byte[] strArray = str.getBytes();
         byte[] tempStartArray = Integer.toString(startPos).getBytes();
@@ -151,7 +154,8 @@ public class PathfindingMap {
     @FXML
     private void initialize() {
         addDestination = new PFXButton("Add Destination", new PFXIcon(MaterialSymbols.ADD_CIRCLE));
-        addDestination.getStyleClass().add("pathfinding-overlay-addButton");
+        addDestination.getStyleClass().add("pathfinding-overlay-icon");
+        addDestination.setOnAction(e -> addDestDropdown());
         menu.getChildren().add(2, addDestination);
         map = new HospitalMap(floors);
         root.setCenter(map.get());
@@ -191,7 +195,7 @@ public class PathfindingMap {
 //            map.setZoom(1);
             map.showRectangle(new Rectangle(minX, minY, maxX - minX, maxY - minY));
 
-            var filteredSorted = locationsList.filtered(isDestination).sorted(Comparator.comparing(LocationName::getLongName));
+            filteredSorted = locationsList.filtered(isDestination).sorted(Comparator.comparing(LocationName::getLongName));
             nodeStartCombo.setItems(filteredSorted);
             nodeStartCombo.setFilterFunction(s -> n -> locationToString.toString(n).toLowerCase().contains(s.toLowerCase()));
             nodeStartCombo.setConverter(locationToString);
@@ -199,6 +203,7 @@ public class PathfindingMap {
                 if (newPropertyValue && !selectingGraphically.get()) {
                     startSelected.set(true);
                     endSelected.set(false);
+                    midSelected.set(false);
                     Platform.runLater(() -> {
                         selectGraphically.setText("Select Start Graphically");
                         selectGraphically.setDisable(false);
@@ -212,6 +217,7 @@ public class PathfindingMap {
                 if (newPropertyValue) {
                     startSelected.set(false);
                     endSelected.set(true);
+                    midSelected.set(false);
                     Platform.runLater(() -> {
                         selectGraphically.setText("Select End Graphically");
                         selectGraphically.setDisable(false);
@@ -249,6 +255,7 @@ public class PathfindingMap {
             point.setOnMouseClicked(e -> {
                 if (startSelected.get()) nodeStartCombo.selectItem(location.get(0));
                 else if (endSelected.get()) nodeEndCombo.selectItem(location.get(0));
+                else if (midSelected.get()) nodeStartCombo.selectItem(location.get(0));
                 selectGraphicallyCancel.fire();
             });
         });
@@ -372,5 +379,29 @@ public class PathfindingMap {
         } else {
             PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStar());
         }
+    }
+
+    public void addDestDropdown() {
+        if(nodeStartCombo.getSelectedItem() == null) return;
+        MFXFilterComboBox<LocationName> midComboBox = new MFXFilterComboBox<>();
+        midComboBox.setItems(filteredSorted);
+        midComboBox.setMaxWidth(99999);
+        midComboBox.setFloatingText("Mid Node");
+        midComboBox.setFilterFunction(s -> n -> locationToString.toString(n).toLowerCase().contains(s.toLowerCase()));
+        midComboBox.setConverter(locationToString);
+        midComboBox.setOnMouseClicked(e -> graphicalSelect());
+        midDestinations.add(midComboBox);
+        menu.getChildren().add(1, midComboBox);
+        midComboBox.pressedProperty().addListener((arg0, oldPropertyValue, newPropertyValue) -> {
+            if (newPropertyValue) {
+                startSelected.set(false);
+                endSelected.set(false);
+                midSelected.set(true);
+                Platform.runLater(() -> {
+                    selectGraphically.setText("Select Mid Graphically");
+                    selectGraphically.setDisable(false);
+                });
+            }
+        });
     }
 }

@@ -29,5 +29,8 @@
     -pfx-button-text: -pfx-text;
 }
 
-.pathfinding-overlay-addButton {
+.pathfinding-overlay-icon PFXIcon{
+    -fx-font-size: 20;
+    -fx-fill: white;
+    -fx-text-fill: white;
 }
