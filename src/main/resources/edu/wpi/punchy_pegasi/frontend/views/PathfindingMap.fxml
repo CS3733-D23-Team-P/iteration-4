@@ -24,6 +24,7 @@
                     <PFXButton styleClass="pfx-button-cancel" text="Cancel" fx:id="selectGraphicallyCancel"/>
                 </HBox>
                 <PFXButton text="Find Path!" fx:id="pathfindButton" onMouseClicked="#pathFindWithSelectedNodes"/>
+                <PFXButton text="Screen shot Fucker!" fx:id="screenShotButton"/>
                 <Text fx:id="pathfindStatus" textAlignment="CENTER"/>
             </VBox>
         </VBox>

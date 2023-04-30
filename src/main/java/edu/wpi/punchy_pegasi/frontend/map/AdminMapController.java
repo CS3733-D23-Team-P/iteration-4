@@ -308,7 +308,7 @@ public class AdminMapController {
             // check for double click of the primary button
             if (!isLeftClick.test(e) || e.getClickCount() != 2 || e.getTarget().getClass() != ImageView.class) return;
             var location = map.getClickLocation(e);
-            var node = new Node(nodes.values().stream().mapToLong(Node::getNodeID).max().orElse(0) + 5, (int) location.getX(), (int) location.getY(), map.getLayer().getIdentifier(), null);
+            var node = new Node(nodes.values().stream().mapToLong(Node::getNodeID).max().orElse(0) + 5, (int) location.getX(), (int) location.getY(), map.getCurrentLayer().getIdentifier(), null);
             nodes.put(node.getNodeID(), node);
             mapEdits.add(new MapEdit(MapEdit.ActionType.ADD_NODE, node));
 //            var nodePoint = addEditableNode(node);

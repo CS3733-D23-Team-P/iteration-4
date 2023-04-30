@@ -12,8 +12,6 @@ import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 import javafx.animation.Interpolator;
 import javafx.beans.binding.Bindings;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableStringValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -197,7 +195,19 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>
 
     @Override
     public HospitalFloor.Floors getLayer() {
+        return null;
+    }
+
+    @Override
+    public HospitalFloor.Floors getCurrentLayer() {
         return currentFloor;
+    }
+
+    @Override
+    public javafx.scene.Node getLayerNode(HospitalFloor.Floors floor){
+        var f = floorMap.get(floor);
+        return Optional.ofNullable(f).map(fl->fl.getRoot()).orElse(null);
+
     }
 
     @Override

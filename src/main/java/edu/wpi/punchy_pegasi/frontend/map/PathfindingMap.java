@@ -9,13 +9,17 @@ import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
 import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
+import io.github.palexdev.materialfx.utils.SwingFXUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -26,6 +30,8 @@ import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 import org.javatuples.Pair;
 
+import javax.imageio.ImageIO;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -280,18 +286,41 @@ public class PathfindingMap {
             map.clearMap();
             String currentFloor = path.get(0).getFloor();
             List<Node> currentPath = new ArrayList<>();
+            List<Pair<Rectangle2D, HospitalFloor.Floors>> rectangles = new ArrayList<>();
+            boolean multiFloor = true;
             for (var node : path) {
                 if (!node.getFloor().equals(currentFloor)) {
+                    var minX = currentPath.stream().mapToDouble(Node::getXcoord).min().orElse(0);
+                    var maxX = currentPath.stream().mapToDouble(Node::getXcoord).max().orElse(0);
+                    var minY = currentPath.stream().mapToDouble(Node::getYcoord).min().orElse(0);
+                    var maxY = currentPath.stream().mapToDouble(Node::getYcoord).max().orElse(0);
+
+
+                    Rectangle2D rect = new Rectangle2D(minX - 100, minY - 100, maxX-minX + 200,maxY-minY + 200);
+                    rectangles.add(new Pair<>(rect, map.getCurrentLayer()));
+
                     map.drawLine(currentPath);
                     var endNode = currentPath.get(currentPath.size() - 1);
                     map.addNode(node, "red", Bindings.createStringBinding(() -> ""), Bindings.createStringBinding(() -> "From Here"));
                     //map.drawArrow(node, endNode.getFloorNum() > node.getFloorNum()).setOnMouseClicked(e -> Platform.runLater(() -> map.showLayer(floors.get(endNode.getFloor()))));
-                    map.drawArrow(endNode, endNode.getFloorNum() < node.getFloorNum()).setOnMouseClicked(e -> Platform.runLater(() -> map.showLayer(HospitalFloor.floorMap.get(node.getFloor()))));
+                    map.drawArrow(endNode, endNode.getFloorNum() < node.getFloorNum()).setOnMouseClicked(e -> Platform.runLater(() -> map.showLayer(map.getCurrentLayer())));
                     currentPath = new ArrayList<>();
                     currentFloor = node.getFloor();
+                    multiFloor = false;
                 }
                 currentPath.add(node);
             }
+
+            if (multiFloor) {
+                var minX = path.stream().mapToDouble(Node::getXcoord).min().orElse(0);
+                var maxX = path.stream().mapToDouble(Node::getXcoord).max().orElse(0);
+                var minY = path.stream().mapToDouble(Node::getYcoord).min().orElse(0);
+                var maxY = path.stream().mapToDouble(Node::getYcoord).max().orElse(0);
+
+                Rectangle2D rect = new Rectangle2D(minX - 100, minY - 100, maxX-minX + 200,maxY-minY + 200);
+                rectangles.add(new Pair<>(rect, map.getCurrentLayer()));
+            }
+
             map.drawLine(currentPath);
             map.drawYouAreHere(path.get(0));
             drawNode(path.get(path.size() - 1), "#3cb043");
@@ -302,11 +331,41 @@ public class PathfindingMap {
                 yCoords.add(node.getYcoord());
             }
             robotButton.setDisable(false);
+
+            App.getSingleton().getExecutorService().execute(()->{
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e){
+                    return;
+                }
+                Platform.runLater(() -> {
+                    for (var pair : rectangles){
+                        screenShot(pair.getValue0(), pair.getValue1());
+                    }
+                });
+            });
+
             return "Path found successfully!";
         } catch (IllegalStateException e) {
             return "Path not found";
         }
     }
+
+    @FXML
+    private void screenShot(Rectangle2D rectangle, HospitalFloor.Floors floor) {
+        try{
+            SnapshotParameters params = new SnapshotParameters();
+            params.setViewport(rectangle);
+            javafx.scene.Node currentFloor = map.getLayerNode(floor);
+            WritableImage screenShot = currentFloor.snapshot(params, null);
+            File file = new File(System.getProperty("user.home") + "/Desktop/" + screenShot + ".png");
+            ImageIO.write(SwingFXUtils.fromFXImage(screenShot, null), "png", file);
+
+        } catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
 
     @FXML
     private void sendRobotMessage() {

@@ -2,10 +2,7 @@ package edu.wpi.punchy_pegasi.frontend.map;
 
 import edu.wpi.punchy_pegasi.schema.Edge;
 import edu.wpi.punchy_pegasi.schema.Node;
-import javafx.beans.Observable;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
-import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -36,6 +33,10 @@ public interface IMap<Layer> {
     void showLayer(Layer layer);
 
     Layer getLayer();
+
+    HospitalFloor.Floors getCurrentLayer();
+
+    javafx.scene.Node getLayerNode(HospitalFloor.Floors floor);
 
     void drawYouAreHere(Node node);
 
