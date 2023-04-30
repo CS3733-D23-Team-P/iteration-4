@@ -107,7 +107,7 @@ public class PathfindingMap {
     private PFXButton addDestination;
     private SortedList<LocationName> filteredSorted;
     private PFXButton addDestinationCancel;
-    private int selectedMidDest = 0;
+    private String selectedMidDestination;
     public static byte[] generateMessage(String str, Integer startPos, Integer endPos) {
         byte[] strArray = str.getBytes();
         byte[] tempStartArray = Integer.toString(startPos).getBytes();
@@ -163,7 +163,7 @@ public class PathfindingMap {
         addDestination.setOnAction(e -> addDestDropdown());
         menu.getChildren().add(2, addDestination);
         menu.getChildren().add(3, addDestinationCancel);
-        map = new HospitalMap(floors);
+        map = new HospitalMap();
         root.setCenter(map.get());
         map.addLayer(container);
         container.getChildren().addAll(pathfinding, robotInfo);
@@ -261,11 +261,15 @@ public class PathfindingMap {
             point.setOnMouseClicked(e -> {
                 if (startSelected.get()) nodeStartCombo.selectItem(moves.get(0));
                 else if (endSelected.get()) nodeEndCombo.selectItem(moves.get(0));
-                if (startSelected.get()) nodeStartCombo.selectItem(location.get(0));
-                else if (endSelected.get()) nodeEndCombo.selectItem(location.get(0));
                 else if (midSelected.get()) {
-                    MFXFilterComboBox<LocationName> selectedBox = (MFXFilterComboBox<LocationName>) midNodeContainer.getChildren().get(selectedMidDest);
-                    selectedBox.selectItem(location.get(0));
+                    for(javafx.scene.Node node : midNodeContainer.getChildren()) {
+                        MFXFilterComboBox<LocationName> selectedBox = (MFXFilterComboBox<LocationName>) node;
+                        System.out.println(selectedBox);
+                        if(selectedBox.getId().equals(selectedMidDestination)) {
+                            selectedBox.selectItem(moves.get(0));
+                        }
+                    }
+//
                 }
                 selectGraphicallyCancel.fire();
             });
@@ -429,8 +433,8 @@ public class PathfindingMap {
                 endSelected.set(false);
                 midSelected.set(true);
                 Platform.runLater(() -> {
+                    selectedMidDestination = midComboBox.getId();
                     selectGraphically.setText("Select Mid Graphically");
-                    selectedMidDest = midNodeContainer.getChildren().size() - 1;
                     selectGraphically.setDisable(false);
                 });
             }
