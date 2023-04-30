@@ -110,6 +110,7 @@ public class PathfindingMap {
     private PFXButton addDestination;
     private SortedList<LocationName> filteredSorted;
     private PFXButton addDestinationCancel;
+    private int selectedMidDest = 0;
     public static byte[] generateMessage(String str, Integer startPos, Integer endPos) {
         byte[] strArray = str.getBytes();
         byte[] tempStartArray = Integer.toString(startPos).getBytes();
@@ -262,7 +263,10 @@ public class PathfindingMap {
             point.setOnMouseClicked(e -> {
                 if (startSelected.get()) nodeStartCombo.selectItem(location.get(0));
                 else if (endSelected.get()) nodeEndCombo.selectItem(location.get(0));
-                else if (midSelected.get()) System.out.println("selected!");
+                else if (midSelected.get()) {
+                    MFXFilterComboBox<LocationName> selectedBox = (MFXFilterComboBox<LocationName>) midNodeContainer.getChildren().get(selectedMidDest);
+                    selectedBox.selectItem(location.get(0));
+                }
                 selectGraphicallyCancel.fire();
             });
         });
@@ -390,13 +394,16 @@ public class PathfindingMap {
 
     public void addDestDropdown() {
         if(nodeStartCombo.getSelectedItem() == null || midNodeContainer.getChildren().size() > 2) return;
+        if(midNodeContainer.getChildren().size() > 0) {
+            MFXFilterComboBox<LocationName> lastBox = (MFXFilterComboBox<LocationName>) midNodeContainer.getChildren().get(midNodeContainer.getChildren().size() - 1);
+            if(lastBox.getSelectedItem() == null) return;
+        }
         MFXFilterComboBox<LocationName> midComboBox = new MFXFilterComboBox<>();
         midComboBox.setItems(filteredSorted);
         midComboBox.setMaxWidth(99999);
         midComboBox.setFloatingText("Mid Node");
         midComboBox.setFilterFunction(s -> n -> locationToString.toString(n).toLowerCase().contains(s.toLowerCase()));
         midComboBox.setConverter(locationToString);
-        midComboBox.setOnMouseClicked(e -> graphicalSelect());
         midNodeContainer.getChildren().add(midComboBox);
         midComboBox.pressedProperty().addListener((arg0, oldPropertyValue, newPropertyValue) -> {
             if (newPropertyValue) {
@@ -405,6 +412,7 @@ public class PathfindingMap {
                 midSelected.set(true);
                 Platform.runLater(() -> {
                     selectGraphically.setText("Select Mid Graphically");
+                    selectedMidDest = midNodeContainer.getChildren().size() - 1;
                     selectGraphically.setDisable(false);
                 });
             }
@@ -413,7 +421,6 @@ public class PathfindingMap {
 
     public void removeMidDestination() {
         if(midNodeContainer.getChildren().size() == 0) return;
-        //.release();
-        midNodeContainer.getChildren().remove(midNodeContainer.getChildren().size());
+        midNodeContainer.getChildren().remove(midNodeContainer.getChildren().size() - 1);
     }
 }

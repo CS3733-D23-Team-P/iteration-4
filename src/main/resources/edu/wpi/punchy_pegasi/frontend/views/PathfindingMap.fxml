@@ -20,8 +20,8 @@
                 <MFXFilterComboBox floatingText="Select Algorithm" onAction="#setAlgo"
                                    fx:id="selectAlgo" maxWidth="Infinity"/>
                 <HBox>
-                    <PFXButton text="Select Nodes Graphically" onMouseClicked="#graphicalSelect"
-                               fx:id="selectGraphically"/>
+                    <PFXButton text="Select Nodes Graphically"
+                               fx:id="selectGraphically" onMouseClicked="#graphicalSelect"/>
                     <PFXButton styleClass="pfx-button-cancel" text="Cancel" fx:id="selectGraphicallyCancel"/>
                 </HBox>
                 <PFXButton text="Find Path!" fx:id="pathfindButton" onMouseClicked="#pathFindWithSelectedNodes"/>
