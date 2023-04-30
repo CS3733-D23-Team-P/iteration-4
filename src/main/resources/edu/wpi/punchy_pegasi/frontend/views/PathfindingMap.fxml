@@ -15,6 +15,7 @@
         <VBox fx:id="pathfinding" styleClass="pathfinding-overlay">
             <VBox fx:id="menu" styleClass="pathfinding-overlay-box">
                 <MFXFilterComboBox floatingText="Start node" fx:id="nodeStartCombo" maxWidth="Infinity"/>
+                <VBox fx:id="midNodeContainer" spacing="10"/>
                 <MFXFilterComboBox floatingText="End node" fx:id="nodeEndCombo" maxWidth="Infinity"/>
                 <MFXFilterComboBox floatingText="Select Algorithm" onAction="#setAlgo"
                                    fx:id="selectAlgo" maxWidth="Infinity"/>

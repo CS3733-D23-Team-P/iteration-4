@@ -5,6 +5,7 @@ import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.backend.pathfinding.Graph;
 import edu.wpi.punchy_pegasi.backend.pathfinding.PathfindingSingleton;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
+import edu.wpi.punchy_pegasi.frontend.components.PFXDropdown;
 import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
 import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
 import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
@@ -104,9 +105,11 @@ public class PathfindingMap {
     @FXML
     private VBox menu;
     @FXML
+    private VBox midNodeContainer;
+    @FXML
     private PFXButton addDestination;
     private SortedList<LocationName> filteredSorted;
-    private List<MFXFilterComboBox<LocationName>> midDestinations = new ArrayList<MFXFilterComboBox<LocationName>>();
+    private PFXButton addDestinationCancel;
     public static byte[] generateMessage(String str, Integer startPos, Integer endPos) {
         byte[] strArray = str.getBytes();
         byte[] tempStartArray = Integer.toString(startPos).getBytes();
@@ -154,9 +157,13 @@ public class PathfindingMap {
     @FXML
     private void initialize() {
         addDestination = new PFXButton("Add Destination", new PFXIcon(MaterialSymbols.ADD_CIRCLE));
+        addDestinationCancel = new PFXButton("Cancel Destination", new PFXIcon(MaterialSymbols.CANCEL));
+        addDestinationCancel.getStyleClass().add("pfx-button-cancel");
         addDestination.getStyleClass().add("pathfinding-overlay-icon");
+        addDestinationCancel.setOnAction(e -> removeMidDestination());
         addDestination.setOnAction(e -> addDestDropdown());
         menu.getChildren().add(2, addDestination);
+        menu.getChildren().add(3, addDestinationCancel);
         map = new HospitalMap(floors);
         root.setCenter(map.get());
         map.addLayer(container);
@@ -255,7 +262,7 @@ public class PathfindingMap {
             point.setOnMouseClicked(e -> {
                 if (startSelected.get()) nodeStartCombo.selectItem(location.get(0));
                 else if (endSelected.get()) nodeEndCombo.selectItem(location.get(0));
-                else if (midSelected.get()) nodeStartCombo.selectItem(location.get(0));
+                else if (midSelected.get()) System.out.println("selected!");
                 selectGraphicallyCancel.fire();
             });
         });
@@ -382,7 +389,7 @@ public class PathfindingMap {
     }
 
     public void addDestDropdown() {
-        if(nodeStartCombo.getSelectedItem() == null) return;
+        if(nodeStartCombo.getSelectedItem() == null || midNodeContainer.getChildren().size() > 2) return;
         MFXFilterComboBox<LocationName> midComboBox = new MFXFilterComboBox<>();
         midComboBox.setItems(filteredSorted);
         midComboBox.setMaxWidth(99999);
@@ -390,8 +397,7 @@ public class PathfindingMap {
         midComboBox.setFilterFunction(s -> n -> locationToString.toString(n).toLowerCase().contains(s.toLowerCase()));
         midComboBox.setConverter(locationToString);
         midComboBox.setOnMouseClicked(e -> graphicalSelect());
-        midDestinations.add(midComboBox);
-        menu.getChildren().add(1, midComboBox);
+        midNodeContainer.getChildren().add(midComboBox);
         midComboBox.pressedProperty().addListener((arg0, oldPropertyValue, newPropertyValue) -> {
             if (newPropertyValue) {
                 startSelected.set(false);
@@ -403,5 +409,11 @@ public class PathfindingMap {
                 });
             }
         });
+    }
+
+    public void removeMidDestination() {
+        if(midNodeContainer.getChildren().size() == 0) return;
+        //.release();
+        midNodeContainer.getChildren().remove(midNodeContainer.getChildren().size());
     }
 }
