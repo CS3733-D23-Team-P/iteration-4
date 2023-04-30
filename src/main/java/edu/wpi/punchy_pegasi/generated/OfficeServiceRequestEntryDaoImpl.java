@@ -1,5 +1,6 @@
 package edu.wpi.punchy_pegasi.generated;
 
+import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.backend.PdbController;
 import edu.wpi.punchy_pegasi.schema.OfficeServiceRequestEntry;
 import edu.wpi.punchy_pegasi.schema.IDao;

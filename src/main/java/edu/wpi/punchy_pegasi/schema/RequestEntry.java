@@ -7,19 +7,26 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@lombok.Builder(toBuilder=true)
 public class RequestEntry {
     @SchemaID
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("serviceid")
     protected UUID serviceID;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("locationname")
     protected Long locationName;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("staffassignment")
     protected Long staffAssignment;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("additionalnotes")
     protected String additionalNotes;
     @Setter
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("status")
     protected Status status;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("employeeid")
     protected Long employeeID;
 

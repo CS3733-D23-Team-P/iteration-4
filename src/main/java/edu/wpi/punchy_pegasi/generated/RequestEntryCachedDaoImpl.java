@@ -206,7 +206,6 @@ public class RequestEntryCachedDaoImpl implements IDao<java.util.UUID, RequestEn
         @Getter
         private final List<javafx.scene.Node> form;
         private final List<TextField> inputs;
-
         public RequestEntryForm() {
             form = new ArrayList<>();
             inputs = new ArrayList<>();

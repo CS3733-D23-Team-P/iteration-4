@@ -15,10 +15,12 @@
 
 .signage-header Label {
     -fx-text-fill: -pfx-signage-text-opposite;
+    -fx-font-size: 40;
 }
 
 .signage-label Label {
     -fx-text-fill: -pfx-signage-text-opposite;
+    -fx-font-size: 50;
 }
 
 .signage-all {

@@ -42,16 +42,17 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
+public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors> {
     private static final Image downArrow = new Image(Objects.requireNonNull(App.class.getResourceAsStream("frontend/assets/double-chevron-down-512.png")));
-    private final Map<String, HospitalFloor> floors;
     private final StackPane maps = new StackPane();
     private final GesturePane gesturePane = new GesturePane(maps);
     private final BorderPane overlay = new BorderPane();
     private final HBox overlayBottom = new HBox();
     private final HBox overlayTop = new HBox();
-    private HospitalFloor currentFloor;
+    private HospitalFloor.Floors currentFloor;
     private boolean animate = true;
+
+    private Map<HospitalFloor.Floors, HospitalFloor> floorMap = new HashMap<>();
 
     @AllArgsConstructor
     @Data
@@ -69,8 +70,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
     private final Map<UUID, RenderedEdge> edgeLines = new HashMap<>();
     private final MultiValuedMap<Long, UUID> nodeEdges = new ArrayListValuedHashMap<>();
 
-    public HospitalMap(Map<String, HospitalFloor> floors) {
-        this.floors = floors;
+    public HospitalMap() {
         VBox.setVgrow(gesturePane, Priority.ALWAYS);
         getChildren().addAll(new VBox(gesturePane), overlay);
         maps.setAlignment(Pos.TOP_LEFT);
@@ -96,11 +96,13 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         maps.getChildren().add(new StackPane(new Rectangle(5000, 3400, Color.TRANSPARENT), spinner));
 
         var floorContainer = new HBox();
-        floors.values().forEach(HospitalFloor::init);
-        floors.values().forEach(f -> {
-            f.button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showLayer(f));
-            floorContainer.getChildren().add(f.button);
-            maps.getChildren().add(f.root);
+
+        Arrays.stream(HospitalFloor.Floors.values()).forEach(f -> {
+            var floor = new HospitalFloor(f);
+            floorMap.put(f, floor);
+            floor.getButton().addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showLayer(f));
+            floorContainer.getChildren().add(floor.getButton());
+            maps.getChildren().add(floor.getRoot());
         });
         floorContainer.getStyleClass().add("hospital-map-floor-container");
         var separator = new HBox();
@@ -126,7 +128,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         separator.setPickOnBounds(false);
         overlayBottom.setPickOnBounds(false);
 
-        showLayer(floors.get("1"));
+        showLayer(HospitalFloor.Floors.F1);
     }
 
     private GesturePaneOps withAnimation() {
@@ -168,7 +170,12 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
     @FXML
     @Override
     public void clearMap() {
-        floors.values().forEach(HospitalFloor::clearFloor);
+//        nodeCircles.values().forEach(n -> n.floor.getRoot().getChildren().removeAll(n.circle, n.tooltip, n.label));
+//        edgeLines.values().forEach(e -> e.floor.getRoot().getChildren().remove(e.line));
+        nodeCircles.clear();
+        edgeLines.clear();
+        nodeEdges.clear();
+        floorMap.values().forEach(HospitalFloor::clearFloor);
     }
 
     @FXML
@@ -177,37 +184,38 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
     }
 
     @Override
-    public void showLayer(HospitalFloor floor) {
+    public void showLayer(HospitalFloor.Floors floor) {
         currentFloor = floor;
-        floor.root.setVisible(true);
-        floor.button.setSelected(true);
-        floors.values().stream().filter(f -> !Objects.equals(f.identifier, floor.identifier)).forEach(f -> {
-            f.button.setSelected(false);
-            f.root.setVisible(false);
+        var f = floorMap.get(floor);
+        f.getRoot().setVisible(true);
+        f.getButton().setSelected(true);
+        floorMap.values().stream().filter(fl -> !Objects.equals(fl.getFloor(), floor)).forEach(fm -> {
+            fm.getButton().setSelected(false);
+            fm.getRoot().setVisible(false);
         });
     }
 
     @Override
-    public HospitalFloor getLayer() {
+    public HospitalFloor.Floors getLayer() {
         return currentFloor;
     }
 
     @Override
     public void drawYouAreHere(Node node) {
-        var floor = floors.get(node.getFloor());
+        var floor = floorMap.get(HospitalFloor.floorMap.get(node.getFloor()));
         if (floor == null)
             return;
         var icon = new PFXIcon(MaterialSymbols.LOCATION_ON, 60);
         icon.setFill(Color.valueOf("#f40000"));
         icon.setTranslateX(node.getXcoord() - 30);
         icon.setTranslateY(node.getYcoord());
-        floor.nodeCanvas.getChildren().add(icon);
+        floor.getNodeCanvas().getChildren().add(icon);
     }
 
     @Override
     public void drawLine(List<Node> nodes) {
         if (nodes.size() < 2) return;
-        var floor = floors.get(nodes.get(0).getFloor());
+        var floor = floorMap.get(HospitalFloor.floorMap.get(nodes.get(0).getFloor()));
         if (floor == null || nodes.stream().map(Node::getFloor).collect(Collectors.toSet()).size() > 1)
             return;
         // create animated arrow which follows the path of the line
@@ -225,7 +233,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
             var animation = new FollowPath(arrow, points, -10, 10, 45, speed);
             animation.getTimeline().jumpTo(Duration.millis(i * timeSpacing));
             animation.play();
-            floor.lineCanvas.getChildren().add(0, arrow);
+            floor.getNodeCanvas().getChildren().add(0, arrow);
         }
     }
 
@@ -253,7 +261,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
 
     @Override
     public Optional<Circle> addNode(Node node, String color, ObservableStringValue labelText, ObservableStringValue hoverText) {
-        var floor = floors.get(node.getFloor());
+        var floor = floorMap.get(HospitalFloor.floorMap.get(node.getFloor()));
         if (floor == null || nodeCircles.containsKey(node.getNodeID())) return Optional.empty();
         var circle = new Circle(0, 0, 15);
         circle.setLayoutX(node.getXcoord());
@@ -280,9 +288,9 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         toolTip.setManaged(false);
         shortNameTooltip.setManaged(true);
 
-        floor.nodeCanvas.getChildren().add(circle);
-        floor.tooltipCanvas.getChildren().add(toolTip);
-        floor.tooltipCanvas.getChildren().add(shortNameTooltip);
+        floor.getNodeCanvas().getChildren().add(circle);
+        floor.getTooltipCanvas().getChildren().add(toolTip);
+        floor.getTooltipCanvas().getChildren().add(shortNameTooltip);
         nodeCircles.put(node.getNodeID(), new RenderedNode(circle, floor, toolTip, shortNameTooltip));
         // TODO: render un-rendered edges
 //        nodeEdges.get(node.getNodeID()).forEach(e->{
@@ -296,15 +304,15 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         Optional.ofNullable(nodeCircles.get(node.getNodeID())).ifPresent(n -> {
             n.circle.setLayoutX(node.getXcoord());
             n.circle.setLayoutY(node.getYcoord());
-            var newFloor = floors.get(node.getFloor());
+            var newFloor = floorMap.get(HospitalFloor.floorMap.get(node.getFloor()));
             if (n.floor != newFloor) {
-                n.floor.nodeCanvas.getChildren().remove(n.circle);
-                n.floor.tooltipCanvas.getChildren().remove(n.tooltip);
-                n.floor.tooltipCanvas.getChildren().remove(n.label);
+                n.floor.getNodeCanvas().getChildren().remove(n.circle);
+                n.floor.getTooltipCanvas().getChildren().remove(n.tooltip);
+                n.floor.getTooltipCanvas().getChildren().remove(n.label);
                 n.floor = newFloor;
-                n.floor.nodeCanvas.getChildren().add(n.circle);
-                n.floor.tooltipCanvas.getChildren().add(n.tooltip);
-                n.floor.tooltipCanvas.getChildren().add(n.label);
+                n.floor.getNodeCanvas().getChildren().add(n.circle);
+                n.floor.getTooltipCanvas().getChildren().add(n.tooltip);
+                n.floor.getTooltipCanvas().getChildren().add(n.label);
             }
         });
     }
@@ -312,9 +320,9 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
     @Override
     public void removeNode(Node node) {
         Optional.ofNullable(nodeCircles.remove(node.getNodeID())).ifPresent(n -> {
-            n.floor.nodeCanvas.getChildren().remove(n.circle);
-            n.floor.tooltipCanvas.getChildren().remove(n.tooltip);
-            n.floor.tooltipCanvas.getChildren().remove(n.label);
+            n.floor.getNodeCanvas().getChildren().remove(n.circle);
+            n.floor.getTooltipCanvas().getChildren().remove(n.tooltip);
+            n.floor.getTooltipCanvas().getChildren().remove(n.label);
             // TODO: For ui performance if edges must be removed, we can remove the preemptively here
         });
     }
@@ -332,7 +340,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         line.endYProperty().bind(endNode.circle.layoutYProperty());
         line.setFill(Color.valueOf("#000000"));
         line.setStrokeWidth(3);
-        startNode.floor.lineCanvas.getChildren().add(line);
+        startNode.floor.getLineCanvas().getChildren().add(line);
         edgeLines.put(edge.getUuid(), new RenderedEdge(line, startNode.floor));
         nodeEdges.put(edge.getStartNode(), edge.getUuid());
         nodeEdges.put(edge.getEndNode(), edge.getUuid());
@@ -344,12 +352,12 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         nodeEdges.get(edge.getStartNode()).removeIf(e -> e.equals(edge.getUuid()));
         nodeEdges.get(edge.getEndNode()).removeIf(e -> e.equals(edge.getUuid()));
         Optional.ofNullable(edgeLines.remove(edge.getUuid()))
-                .ifPresent(e -> e.floor.lineCanvas.getChildren().remove(e.line));
+                .ifPresent(e -> e.floor.getLineCanvas().getChildren().remove(e.line));
     }
 
     @Override
     public javafx.scene.Node drawArrow(Node node, boolean up) {
-        var floor = floors.get(node.getFloor());
+        var floor = floorMap.get(HospitalFloor.floorMap.get(node.getFloor()));
         if (floor == null) return null;
         var group = new Group();
         group.setLayoutX(node.getXcoord());
@@ -365,14 +373,14 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         arrow.setLayoutY(-7.5);
         group.getChildren().addAll(box, arrow);
         group.setCursor(Cursor.HAND);
-        floor.nodeCanvas.getChildren().add(group);
+        floor.getNodeCanvas().getChildren().add(group);
         new Bobbing(arrow).play();
         return group;
     }
 
     @Override
     public void focusOn(Node node) {
-        var floor = floors.get(node.getFloor());
+        var floor = HospitalFloor.floorMap.get(node.getFloor());
         if (floor == null) return;
         showLayer(floor);
         withAnimation().centreOn(new Point2D(node.getXcoord(), node.getYcoord()));
@@ -385,5 +393,10 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor> {
         var scale = Math.min(scaleX, scaleY);
         var pivot = new Point2D(rect.getX() + rect.getWidth() / 2, rect.getY() + rect.getHeight() / 2);
         withAnimation().zoomTo(scale, pivot);
+    }
+
+    @Override
+    public void setDefaultOverlaysVisible(boolean isVisible) {
+        overlay.setVisible(isVisible);
     }
 }

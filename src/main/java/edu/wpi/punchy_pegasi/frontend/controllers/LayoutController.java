@@ -28,13 +28,10 @@ public class LayoutController extends StackPane {
     private VBox notificationsContainer;
 
     @FXML
-    private VBox alertVBox;
-
-    @FXML
-    private HBox alertHBox;
-
-    @FXML
     private HeaderController topLayout;
+
+    @FXML
+    private BorderPane overlayContainer;
 
     @FXML
     private SidebarController leftLayout;
@@ -52,10 +49,8 @@ public class LayoutController extends StackPane {
 //        notificationsOverlay.setVisible(false);
 //        notificationsOverlay.setManaged(false);
         notificationsContainer.setPickOnBounds(false);
-        alertVBox.setVisible(false);
-        alertVBox.setManaged(false);
-        alertVBox.getStyleClass().add("alert-VBox");
-        alertHBox.getStyleClass().add("alert-HBox");
+        overlayContainer.setVisible(false);
+        overlayContainer.setManaged(false);
     }
 
     public void showLeftLayout(boolean hide) {
@@ -96,19 +91,23 @@ public class LayoutController extends StackPane {
         notificationsContainer.getChildren().add(notification);
     }
 
-    public boolean showOverlay(Node node) {
+    public boolean showOverlay(Node node, boolean dismissable) {
         if (!alert.compareAndSet(false, true)) return false;
-        alertHBox.getChildren().add(node);
-        alertVBox.setVisible(true);
-        alertVBox.setManaged(true);
+        overlayContainer.setCenter(node);
+        overlayContainer.setManaged(true);
+        overlayContainer.setVisible(true);
+        if (dismissable) {
+            overlayContainer.setOnMouseClicked(e -> hideOverlay());
+        }
         return true;
     }
 
     public boolean hideOverlay() {
         if (!alert.compareAndSet(true, false)) return false;
-        alertHBox.getChildren().clear();
-        alertVBox.setVisible(false);
-        alertVBox.setManaged(false);
+        overlayContainer.setCenter(null);
+        overlayContainer.setVisible(false);
+        overlayContainer.setManaged(false);
+        overlayContainer.setOnMouseClicked(null);
         return true;
     }
 

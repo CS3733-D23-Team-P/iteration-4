@@ -3,6 +3,9 @@ package edu.wpi.punchy_pegasi.frontend.map;
 import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.frontend.DragController;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
+import edu.wpi.punchy_pegasi.frontend.components.PFXListView;
+import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
+import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
 import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
 import edu.wpi.punchy_pegasi.generated.Facade;
 import edu.wpi.punchy_pegasi.schema.Edge;
@@ -16,6 +19,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.*;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
@@ -24,6 +28,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -44,13 +49,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class AdminMapController {
-    private final Map<String, HospitalFloor> floors = new LinkedHashMap<>() {{
-        put("L2", new HospitalFloor("frontend/assets/map/00_thelowerlevel2.png", "Lower Level 2", "L2"));
-        put("L1", new HospitalFloor("frontend/assets/map/00_thelowerlevel1.png", "Lower Level 1", "L1"));
-        put("1", new HospitalFloor("frontend/assets/map/01_thefirstfloor.png", "First Layer", "1"));
-        put("2", new HospitalFloor("frontend/assets/map/02_thesecondfloor.png", "Second Layer", "2"));
-        put("3", new HospitalFloor("frontend/assets/map/03_thethirdfloor.png", "Third Layer", "3"));
-    }};
     private final Facade facade = App.getSingleton().getFacade();
     private final AtomicBoolean commiting = new AtomicBoolean();
     private final Predicate<MouseEvent> isLeftClick = e -> e.getButton() == MouseButton.PRIMARY && !e.isControlDown() && !e.isShiftDown();
@@ -64,7 +62,7 @@ public class AdminMapController {
     private MFXDatePicker adminDatePicker;
     @FXML
     private VBox changes;
-    private IMap<HospitalFloor> map;
+    private IMap<HospitalFloor.Floors> map;
     @FXML
     private BorderPane root;
     @FXML
@@ -82,13 +80,13 @@ public class AdminMapController {
     private ObservableMap<Long, LocationName> locations;
     private ObservableMap<Long, Move> moves;
     private Node firstNode, secondNode;
-    private ObservableMap<Node, ObservableList<LocationName>> nodeToLocation;
+    private ObservableMap<Node, ObservableList<Move>> nodeToLocation;
 
     private Optional<Circle> drawNode(Node node, String color) {
         var location = nodeToLocation.get(node);
         if (location == null) location = FXCollections.observableArrayList();
-        ObservableList<LocationName> finalLocation = location;
-        var stringBinding = Bindings.createStringBinding(() -> String.join("\n", finalLocation.stream().map(LocationName::getLongName).toArray(String[]::new)) + "\nNode ID: " + node.getNodeID().toString(), location);
+        ObservableList<Move> finalLocation = location;
+        var stringBinding = Bindings.createStringBinding(() -> String.join("\n", finalLocation.stream().map(e -> locations.get(e.getLocationID())).filter(Objects::nonNull).map(LocationName::getLongName).toArray(String[]::new)) + "\nNode ID: " + node.getNodeID().toString(), location);
         return map.addNode(node, color, Bindings.createStringBinding(() -> ""), stringBinding);
     }
 
@@ -121,7 +119,7 @@ public class AdminMapController {
                 });
         });
 
-        map = new HospitalMap(floors);
+        map = new HospitalMap();
         root.setCenter(map.get());
         map.addLayer(editing);
         mapEdits.addListener((ListChangeListener<MapEdit>) c -> {
@@ -156,11 +154,11 @@ public class AdminMapController {
         } else
             buildingDropdown.getSelectionModel().selectItem(node.getBuilding());
         buildingDropdown.setOnAction(e -> {
+            var old = node.toBuilder().build();
             node.setBuilding(buildingDropdown.getValue());
             nodePoints.get(node.getNodeID()).setFill(Color.YELLOW);
             popOver.setOnCloseRequest(null);
-//            mapEdits.stream().filter(edit -> edit.type == MapEdit.ActionType.EDIT_NODE && Objects.equals(((Node) edit.object).getNodeID(), node.getNodeID())).findFirst().ifPresent(mapEdits::remove);
-            mapEdits.add(new MapEdit(MapEdit.ActionType.EDIT_NODE, node));
+            mapEdits.add(new MapEdit(MapEdit.ActionType.EDIT_NODE, node.toBuilder().build(), old));
         });
 
         // make move
@@ -168,10 +166,6 @@ public class AdminMapController {
         locationDropdown.getStyleClass().add("location-dropdown");
         locationDropdown.setFloatingText("Pick Location");
         locationDropdown.getItems().addAll(locations.values().stream().sorted(Comparator.comparing(LocationName::getLongName)).toList());
-        nodeToLocation(node).flatMap(l -> locationDropdown.getItems().stream().filter(l2 -> Objects.equals(l2.getUuid(), l.getUuid())).findFirst()).ifPresent(l -> {
-            locationDropdown.getSelectionModel().selectItem(l);
-            locationDropdown.setValue(l);
-        });
         locationDropdown.setConverter(new StringConverter<>() {
             @Override
             public String toString(LocationName location) {
@@ -186,29 +180,44 @@ public class AdminMapController {
         var date = new MFXDatePicker();
         date.setText("Pick Effective Date");
         date.setEditable(false);
-        var makeMove = new PFXButton("Make Move");
+        date.getStyleClass().add("node-popover-date");
+        var makeMove = new PFXButton("Submit");
         makeMove.getStyleClass().add("node-popover-make-move");
         makeMove.setOnAction(a -> {
-            if (locationDropdown.getSelectedItem() == null || date.getCurrentDate() == null) return;
+            if (locationDropdown.getValue() == null || date.getValue() == null) return;
             var newID = moves.values().stream().mapToLong(Move::getUuid).max().orElse(0) + 1;
-            var move = new Move(newID, node.getNodeID(), locationDropdown.getSelectedItem().getUuid(), date.getCurrentDate());
-//            moves.put(newID, move);
-            mapEdits.add(new MapEdit(MapEdit.ActionType.ADD_MOVE, move));
+            var move = moves.values().stream().filter(m-> Objects.equals(m.getNodeID(), node.getNodeID()) && Objects.equals(m.getLocationID(), locationDropdown.getValue().getUuid())).findFirst();
+            if(move.isPresent()){
+                mapEdits.add(new MapEdit(MapEdit.ActionType.EDIT_MOVE, move.get().withDate(date.getValue()), move.get().toBuilder().build()));
+                return;
+            }
+            var newMove = new Move(newID, node.getNodeID(), locationDropdown.getValue().getUuid(), date.getValue());
+            mapEdits.add(new MapEdit(MapEdit.ActionType.ADD_MOVE, newMove.toBuilder().build()));
         });
-
+        Function<Move, javafx.scene.Node> renderMove = m -> {
+            var hbox = new HBox();
+            var label = new Label(locations.get(m.getLocationID()).getLongName());
+            var grow = new HBox();
+            HBox.setHgrow(grow, Priority.ALWAYS);
+            var deleteBtn = new PFXButton("", new PFXIcon(MaterialSymbols.DELETE_FOREVER));
+            hbox.setOnMouseClicked(e->{
+                locationDropdown.setValue(locations.get(m.getLocationID()));
+                date.setValue(m.getDate());
+            });
+            hbox.getStyleClass().add("move-hbox");
+            deleteBtn.getStyleClass().add("move-delete-btn");
+            deleteBtn.setOnAction(event -> facade.deleteMove(m));
+            hbox.getChildren().addAll(label, grow, deleteBtn);
+            hbox.setAlignment(Pos.CENTER);
+            return hbox;
+        };
+        Function<Move, String> locationKey = m -> m.getUuid().toString();
         var location = nodeToLocation.get(node);
         if (location == null) location = FXCollections.observableArrayList();
-        // current move
-        ObservableList<LocationName> finalLocation = location;
-        var list = new VBox();
-        var stringBinding = Bindings.createStringBinding(() -> String.join("\n", finalLocation.stream().map(LocationName::getLongName).toList()), location);
-        var currentMove = new Label();
-        currentMove.textProperty().bind(stringBinding);
+        var currentMovesList = new PFXListView<>(location, renderMove, locationKey);
 
         var movesList = FacadeUtils.getFutureMoves(node, locations, moves, adminDatePicker.valueProperty());
-        var futureStringBinding = Bindings.createStringBinding(() -> String.join("\n", movesList.stream().map(LocationName::getLongName).toList()), movesList);
-        var futureMoves = new Label();
-        futureMoves.textProperty().bind(futureStringBinding);
+        var futureMovesList = new PFXListView<>(movesList, renderMove, locationKey);
 
         var delete = new PFXButton("Delete Node");
         delete.getStyleClass().add("node-popover-delete");
@@ -218,24 +227,24 @@ public class AdminMapController {
             nodePoint.setVisible(false);
             nodePoint.setManaged(false);
             edgeLines.get(node.getNodeID()).forEach(edge -> {
-                mapEdits.add(new MapEdit(MapEdit.ActionType.REMOVE_EDGE, edges.get(edge)));
+                mapEdits.add(new MapEdit(MapEdit.ActionType.REMOVE_EDGE, edges.get(edge).toBuilder().build()));
             });
 //            nodes = nodes.entrySet().stream().filter(e -> !e.getKey().equals(node.getNodeID())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            mapEdits.add(new MapEdit(MapEdit.ActionType.REMOVE_NODE, node));
+            mapEdits.add(new MapEdit(MapEdit.ActionType.REMOVE_NODE, node.toBuilder().build()));
         });
         editNode.getChildren().addAll(
                 buildingDropdown,
                 new Separator(),
-                new Label("Change Location"),
+                new Label("Make Move"),
                 locationDropdown,
                 date,
                 makeMove,
                 new Separator(),
                 new Label("Current Move"),
-                new HBox(currentMove),
+                currentMovesList,
                 new Separator(),
                 new Label("Future Moves"),
-                new HBox(futureMoves),
+                futureMovesList,
                 new Separator(),
                 delete);
         // sort locations by long name
@@ -268,7 +277,7 @@ public class AdminMapController {
                 secondNode = n.get();
             var newEdge = new Edge(UUID.randomUUID(), firstNode.getNodeID(), secondNode.getNodeID());
             addEditableEdge(newEdge);
-            mapEdits.add(new MapEdit(MapEdit.ActionType.ADD_EDGE, newEdge));
+            mapEdits.add(new MapEdit(MapEdit.ActionType.ADD_EDGE, newEdge.toBuilder().build()));
             var startPoint = nodePoints.get(firstNode.getNodeID());
             if (startPoint != null) startPoint.setStroke(Color.valueOf("#000000"));
             var endPoint = nodePoints.get(secondNode.getNodeID());
@@ -281,10 +290,10 @@ public class AdminMapController {
         dragController.setOnMove(node -> {
             if (n.get().getXcoord() == (int) node.getLayoutX() && n.get().getYcoord() == (int) node.getLayoutY())
                 return;
+            var old = n.get().toBuilder().build();
             n.get().setXcoord((int) node.getLayoutX());
             n.get().setYcoord((int) node.getLayoutY());
-//            mapEdits.stream().filter(edit -> edit.type == MapEdit.ActionType.EDIT_NODE && Objects.equals(((Node) edit.object).getNodeID(), n.get().getNodeID())).findFirst().ifPresent(mapEdits::remove);
-            mapEdits.add(new MapEdit(MapEdit.ActionType.EDIT_NODE, n.get()));
+            mapEdits.add(new MapEdit(MapEdit.ActionType.EDIT_NODE, n.get().toBuilder().build(), old));
         });
         dragController.setOnEnd(node -> map.enableMove(true));
         dragController.setOnStart(node -> map.enableMove(false));
@@ -300,7 +309,7 @@ public class AdminMapController {
             if (!isRightClick.test(e)) return;
             if (edgeLine.get().getStroke() == Color.RED) return;
             edgeLine.get().setStroke(Color.RED);
-            mapEdits.add(new MapEdit(MapEdit.ActionType.REMOVE_EDGE, edge));
+            mapEdits.add(new MapEdit(MapEdit.ActionType.REMOVE_EDGE, edge.toBuilder().build()));
             edgeLines.get(edge.getStartNode()).removeIf(edg -> edg.equals(edge.getUuid()));
             edgeLines.get(edge.getEndNode()).removeIf(edg -> edg.equals(edge.getUuid()));
         });
@@ -315,9 +324,9 @@ public class AdminMapController {
             // check for double click of the primary button
             if (!isLeftClick.test(e) || e.getClickCount() != 2 || e.getTarget().getClass() != ImageView.class) return;
             var location = map.getClickLocation(e);
-            var node = new Node(nodes.values().stream().mapToLong(Node::getNodeID).max().orElse(0) + 5, (int) location.getX(), (int) location.getY(), map.getLayer().identifier, null);
+            var node = new Node(nodes.values().stream().mapToLong(Node::getNodeID).max().orElse(0) + 5, (int) location.getX(), (int) location.getY(), map.getLayer().getIdentifier(), null);
             nodes.put(node.getNodeID(), node);
-            mapEdits.add(new MapEdit(MapEdit.ActionType.ADD_NODE, node));
+            mapEdits.add(new MapEdit(MapEdit.ActionType.ADD_NODE, node.toBuilder().build()));
 //            var nodePoint = addEditableNode(node);
 //            if (nodePoint.isEmpty()) {
 //                new PFXAlert("Error, could not add node.");
@@ -456,6 +465,16 @@ public class AdminMapController {
             }, o -> {
                 var move = (Move) o;
                 return "Node " + move.getNodeID().toString() + " to " + move.getLocationID() + " on " + move.getDate().toString();
+            }),
+            EDIT_MOVE(o -> {
+                var move = (Move) o;
+                App.getSingleton().getFacade().updateMove(move, new Move.Field[]{Move.Field.DATE});
+            }, o -> {
+                var move = (Move) o;
+                App.getSingleton().getFacade().updateMove(move, new Move.Field[]{Move.Field.DATE});
+            }, o -> {
+                var move = (Move) o;
+                return "Changed move date to " + move.getDate();
             }),
             REMOVE_MOVE(o -> {
                 var move = (Move) o;

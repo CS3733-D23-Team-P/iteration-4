@@ -3,6 +3,7 @@ package edu.wpi.punchy_pegasi.frontend.controllers.requests;
 import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.frontend.Screen;
 import edu.wpi.punchy_pegasi.frontend.components.PFXAlert;
+import edu.wpi.punchy_pegasi.schema.Alert;
 import edu.wpi.punchy_pegasi.schema.ConferenceRoomEntry;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
@@ -15,6 +16,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.time.Instant;
+import java.util.UUID;
 
 public class ConferenceRoomController extends RequestController<ConferenceRoomEntry> {
 
@@ -129,7 +133,7 @@ public class ConferenceRoomController extends RequestController<ConferenceRoomEn
                         numberOfParticipants.getText(),
                         App.getSingleton().getAccount().getEmployeeID());
         App.getSingleton().getFacade().saveConferenceRoomEntry(requestEntry);
-
+        App.getSingleton().getFacade().saveAlert(new Alert(UUID.randomUUID(), staffAssignment.getSelectedItem().getEmployeeID(), "Service Request", "Conference Room Request", Instant.now(), Alert.ReadStatus.UNREAD));
         PFXAlert pfxPopup = new PFXAlert("Your request has been submitted!", ()->App.getSingleton().navigate(Screen.HOME));
     }
 }

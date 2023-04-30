@@ -15,3 +15,13 @@
     -fx-font-size: 24;
     -fx-padding: 0 0 10 0;
 }
+
+.pfx-alert-container {
+    -fx-alignment: CENTER;
+    -fx-background-color: -pfx-secondary-transparent;
+}
+
+.pfx-alert-container > HBox {
+    -fx-alignment: CENTER;
+}
+

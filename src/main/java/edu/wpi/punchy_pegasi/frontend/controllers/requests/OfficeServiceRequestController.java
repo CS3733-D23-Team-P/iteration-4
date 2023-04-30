@@ -6,6 +6,7 @@ import edu.wpi.punchy_pegasi.frontend.Screen;
 import edu.wpi.punchy_pegasi.frontend.components.PFXAlert;
 import edu.wpi.punchy_pegasi.frontend.components.PFXCardHolder;
 import edu.wpi.punchy_pegasi.frontend.components.PFXCardVertical;
+import edu.wpi.punchy_pegasi.schema.Alert;
 import edu.wpi.punchy_pegasi.schema.OfficeServiceRequestEntry;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -20,8 +21,10 @@ import javafx.scene.layout.VBox;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class OfficeServiceRequestController extends RequestController<OfficeServiceRequestEntry> implements PropertyChangeListener {
     @FXML
@@ -83,6 +86,7 @@ public class OfficeServiceRequestController extends RequestController<OfficeServ
         //makes sure shared fields aren't empty
         requestEntry = new OfficeServiceRequestEntry(locationName.getSelectedItem().getUuid(), staffAssignment.getSelectedItem().getEmployeeID(), additionalNotes.getText(), cardHolder.getChosenItems(), 1L);
         App.getSingleton().getFacade().saveOfficeServiceRequestEntry(requestEntry);
+        App.getSingleton().getFacade().saveAlert(new Alert(UUID.randomUUID(), staffAssignment.getSelectedItem().getEmployeeID(), "Service Request", "Office Service Request", Instant.now(), Alert.ReadStatus.UNREAD));
         PFXAlert pfxPopup = new PFXAlert("Your request has been submitted!", ()->App.getSingleton().navigate(Screen.HOME));
     }
 

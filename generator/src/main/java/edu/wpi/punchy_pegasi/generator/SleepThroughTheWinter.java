@@ -395,8 +395,9 @@ public class SleepThroughTheWinter {
         schemaFileText = schemaLines.stream().reduce("", (a, b) -> a + "\n" + b)
                 .replaceAll("\\.generator\\.", ".");
 
+        var with = entryClass.getSuperclass().equals(Object.class) ? "    @lombok.With\n" : "";
         for (var field : classFields) {
-            schemaFileText = schemaFileText.replaceAll("(.*(private|protected|public).*" + field.getName() + ";)", "    @com.jsoniter.annotation.JsonProperty(\"" + field.getName().toLowerCase() + "\")\n$1");
+            schemaFileText = schemaFileText.replaceAll("(.*(private|protected|public).*" + field.getName() + ";)", with + "    @com.jsoniter.annotation.JsonProperty(\"" + field.getName().toLowerCase() + "\")\n$1");
         }
 
         schemaFileText = schemaFileText.trim();

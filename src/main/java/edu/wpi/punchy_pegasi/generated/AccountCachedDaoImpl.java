@@ -205,7 +205,6 @@ public class AccountCachedDaoImpl implements IDao<java.lang.Long, Account, Accou
         @Getter
         private final List<javafx.scene.Node> form;
         private final List<TextField> inputs;
-
         public AccountForm() {
             form = new ArrayList<>();
             inputs = new ArrayList<>();

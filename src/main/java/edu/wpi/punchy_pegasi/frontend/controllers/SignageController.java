@@ -2,8 +2,12 @@ package edu.wpi.punchy_pegasi.frontend.controllers;
 
 import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
+import edu.wpi.punchy_pegasi.frontend.components.PFXListView;
 import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
 import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
+import edu.wpi.punchy_pegasi.frontend.map.HospitalFloor;
+import edu.wpi.punchy_pegasi.frontend.map.HospitalMap;
+import edu.wpi.punchy_pegasi.frontend.map.IMap;
 import edu.wpi.punchy_pegasi.generated.Facade;
 import edu.wpi.punchy_pegasi.schema.Account;
 import edu.wpi.punchy_pegasi.schema.LocationName;
@@ -25,6 +29,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.util.StringConverter;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +39,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class SignageController {
-
     private static final Facade facade = App.getSingleton().getFacade();
     private static final ObservableList<String> signageNames = FXCollections.observableArrayList();
     private static boolean editing = false;
@@ -83,10 +88,11 @@ public class SignageController {
         initHeader();
         buildSignage();
         signageBody.getStyleClass().add("signage-body");
+        initSignSelector();
         if (editing) {
             buildEditSignage();
         } else {
-            initSignSelector();
+            buildSignageMap();
         }
 
         Platform.runLater(() -> {
@@ -98,6 +104,15 @@ public class SignageController {
             else if (event.getCode().equals(KeyCode.ESCAPE))
                 setFullScreen(false);
         });
+    }
+
+    private void buildSignageMap() {
+        IMap<HospitalFloor.Floors> hospitalMap = new HospitalMap();
+        hospitalMap.setDefaultOverlaysVisible(false);
+        hospitalMap.enableMove(false);
+        hospitalMap.showRectangle(new Rectangle(1000, 1000, 1000, 1000));
+        signageBodyStackPane.getChildren().add(hospitalMap.get());
+        signageBodyStackPane.setMaxWidth(1000);
     }
 
     private static void initSignSelector() {
@@ -132,42 +147,42 @@ public class SignageController {
         }
     }
 
-    @NotNull
-    private static VBox getSignageTableView(ObservableList<Signage> rightList) {
-        var vBox = new VBox();
-//        Bindings.bindContent(vBox.getChildren(), new MappedList<>(rightList, signage ->{
+//    @NotNull
+//    private static VBox getSignageTableView(ObservableList<Signage> rightList) {
+//        var vBox = new VBox();
+////        Bindings.bindContent(vBox.getChildren(), new MappedList<>(rightList, signage ->{
+////            var hbox = new HBox(new Label(signage.getLongName()));
+////            hbox.setId(signage.getUuid().toString());
+////            addDelButton(hbox, signage);
+////            return hbox;
+////        }));
+//        rightList.addListener((ListChangeListener<? super Signage>) c -> {
+//            while (c.next()) {
+//                if (c.wasAdded())
+//                    for (Signage signage : c.getAddedSubList()) {
+//                        var hbox = new HBox(new Label(signage.getLongName()));
+//                        hbox.setId(signage.getUuid().toString());
+//                        addDelButton(hbox, signage);
+//                        Platform.runLater(() ->
+//                                vBox.getChildren().add(hbox)
+//                        );
+//                    }
+//                if (c.wasRemoved())
+//                    for (Signage signage : c.getRemoved())
+//                        Platform.runLater(() ->
+//                                vBox.getChildren().removeIf(node -> node.getId().equals(signage.getUuid().toString()))
+//                        );
+//            }
+//        });
+////        init the vBox
+//        for (Signage signage : rightList) {
 //            var hbox = new HBox(new Label(signage.getLongName()));
-//            hbox.setId(signage.getUuid().toString());
 //            addDelButton(hbox, signage);
-//            return hbox;
-//        }));
-        rightList.addListener((ListChangeListener<? super Signage>) c -> {
-            while (c.next()) {
-                if (c.wasAdded())
-                    for (Signage signage : c.getAddedSubList()) {
-                        var hbox = new HBox(new Label(signage.getLongName()));
-                        hbox.setId(signage.getUuid().toString());
-                        addDelButton(hbox, signage);
-                        Platform.runLater(() ->
-                                vBox.getChildren().add(hbox)
-                        );
-                    }
-                if (c.wasRemoved())
-                    for (Signage signage : c.getRemoved())
-                        Platform.runLater(() ->
-                                vBox.getChildren().removeIf(node -> node.getId().equals(signage.getUuid().toString()))
-                        );
-            }
-        });
-//        init the vBox
-        for (Signage signage : rightList) {
-            var hbox = new HBox(new Label(signage.getLongName()));
-            addDelButton(hbox, signage);
-            hbox.setId(signage.getUuid().toString());
-            vBox.getChildren().add(hbox);
-        }
-        return vBox;
-    }
+//            hbox.setId(signage.getUuid().toString());
+//            vBox.getChildren().add(hbox);
+//        }
+//        return vBox;
+//    }
 
     private void setFullScreen(boolean setFullScreen) {
         if (setFullScreen) {
@@ -252,8 +267,6 @@ public class SignageController {
     }
 
     private void buildEditSignage() {
-        initSignSelector();
-
         signageNameCB.setFloatingText("Signage Name");
         signageNameCB.setFloatMode(FloatMode.INLINE);
         signageNameCB.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -307,8 +320,6 @@ public class SignageController {
         editingVbox.getStyleClass().add("signage-right-edit-vbox");
         VBox blankVBoxHi = new VBox();
         VBox blankVBoxLo = new VBox();
-//        blankVBoxHi.setMinHeight(40);
-//        blankVBoxLo.setMinHeight(40);
         VBox.setVgrow(blankVBoxHi, Priority.ALWAYS);
         VBox.setVgrow(blankVBoxLo, Priority.ALWAYS);
 
@@ -337,7 +348,12 @@ public class SignageController {
                     signageList.setPredicate(signage -> signage.getDirectionType() == direction && signage.getSignName().equals(s));
             filterUpdaters.add(updated);
             updated.accept(prefSignageName);
-            var table = getSignageTableView(signageList);
+            var table = new PFXListView<>(signageList, s -> {
+                var hbox = new HBox(new Label(s.getLongName()));
+                hbox.setId(s.getUuid().toString());
+                addDelButton(hbox, s);
+                return hbox;
+            }, s -> s.getUuid().toString()); //getSignageTableView(signageList);
             table.getStyleClass().add("signage-label");
             HBox signageHB = new HBox();
             signageHB.visibleProperty().bind(Bindings.greaterThan(Bindings.size(signageList), 0));
@@ -362,6 +378,9 @@ public class SignageController {
                 }
                 case HERE -> {
                     table.getStyleClass().add("signage-label-Here");
+                    var label = new Label();
+                    label.fontProperty().bind(Bindings.createObjectBinding(() ->
+                            Font.font(App.getSingleton().getPrimaryStage().getWidth()/20), App.getSingleton().getPrimaryStage().widthProperty()));
                     signageHeaderLeft.getChildren().add(iconHere);
                     signageHeaderLeft.getChildren().add(table);
                     signageHeaderLeft.visibleProperty().bind(Bindings.greaterThan(Bindings.size(signageList), 0));

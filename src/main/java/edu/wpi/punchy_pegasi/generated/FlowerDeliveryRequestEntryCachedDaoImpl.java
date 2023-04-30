@@ -210,7 +210,6 @@ public class FlowerDeliveryRequestEntryCachedDaoImpl implements IDao<java.util.U
         @Getter
         private final List<javafx.scene.Node> form;
         private final List<TextField> inputs;
-
         public FlowerDeliveryRequestEntryForm() {
             form = new ArrayList<>();
             inputs = new ArrayList<>();

@@ -3,6 +3,7 @@ package edu.wpi.punchy_pegasi.frontend.controllers.requests;
 import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.frontend.Screen;
 import edu.wpi.punchy_pegasi.frontend.components.*;
+import edu.wpi.punchy_pegasi.schema.Alert;
 import edu.wpi.punchy_pegasi.schema.Account;
 import edu.wpi.punchy_pegasi.schema.FlowerDeliveryRequestEntry;
 import javafx.fxml.FXML;
@@ -14,6 +15,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.time.Instant;
+import java.util.UUID;
 
 public class FlowerDeliveryRequestController extends RequestController<FlowerDeliveryRequestEntry> {
     TextField patientName = new TextField();
@@ -55,6 +59,7 @@ public class FlowerDeliveryRequestController extends RequestController<FlowerDel
         // TODO: need a way to get the employeeID of the person making the request entry
         requestEntry = new FlowerDeliveryRequestEntry(patientName.getText(), locationName.getSelectedItem().getUuid(), staffAssignment.getSelectedItem().getEmployeeID(), additionalNotes.getText(), "", "", "", 1L);
         App.getSingleton().getFacade().saveFlowerDeliveryRequestEntry(requestEntry);
+        App.getSingleton().getFacade().saveAlert(new Alert(UUID.randomUUID(), staffAssignment.getSelectedItem().getEmployeeID(), "Service Request", "Flower Service Request", Instant.now(), Alert.ReadStatus.UNREAD));
         PFXAlert pfxPopup = new PFXAlert("Your request has been submitted!", ()->App.getSingleton().navigate(Screen.HOME));
     }
 

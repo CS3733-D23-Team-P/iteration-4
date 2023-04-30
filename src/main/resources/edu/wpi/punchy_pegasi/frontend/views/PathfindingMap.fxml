@@ -32,10 +32,8 @@
     <right>
         <VBox fx:id="robotInfo" styleClass="pathfinding-overlay">
             <VBox styleClass="pathfinding-overlay-box">
-                <Text text="Battery Percentage: 100%" textAlignment="CENTER"/>
-                <Text text="Current Node: (0000, 0000)" textAlignment="CENTER"/>
-                <Label fx:id="invalidText" text="No port established!" textFill="red" visible="false">
-                </Label>
+                <Label fx:id="batteryPercent" text="Battery Percentage: N/A" textAlignment="CENTER"/>
+                <Label fx:id="invalidText" text="No port established!" textFill="red"/>
                 <PFXButton text="Start Robot" onMouseClicked="#sendRobotMessage" fx:id="robotButton"/>
             </VBox>
             <VBox styleClass="pathfinding-overlay-box">

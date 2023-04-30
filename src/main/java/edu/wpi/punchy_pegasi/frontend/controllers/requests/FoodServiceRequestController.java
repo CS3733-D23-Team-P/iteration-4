@@ -5,6 +5,7 @@ import edu.wpi.punchy_pegasi.frontend.Screen;
 import edu.wpi.punchy_pegasi.frontend.components.PFXAlert;
 import edu.wpi.punchy_pegasi.frontend.components.PFXCardHolder;
 import edu.wpi.punchy_pegasi.frontend.components.PFXCardVertical;
+import edu.wpi.punchy_pegasi.schema.Alert;
 import edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -17,9 +18,11 @@ import javafx.scene.layout.VBox;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class FoodServiceRequestController extends RequestController<FoodServiceRequestEntry> implements PropertyChangeListener {
     FoodServiceRequestEntry entry;
@@ -76,6 +79,7 @@ public class FoodServiceRequestController extends RequestController<FoodServiceR
                 "",
                 patientName.getText(), 1L);
         App.getSingleton().getFacade().saveFoodServiceRequestEntry(requestEntry);
+        App.getSingleton().getFacade().saveAlert(new edu.wpi.punchy_pegasi.schema.Alert(UUID.randomUUID(), staffAssignment.getSelectedItem().getEmployeeID(), "Service Request", "Food Service Request", Instant.now(), Alert.ReadStatus.UNREAD));
         PFXAlert pfxPopup = new PFXAlert("Your request has been submitted!", ()->App.getSingleton().navigate(Screen.HOME));
     }
 

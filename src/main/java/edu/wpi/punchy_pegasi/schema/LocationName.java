@@ -7,14 +7,19 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@lombok.Builder(toBuilder=true)
 public class LocationName {
     @SchemaID
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("uuid")
     private Long uuid;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("longname")
     private String longName;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("shortname")
     private String shortName;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("nodetype")
     private NodeType nodeType;
     public enum NodeType {

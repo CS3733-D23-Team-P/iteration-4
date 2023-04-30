@@ -1,5 +1,6 @@
 package edu.wpi.punchy_pegasi.frontend.utils;
 
+import edu.wpi.punchy_pegasi.schema.Edge;
 import edu.wpi.punchy_pegasi.schema.LocationName;
 import edu.wpi.punchy_pegasi.schema.Move;
 import edu.wpi.punchy_pegasi.schema.Node;
@@ -47,18 +48,18 @@ public class FacadeUtils {
                 .collect(Collectors.toMap(e -> locations.get(e.getLocationID()), e -> nodes.get(e.getNodeID())));
     }
 
-    public static ObservableMap<Node, ObservableList<LocationName>> getNodeLocations(ObservableMap<Long, Node> nodes, ObservableMap<Long, LocationName> locations, ObservableMap<Long, Move> moves, ObservableObjectValue<LocalDate> date) {
-        ObservableMap<Node, ObservableList<LocationName>> nodeLocations = FXCollections.observableMap(new LinkedHashMap<>());
+    public static ObservableMap<Node, ObservableList<Move>> getNodeLocations(ObservableMap<Long, Node> nodes, ObservableMap<Long, LocationName> locations, ObservableMap<Long, Move> moves, ObservableObjectValue<LocalDate> date) {
+        ObservableMap<Node, ObservableList<Move>> nodeLocations = FXCollections.observableMap(new LinkedHashMap<>());
         Runnable update = () -> {
             nodeLocations.forEach((n, l) -> Platform.runLater(()->{
                 if (nodeLocations.containsKey(n))
                     nodeLocations.get(n).clear();
             }));
             calculateMoves(nodes, locations, moves, date.get()).forEach((n, ms) -> {
-                ms.forEach(m -> {
+                ms.forEach(e -> {
                     if (!nodeLocations.containsKey(n))
                         Platform.runLater(()->nodeLocations.put(n, FXCollections.observableArrayList()));
-                    Platform.runLater(()->nodeLocations.get(n).add(locations.get(m.getLocationID())));
+                    Platform.runLater(()->nodeLocations.get(n).add(e));
                 });
             });
         };
@@ -68,7 +69,7 @@ public class FacadeUtils {
         nodes.addListener((MapChangeListener<Long, Node>) change -> {
             if (change.wasRemoved())
                 Platform.runLater(()->nodeLocations.remove(change.getValueRemoved()));
-            if (change.wasAdded())
+            if (change.wasAdded() && !nodeLocations.containsKey(change.getValueAdded()))
                 Platform.runLater(()->nodeLocations.put(change.getValueAdded(), FXCollections.observableArrayList()));
             update.run();
         });
@@ -103,15 +104,14 @@ public class FacadeUtils {
         return locationNode;
     }
 
-    private static Stream<LocationName> futureMoves(Node node,  Map<Long, LocationName> locations, Map<Long, Move> moves, LocalDate date) {
+    private static Stream<Move> futureMoves(Node node,  Map<Long, LocationName> locations, Map<Long, Move> moves, LocalDate date) {
         return moves.values().stream()
-                .filter(m -> Objects.equals(m.getNodeID(), node.getNodeID()) && m.getDate().isAfter(date))
-                .map(m->locations.get(m.getLocationID()))
-                .filter(Objects::nonNull);
+                .filter(m -> locations.containsKey(m.getLocationID()))
+                .filter(m -> Objects.equals(m.getNodeID(), node.getNodeID()) && m.getDate().isAfter(date));
     }
 
-    public static ObservableList<LocationName> getFutureMoves(Node node,  ObservableMap<Long, LocationName> locations, ObservableMap<Long, Move> moves, ObservableObjectValue<LocalDate> date) {
-        ObservableList<LocationName> list = FXCollections.observableArrayList();
+    public static ObservableList<Move> getFutureMoves(Node node,  ObservableMap<Long, LocationName> locations, ObservableMap<Long, Move> moves, ObservableObjectValue<LocalDate> date) {
+        ObservableList<Move> list = FXCollections.observableArrayList();
         list.addAll(futureMoves(node, locations, moves, date.get()).toList());
         locations.addListener((MapChangeListener<Long, LocationName>) change -> Platform.runLater(()->{
             list.clear();

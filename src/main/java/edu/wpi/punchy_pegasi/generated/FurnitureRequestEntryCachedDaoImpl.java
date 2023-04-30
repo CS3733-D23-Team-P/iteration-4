@@ -207,7 +207,6 @@ public class FurnitureRequestEntryCachedDaoImpl implements IDao<java.util.UUID, 
         @Getter
         private final List<javafx.scene.Node> form;
         private final List<TextField> inputs;
-
         public FurnitureRequestEntryForm() {
             form = new ArrayList<>();
             inputs = new ArrayList<>();

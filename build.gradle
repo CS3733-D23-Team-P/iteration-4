@@ -31,10 +31,15 @@ javafx {
 
 dependencies {
     api 'io.github.typhon0:AnimateFX:1.2.4-SNAPSHOT'
+
     implementation(
             'io.github.palexdev:materialfx:11.15.0',
             'net.kurobako:gesturefx:0.7.1',
             'org.controlsfx:controlsfx:11.1.2',
+
+            'org.apache.lucene:lucene-core:9.5.0',
+            'org.apache.lucene:lucene-analysis-common:9.5.0',
+            'org.apache.lucene:lucene-queryparser:9.5.0',
 
             'org.javatuples:javatuples:1.2',
             'org.jetbrains:annotations:24.0.0',

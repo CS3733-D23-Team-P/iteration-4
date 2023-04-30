@@ -1,7 +1,10 @@
 @import "Fonts.css";
 
-.admin-table-container{
-
+.admin-container-parent{
+    -fx-padding: 10;
+}
+#tableContainer {
+    -fx-padding: 10;
 }
 
 .admin-table-container > Label {

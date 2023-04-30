@@ -4,10 +4,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
-
-<?import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon?>
 
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Label?>
@@ -15,39 +11,10 @@
 <?import edu.wpi.punchy_pegasi.frontend.components.PFXButton?>
 <BorderPane styleClass="signage-all" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="edu.wpi.punchy_pegasi.frontend.controllers.SignageController">
-    <!--    <BorderPane.margin>-->
-    <!--        <Insets top="20.0"/>-->
-    <!--    </BorderPane.margin>-->
     <top>
         <StackPane>
-<!--            <VBox fx:id="headerEdit">-->
-<!--                <HBox fx:id="signageHeaderEdit">-->
-<!--&lt;!&ndash;                    <children>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <HBox styleClass="signage-header-left">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <PFXIcon icon="DISTANCE" outlined="true" styleClass="signage-icon-header"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                            <Label fx:id="labelHERE" styleClass="signage-label-Here"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </HBox>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <HBox styleClass="signage-header-right" HBox.hgrow="ALWAYS">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <PFXIcon icon="SCHEDULE" outlined="true" styleClass="signage-icon-header"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                            <Label fx:id="signageDateTime" text="Date/Time" styleClass="signage-text-DateTime"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </HBox>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </children>&ndash;&gt;-->
-<!--                </HBox>-->
-<!--                <Separator/>-->
-<!--            </VBox>-->
             <VBox fx:id="headerNormal">
-                <HBox fx:id="signageHeader">
-                    <!--                <children>-->
-                    <!--                    <HBox styleClass="signage-header-left">-->
-                    <!--                        <PFXIcon icon="DISTANCE" outlined="true" styleClass="signage-icon-header"/>-->
-                    <!--                        <Label fx:id="labelHERE" styleClass="signage-label-Here"/>-->
-                    <!--                    </HBox>-->
-                    <!--                    <HBox styleClass="signage-header-right" HBox.hgrow="ALWAYS">-->
-                    <!--                        <PFXIcon icon="SCHEDULE" outlined="true" styleClass="signage-icon-header"/>-->
-                    <!--                        <Label fx:id="signageDateTime" text="Date/Time" styleClass="signage-text-DateTime"/>-->
-                    <!--                    </HBox>-->
-                    <!--                </children>-->
-                </HBox>
+                <HBox fx:id="signageHeader"/>
                 <Separator/>
             </VBox>
         </StackPane>

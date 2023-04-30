@@ -204,7 +204,6 @@ public class SignageCachedDaoImpl implements IDao<java.lang.Long, Signage, Signa
         @Getter
         private final List<javafx.scene.Node> form;
         private final List<TextField> inputs;
-
         public SignageForm() {
             form = new ArrayList<>();
             inputs = new ArrayList<>();

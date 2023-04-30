@@ -3,18 +3,12 @@ package edu.wpi.punchy_pegasi.frontend.controllers.requests.adminPage;
 import edu.wpi.punchy_pegasi.schema.IField;
 import edu.wpi.punchy_pegasi.schema.TableType;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
-import io.github.palexdev.materialfx.controls.MFXTableRow;
 import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -40,6 +34,7 @@ public class AdminTable<T> {
 
     public void init() {
         table.setItems(getAll.get());
+        table.autosizeColumnsOnInitialization();
         // Create columns
         for (Object field : tableType.getFieldEnum().getEnumConstants()) {
             var iField = (IField<T>) field;

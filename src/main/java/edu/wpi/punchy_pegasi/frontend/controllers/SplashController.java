@@ -47,7 +47,7 @@ public class SplashController {
             setStatusText("Connected to \"" + source + "\"!");
             Thread.sleep(100); //give UI thread time to update
             return true;
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException | PdbController.DatabaseException e) {
             setStatusText("Failed to connect to " + source + ", try selecting an alternate database:");
             setLoading(false);
             setShowExit(true);

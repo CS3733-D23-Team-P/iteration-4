@@ -21,3 +21,36 @@
 #changes {
 
 }
+
+.node-popover-date {
+
+}
+
+.move-delete-btn PFXIcon {
+    -fx-fill: -pfx-text;
+}
+
+.move-delete-btn:hover PFXIcon {
+    -fx-fill: red;
+}
+.move-delete-btn,
+.move-delete-btn:armed,
+.move-delete-btn:hover,
+.move-delete-btn:focused {
+    -fx-font-size: 20;
+    -fx-alignment: center;
+    -fx-padding: 0 0 0 0;
+    -fx-cursor: hand;
+    -fx-background-radius: 30;
+    -pfx-button-background: transparent;
+}
+
+.move-hbox {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 0 5;
+}
+.move-hbox:hover {
+    -fx-background-color: -pfx-accent-transparent;
+}

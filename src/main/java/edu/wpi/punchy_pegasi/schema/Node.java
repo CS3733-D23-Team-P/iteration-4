@@ -1,22 +1,29 @@
 package edu.wpi.punchy_pegasi.schema;
 
 import edu.wpi.punchy_pegasi.backend.SchemaID;import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@lombok.Builder(toBuilder=true)
 public class Node implements INode {
     @SchemaID
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("nodeid")
     private Long nodeID;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("xcoord")
     private Integer xcoord;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("ycoord")
     private Integer ycoord;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("floor")
     private String floor;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("building")
     private String building;
 

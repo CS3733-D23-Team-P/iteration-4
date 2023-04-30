@@ -8,6 +8,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@lombok.Builder(toBuilder=true)
 public class RequestEntry {
     @SchemaID
     protected UUID serviceID;

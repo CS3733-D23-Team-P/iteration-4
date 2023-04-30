@@ -26,7 +26,5 @@
         </center>
     </BorderPane>
     <VBox fx:id="notificationsContainer"/>
-    <VBox alignment="CENTER" pickOnBounds="false" fx:id="alertVBox">
-        <HBox alignment="CENTER" pickOnBounds="false" fx:id="alertHBox"/>
-    </VBox>
+    <BorderPane fx:id="overlayContainer"/>
 </fx:root>

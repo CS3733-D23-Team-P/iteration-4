@@ -28,8 +28,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
+import org.controlsfx.control.tableview2.filter.filtereditor.SouthFilter;
 import org.javatuples.Pair;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,14 +39,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils.isDestination;
 
 public class PathfindingMap {
-    private final Map<String, HospitalFloor> floors = new LinkedHashMap<>() {{
-        put("L2", new HospitalFloor("frontend/assets/map/00_thelowerlevel2.png", "Lower Level 2", "L2"));
-        put("L1", new HospitalFloor("frontend/assets/map/00_thelowerlevel1.png", "Lower Level 1", "L1"));
-//        put("00", new HospitalFloor("frontend/assets/map/00_thegroundfloor.png", "Ground Layer", "00"));
-        put("1", new HospitalFloor("frontend/assets/map/01_thefirstfloor.png", "First Layer", "1"));
-        put("2", new HospitalFloor("frontend/assets/map/02_thesecondfloor.png", "Second Layer", "2"));
-        put("3", new HospitalFloor("frontend/assets/map/03_thethirdfloor.png", "Third Layer", "3"));
-    }};
     private final AtomicBoolean startSelected = new AtomicBoolean(false);
     private final AtomicBoolean endSelected = new AtomicBoolean(false);
     private final AtomicBoolean midSelected = new AtomicBoolean(false);
@@ -78,7 +72,7 @@ public class PathfindingMap {
     private PFXButton robotButton;
     @FXML
     private BorderPane root;
-    private IMap<HospitalFloor> map;
+    private IMap<HospitalFloor.Floors> map;
     @FXML
     private VBox pathfinding;
     @FXML
@@ -99,9 +93,12 @@ public class PathfindingMap {
     private ObservableList<Edge> edgesList;
     private ObservableList<LocationName> locationsList;
     private ObservableList<Move> movesList;
-    private ObservableMap<Node, ObservableList<LocationName>> nodeToLocation;
+    private ObservableMap<Node, ObservableList<Move>> nodeToMoves;
     private ObservableMap<LocationName, Node> locationToNode;
     private String selectedAlgo;
+    @FXML
+    private Label batteryPercent;
+
     @FXML
     private VBox menu;
     @FXML
@@ -148,15 +145,16 @@ public class PathfindingMap {
     }
 
     private Optional<Circle> drawNode(Node node, String color) {
-        var location = nodeToLocation.get(node);
-        if (location.isEmpty()) return Optional.empty();
-        var labelBinding = Bindings.createStringBinding(() -> location.get(0).getShortName(), location);
-        var hoverBinding = Bindings.createStringBinding(() -> String.join("\n", location.stream().map(LocationName::getLongName).toArray(String[]::new)), location);
+        var moves = nodeToMoves.get(node);
+        if (moves.isEmpty()) return Optional.empty();
+        var labelBinding = Bindings.createStringBinding(() -> locations.get(moves.get(0).getLocationID()).getShortName(), moves);
+        var hoverBinding = Bindings.createStringBinding(() -> String.join("\n", moves.stream().map(e->locations.get(e.getLocationID())).filter(Objects::nonNull).map(LocationName::getLongName).toArray(String[]::new)), moves);
         return map.addNode(node, color, labelBinding, hoverBinding);
     }
 
     @FXML
     private void initialize() {
+        map = new HospitalMap();
         addDestination = new PFXButton("Add Destination", new PFXIcon(MaterialSymbols.ADD_CIRCLE));
         addDestinationCancel = new PFXButton("Cancel Destination", new PFXIcon(MaterialSymbols.CANCEL));
         addDestinationCancel.getStyleClass().add("pfx-button-cancel");
@@ -254,13 +252,15 @@ public class PathfindingMap {
             map.clearMap();
         });
         nodesList.forEach(n -> {
-            var location = nodeToLocation.get(n);
-            if (location == null || location.isEmpty()) return;
-            if (!isDestination.test(location.get(0))) return;
+            if (!nodeToMoves.containsKey(n)) return;
+            var moves = nodeToMoves.get(n).stream().map(m -> locations.get(m.getLocationID())).filter(l->l != null && isDestination.test(l)).toList();
+            if (moves.isEmpty()) return;
             var pointOpt = drawNode(n, "#FFFF00");
             if (pointOpt.isEmpty()) return;
             var point = pointOpt.get();
             point.setOnMouseClicked(e -> {
+                if (startSelected.get()) nodeStartCombo.selectItem(moves.get(0));
+                else if (endSelected.get()) nodeEndCombo.selectItem(moves.get(0));
                 if (startSelected.get()) nodeStartCombo.selectItem(location.get(0));
                 else if (endSelected.get()) nodeEndCombo.selectItem(location.get(0));
                 else if (midSelected.get()) {
@@ -282,7 +282,7 @@ public class PathfindingMap {
             edgesList = App.getSingleton().getFacade().getAllAsListEdge();
             movesList = App.getSingleton().getFacade().getAllAsListMove();
             locationsList = App.getSingleton().getFacade().getAllAsListLocationName();
-            nodeToLocation = FacadeUtils.getNodeLocations(nodes, locations, moves, adminDatePicker.valueProperty());
+            nodeToMoves = FacadeUtils.getNodeLocations(nodes, locations, moves, adminDatePicker.valueProperty());
             locationToNode = FacadeUtils.getLocationNode(nodes, locations, moves, adminDatePicker.valueProperty());
             Platform.runLater(callback);
         });
@@ -312,17 +312,16 @@ public class PathfindingMap {
 
         try {
             var path = PathfindingSingleton.SINGLETON.getAlgorithm().findPath(graph, start, end);
-            for (var floor : floors.values())
-                floor.clearFloor();
+            map.clearMap();
             String currentFloor = path.get(0).getFloor();
             List<Node> currentPath = new ArrayList<>();
             for (var node : path) {
                 if (!node.getFloor().equals(currentFloor)) {
                     map.drawLine(currentPath);
                     var endNode = currentPath.get(currentPath.size() - 1);
-                    map.addNode(node, "red", Bindings.createStringBinding(()->""), Bindings.createStringBinding(()->"From Here"));
+                    map.addNode(node, "red", Bindings.createStringBinding(() -> ""), Bindings.createStringBinding(() -> "From Here"));
                     //map.drawArrow(node, endNode.getFloorNum() > node.getFloorNum()).setOnMouseClicked(e -> Platform.runLater(() -> map.showLayer(floors.get(endNode.getFloor()))));
-                    map.drawArrow(endNode, endNode.getFloorNum() < node.getFloorNum()).setOnMouseClicked(e -> Platform.runLater(() -> map.showLayer(floors.get(node.getFloor()))));
+                    map.drawArrow(endNode, endNode.getFloorNum() < node.getFloorNum()).setOnMouseClicked(e -> Platform.runLater(() -> map.showLayer(HospitalFloor.floorMap.get(node.getFloor()))));
                     currentPath = new ArrayList<>();
                     currentFloor = node.getFloor();
                 }
@@ -345,7 +344,7 @@ public class PathfindingMap {
     }
 
     @FXML
-    private void sendRobotMessage() {
+    private void sendRobotMessage() throws InterruptedException {
         SerialPort comPort = null;
         SerialPort[] ports = SerialPort.getCommPorts();
 
@@ -367,6 +366,7 @@ public class PathfindingMap {
         comPort.writeBytes(message, message.length);
 
         for (int i = 1; i < xCoords.size() - 1; i++) {
+            Thread.sleep(50);
             message = generateMessage("M", xCoords.get(i), yCoords.get(i));
             System.out.println(xCoords.get(i) + ", " + yCoords.get(i));
             comPort.writeBytes(message, message.length);
@@ -375,6 +375,24 @@ public class PathfindingMap {
         message = generateMessage("E", xCoords.get(xCoords.size() - 1), yCoords.get(yCoords.size() - 1));
         System.out.println(xCoords.get(xCoords.size() - 1) + ", " + yCoords.get(yCoords.size() - 1));
         comPort.writeBytes(message, message.length);
+
+        // Receive Message for Battery
+        comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 1000, 0);
+
+        byte[] firstReadBuffer = new byte[1];
+        byte[] secondReadBuffer = new byte[1];
+        for(int i=0;i<2;i++)
+        {
+            if(i == 0) comPort.readBytes(firstReadBuffer, firstReadBuffer.length);
+            if(i == 1) comPort.readBytes(secondReadBuffer, secondReadBuffer.length);
+        }
+
+        byte[] result = new byte[2];
+        result[0] = firstReadBuffer[0];
+        result[1] = secondReadBuffer[0];
+
+        batteryPercent.setText("Battery Percentage: " + new String(result, StandardCharsets.UTF_8) + "%");
+
         comPort.closePort();
     }
 

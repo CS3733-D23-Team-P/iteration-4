@@ -9,12 +9,16 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@lombok.Builder(toBuilder=true)
 public class Edge {
     @SchemaID
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("uuid")
     private UUID uuid;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("startnode")
     private Long startNode;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("endnode")
     private Long endNode;
 @lombok.RequiredArgsConstructor

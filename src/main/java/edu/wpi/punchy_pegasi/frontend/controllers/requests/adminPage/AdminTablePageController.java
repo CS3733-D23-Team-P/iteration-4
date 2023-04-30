@@ -6,6 +6,8 @@ import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
 import edu.wpi.punchy_pegasi.generated.Facade;
 import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTableView;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -88,7 +90,7 @@ public class AdminTablePageController {
         displayTableTypeComboBox.setItems(displayTableTypeList);
 
         initTables();
-        displayEditComponent();
+        showTable(null);
 
         displayTableTypeComboBox.setOnAction(e -> {
             String name = displayTableTypeComboBox.getSelectedItem();
@@ -283,12 +285,16 @@ public class AdminTablePageController {
         });
     }
 
-    public void showTable(AdminTable tableType) {
+    public void showTable(AdminTable<?> tableType) {
         currentTable = tableType;
-        currentTable.getTable().setVisible(true);
-        currentTable.getTable().setManaged(true);
+        if (currentTable != null) {
+            currentTable.getTable().setVisible(true);
+            currentTable.getTable().setManaged(true);
+            Platform.runLater(currentTable.table::autosizeColumns);
+            currentTable.table.autosizeColumnsOnInitialization();
+        }
 
-        tables.values().stream().filter(f -> !Objects.equals(f.tableType, tableType.tableType)).forEach(f -> {
+        tables.values().stream().filter(f -> tableType == null || !Objects.equals(f.tableType, tableType.tableType)).forEach(f -> {
             f.getTable().setVisible(false);
             f.getTable().setManaged(false);
         });
@@ -297,8 +303,11 @@ public class AdminTablePageController {
     public void initTables() {
         tables.values().forEach(AdminTable::init);
         tableContainer.getChildren().addAll(tables.values().stream().map(AdminTable::getTable).toList());
-        showTable(tables.get("Node"));
-        currentTable = tables.get("Node");
+        tableContainer.getChildren().forEach(t -> {
+            var table = (MFXTableView<?>) t;
+            table.prefWidthProperty().bind(tableContainer.widthProperty());
+            table.prefHeightProperty().bind(tableContainer.heightProperty());
+        });
     }
 
     private List<javafx.scene.Node> form;

@@ -5,7 +5,16 @@ import com.impossibl.postgres.api.jdbc.PGConnection;
 import com.impossibl.postgres.api.jdbc.PGNotificationListener;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.spi.JsoniterSpi;
+import edu.wpi.punchy_pegasi.App;
+import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
 import edu.wpi.punchy_pegasi.schema.TableType;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
 import lombok.Getter;
@@ -21,6 +30,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -43,35 +53,32 @@ public class PdbController {
 
         @Override
         public void closed() {
-            try {
-                getConnection();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            getConnection();
         }
     };
     private final String schema;
     private PGConnection connection;
 
-    public PdbController(Source source, String schema) throws SQLException, ClassNotFoundException {
+    public PdbController(Source source, String schema) throws SQLException, ClassNotFoundException, DatabaseException {
         //add uuid support
         JsoniterSpi.registerTypeEncoder(UUID.class, (obj, stream) -> stream.writeVal(obj.toString()));
         JsoniterSpi.registerTypeDecoder(UUID.class, iter -> UUID.fromString(iter.readString()));
         JsoniterSpi.registerTypeEncoder(LocalDate.class, (obj, stream) -> stream.writeVal(obj.toString()));
         JsoniterSpi.registerTypeDecoder(LocalDate.class, iter -> LocalDate.parse(iter.readString()));
-        JsoniterSpi.registerTypeEncoder(LocalDateTime.class, (obj, stream) -> stream.writeVal(obj.toString()));
-        JsoniterSpi.registerTypeDecoder(LocalDateTime.class, iter -> LocalDateTime.parse(iter.readString()));
+        JsoniterSpi.registerTypeEncoder(Instant.class, (obj, stream) -> stream.writeVal(obj.toString()));
+        JsoniterSpi.registerTypeDecoder(Instant.class, iter -> Instant.parse(iter.readString()));
         this.source = source;
         this.schema = schema;
         Class.forName("com.impossibl.postgres.jdbc.PGDriver");
-        getConnection();
+        if (!getConnection())
+            throw new DatabaseException("Failed to connect to database");
         var statement = connection.createStatement();
         statement.execute("CREATE SCHEMA IF NOT EXISTS " + this.schema + ";");
         connection.setSchema(this.schema);
         statement.close();
     }
 
-    public PdbController(Source source) throws SQLException, ClassNotFoundException {
+    public PdbController(Source source) throws SQLException, ClassNotFoundException, DatabaseException {
         this(source, "teamp");
     }
 
@@ -81,7 +88,7 @@ public class PdbController {
 
     public static String objectToPsqlString(Object o, boolean first) {
         if (o == null) return "NULL";
-        if (o instanceof String || o instanceof UUID || o instanceof LocalDate || o.getClass().isEnum()) {
+        if (o instanceof String || o instanceof UUID || o instanceof LocalDate || o instanceof Instant || o.getClass().isEnum()) {
             return "'" + o + "'";
         } else if (o instanceof List<?>) {
             return (first ? "ARRAY" : "") + "[" + String.join(", ", ((List<?>) o).stream().map(v -> objectToPsqlString(v, false)).toList()) + "]";
@@ -101,37 +108,71 @@ public class PdbController {
     }
 
     public synchronized boolean reconnectOnError(SQLException e) {
-        if (e.getSQLState().equals("08006")) {
-            try {
-                getConnection();
-                return true;
-            } catch (SQLException e1) {
-                log.error("Failed to reconnect to database", e1);
-            }
+        if (e.getMessage().contains("BlockingReadTimeoutException") || e.getSQLState().equals("08006")) {
+            return getConnection();
         }
         return false;
     }
 
-    private void getConnection() throws SQLException {
-        if (connection == null) {
-            initConnection();
-            return;
-        }
-        if (connection.isClosed() || !connection.isValid(500)) {
-            connection.close();
-            initConnection();
+    private boolean getConnection() {
+        try {
+            if (connection == null) {
+                initConnection();
+                return true;
+            }
+            if (connection.isClosed() || !connection.isValid(500)) {
+                connection.close();
+                initConnection();
+                return true;
+            }
+            return false;
+        } catch (SQLException e) {
+            if (App.getSingleton().getLayout() == null) return false;
+            App.getSingleton().getLayout().hideOverlay();
+            var refresh = new PFXButton("Reload");
+            var text = new Label("It seems the app has lost connection to the database.\nBy clicking reconnect, the app will exit and attempt to reconnect.\nIf the problem persists, please contact an administrator.");
+            text.setWrapText(true);
+            var box = new VBox(text, refresh);
+            text.setTextAlignment(TextAlignment.CENTER);
+            text.setTextFill(Color.BLACK);
+            refresh.setOnMouseClicked(ev -> {
+                try {
+                    App.getSingleton().start(App.getSingleton().getPrimaryStage());
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            var vC = new VBox();
+            vC.setAlignment(Pos.CENTER);
+            vC.setStyle("-fx-background-color: -pfx-secondary-transparent");
+            var hC = new HBox();
+            hC.setAlignment(Pos.CENTER);
+            vC.getChildren().add(hC);
+            var c = new VBox(text, refresh);
+            c.setStyle("""
+-fx-background-color: white;
+-fx-background-radius: 12;
+-fx-padding: 10;
+-fx-spacing: 10;
+-fx-alignment: CENTER;
+""");
+            hC.getChildren().add(c);
+            App.getSingleton().getLayout().showOverlay(vC, false);
+            return false;
         }
     }
 
     private void initConnection() throws SQLException {
+        DriverManager.setLoginTimeout(2);
         connection = DriverManager.getConnection("jdbc:pgsql://" + source.url + ":" + source.port + "/" + source.database, source.username, source.password).unwrap(PGConnection.class);
         connection.addNotificationListener(listener);
         connection.setSchema(schema);
+        connection.setNetworkTimeout(App.getSingleton().getExecutorService(), 2000);
         var statement = connection.createStatement();
         for (var tableType : TableType.values()) {
             statement.executeUpdate("LISTEN " + tableType.name().toLowerCase() + "_update;");
         }
-        statement.close();
+         statement.close();
     }
 
     public Connection exposeConnection() {
@@ -181,7 +222,7 @@ public class PdbController {
     public int updateQuery(TableType tableType, String keyField, Object keyValue, String[] fields, Object[] values) throws DatabaseException {
         if (fields.length != values.length) throw new DatabaseException("Fields and values must be the same length");
         try {
-           @Cleanup var statement = connection.createStatement();
+            @Cleanup var statement = connection.createStatement();
             var query = "UPDATE " + tableType.name().toLowerCase() + " SET ";
             query += getFieldValueString(fields, values, " = ", ", ");
             query += " WHERE " + keyField + " = " + objectToPsqlString(keyValue);

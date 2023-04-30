@@ -7,14 +7,19 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@lombok.Builder(toBuilder=true)
 public class Signage {
     @SchemaID
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("uuid")
     private Long uuid;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("signname")
     private String signName;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("longname")
     private String longName;
+    @lombok.With
     @com.jsoniter.annotation.JsonProperty("directiontype")
     private DirectionType directionType;
 

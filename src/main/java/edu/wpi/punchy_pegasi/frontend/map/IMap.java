@@ -58,4 +58,5 @@ public interface IMap<Layer> {
     void focusOn(Node node);
 
     void showRectangle(Rectangle rect);
+    void setDefaultOverlaysVisible(boolean isVisible);
 }
