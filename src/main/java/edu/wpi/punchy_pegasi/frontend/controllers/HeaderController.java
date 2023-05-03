@@ -153,6 +153,8 @@ public class HeaderController extends HBox implements PropertyChangeListener {
         list.add(new AppSearch.SearchableItem("Order Office Chairs", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Order Blankets", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Order Frames", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
+        list.add(new AppSearch.SearchableItem("Order Pillows", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
+        list.add(new AppSearch.SearchableItem("Order Rugs", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Assign a staff", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Enter a patient name", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Assign a location name", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
@@ -324,11 +326,12 @@ public class HeaderController extends HBox implements PropertyChangeListener {
         list.add(new AppSearch.SearchableItem("Meet the team", Screen.ABOUT, () -> App.getSingleton().navigate(Screen.INFO)));
         list.add(new AppSearch.SearchableItem("Acknowledgements", Screen.ABOUT, () -> App.getSingleton().navigate(Screen.INFO)));
 
-
         list.add(new AppSearch.SearchableItem( "View the credits page", Screen.CREDITS, () -> App.getSingleton().navigate(Screen.INFO)));
         list.add(new AppSearch.SearchableItem( "View resources", Screen.CREDITS, () -> App.getSingleton().navigate(Screen.INFO)));
         list.add(new AppSearch.SearchableItem( "View hyperlinks for resources", Screen.CREDITS, () -> App.getSingleton().navigate(Screen.INFO)));
 
+        list.add(new AppSearch.SearchableItem("View the alerts page", Screen.ADMIN_ALERT_PAGE, () -> App.getSingleton().navigate(Screen.ADMIN_PAGE)));
+        list.add(new AppSearch.SearchableItem("Create a new alert", Screen.ADMIN_ALERT_PAGE, () -> App.getSingleton().navigate(Screen.ADMIN_PAGE)));
 
         var filtered = list.filtered(s -> true);
 
