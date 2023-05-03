@@ -186,7 +186,9 @@ public class App extends Application {
             getLayout().showTopLayout(screen.isHeader());
             getLayout().showLeftLayout(screen.isSidebar());
             enableTimeout(screen.isTimeout());
-            getViewPane().setCenter(new PageLoading());
+            var loadingPage = new PageLoading();
+            loadingPage.getStyleClass().add("page-loading");
+            getViewPane().setCenter(loadingPage);
             if(loadingThread !=null)
                 loadingThread.interrupt();
             getExecutorService().execute(() -> {

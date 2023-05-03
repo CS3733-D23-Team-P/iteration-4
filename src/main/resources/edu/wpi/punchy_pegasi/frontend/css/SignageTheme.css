@@ -48,6 +48,10 @@
     -pfx-button-background: transparent;
 }
 
+.signage-fullscreen-button PFXIcon {
+    -fx-fill: -pfx-text;
+}
+
 .signage-delete-btn PFXIcon {
     -fx-cursor: hand;
 }
@@ -65,6 +69,10 @@
     -fx-border-width: 1;
     -fx-border-color: -pfx-accent;
     -fx-border-radius: 12;
+}
+
+.signage-right-edit-vbox Label {
+    -fx-text-fill: -pfx-text;
 }
 
 .signage-right-edit-outer-vbox {

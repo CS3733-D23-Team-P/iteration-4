@@ -4,3 +4,7 @@
     -mfx-color3: #5050ff;
     -mfx-color4: #5050ff;
 }
+
+.page-loading {
+    -fx-background-color: -pfx-background;
+}

@@ -39,9 +39,9 @@
                 </VBox>
                 <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                     <Label styleClass="admin-container-title-text-size" text="Active Alerts" VBox.vgrow="ALWAYS"/>
-                    <ScrollPane styleClass= "admin-container" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-                        <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS">
-                            <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="activeAlertsContainer" spacing="15">
+                    <ScrollPane styleClass= "admin-scrollpane" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                        <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="admin-container">
+                            <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="activeAlertsContainer" spacing="15" styleClass="admin-container">
                             </VBox>
                         </HBox>
                     </ScrollPane>
