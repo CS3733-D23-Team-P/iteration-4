@@ -42,7 +42,7 @@
 .admin-container {
     -fx-background-color: -pfx-primary;
     -fx-border-radius: 6;
-    -fx-border-color: -pfx-accent-light;
+    -fx-border-color: -pfx-secondary;
     -fx-alignment: CENTER;
     -fx-text-fill: -pfx-text;
     -fx-font-size: 15;
@@ -63,7 +63,7 @@
 .admin-container-left-aligned {
     -fx-background-color: -pfx-primary;
     -fx-border-radius: 6;
-    -fx-border-color: -pfx-accent;
+    -fx-border-color: -pfx-secondary;
     -fx-alignment: TOP_LEFT;
     -fx-text-fill: -pfx-text;
     -fx-font-size: 15;
@@ -137,20 +137,33 @@
 }
 
 .admin-scrollpane {
-    -fx-background-color: -pfx-background;
+    -fx-background-color: -pfx-primary;
+    -fx-background: -pfx-primary;
+    -fx-border-color: -pfx-secondary;
+    -fx-border-radius: 6;
 }
 
 .admin-MFXComboBox {
     -fx-font-size: 12;
     -fx-text-fill: -pfx-text;
     -fx-background-color: -pfx-background;
-    -fx-border-color: -pfx-primary;
+    -fx-border-color: -pfx-secondary;
     -fx-border-radius: 6;
 }
 .admin-text-field{
     -fx-font-size: 12;
     -fx-text-fill: -pfx-text;
     -fx-background-color: -pfx-background;
-    -fx-border-color: -pfx-primary;
+    -fx-border-color: -pfx-secondary;
     -fx-border-radius: 6;
+}
+.admin-alert-page-container{
+    -fx-background-color: -pfx-primary;
+    -fx-border-radius: 6;
+    -fx-alignment: CENTER;
+    -fx-text-fill: -pfx-text;
+    -fx-font-size: 15;
+    -fx-fill: -pfx-text;
+    -fx-fill-height: true;
+    -fx-fill-width: true;
 }
