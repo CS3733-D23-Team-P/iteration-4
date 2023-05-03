@@ -147,12 +147,7 @@ public class SignageController {
                 (() -> App.getSingleton().getAccount().getAccountType().getShieldLevel() >= Account.AccountType.ADMIN.getShieldLevel());
         configTimer(1000);
         filteredList = facade.getAllAsListSignage().filtered(s -> false);
-        initIcons();
-        initHeader();
-        buildSignage();
-        initSignSelector();
-        buildEditSignage();
-        buildSignageMap();
+
 
         filteredList.addListener((ListChangeListener<? super Signage>) s -> updateMapView());
         filteredList.addListener((InvalidationListener) l -> updateMapView());
@@ -160,12 +155,19 @@ public class SignageController {
 
         App.getSingleton().getPrimaryStage().widthProperty().addListener(stageSizeListener);
         App.getSingleton().getPrimaryStage().heightProperty().addListener(stageSizeListener);
-
-        myScene.setOnKeyPressed(event -> {
-            if (event.getCode().equals(KeyCode.F11))
-                setFullScreen(true);
-            else if (event.getCode().equals(KeyCode.ESCAPE))
-                setFullScreen(false);
+        Platform.runLater(()-> {
+            initIcons();
+            initHeader();
+            buildSignage();
+            initSignSelector();
+            buildEditSignage();
+            buildSignageMap();
+            myScene.setOnKeyPressed(event -> {
+                if (event.getCode().equals(KeyCode.F11))
+                    setFullScreen(true);
+                else if (event.getCode().equals(KeyCode.ESCAPE))
+                    setFullScreen(false);
+            });
         });
     }
 
