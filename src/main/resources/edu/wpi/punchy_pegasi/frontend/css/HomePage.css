@@ -13,18 +13,11 @@
 }
 
 .home-alert-scrollpane {
-    -fx-alignment: center-left;
-    -fx-border-radius: 16;
-    -fx-background-radius: 16;
-    -fx-background-color: -pfx-primary;
-    -fx-border-width: 2;
-    -fx-border-color: -pfx-secondary;
 }
 
 .home-alert-scrollpane .viewport {
-    -fx-background-color: -pfx-primary;
+    -fx-background-color: transparent;
     -fx-background-radius: 16;
-    -fx-border-radius: 16;
 }
 
 .home-alert-scrollpane .thumb {
@@ -43,4 +36,9 @@
     -fx-font-size: 20;
     -fx-text-fill: -pfx-text;
     -fx-padding: 10;
+}
+
+.alerts-vbox {
+    -fx-padding: 5;
+    -fx-spacing: 5;
 }

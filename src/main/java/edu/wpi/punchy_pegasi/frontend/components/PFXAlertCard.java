@@ -26,6 +26,7 @@ public class PFXAlertCard extends HBox {
         this.alert = alert;
         this.active = MaterialSymbols.NOTIFICATIONS_ACTIVE;
         Alert.ReadStatus readStatus = alert.getReadStatus();
+        getStyleClass().add("pfx-alert-card-container");
         if(readStatus == Alert.ReadStatus.READ) {
             icon = new PFXIcon(MaterialSymbols.TASK_ALT);
             getStyleClass().add("pfx-alert-card-container-read");

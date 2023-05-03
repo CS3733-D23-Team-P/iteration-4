@@ -1,18 +1,20 @@
 @import "Fonts.css";
 
-/* card label button icon */
-.pfx-alert-card-container-unread {
+.pfx-alert-card-container {
     -fx-font-family: "Nunito Sans Light";
     -fx-alignment: TOP_LEFT;
-    -fx-padding: 20 20;
-    -fx-background-color: -pfx-accent;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
-    -fx-spacing: 15;
+    -fx-padding: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 10, 0, 0.0, 0.0);
+    -fx-spacing: 5;
     -fx-background-radius: 12;
     -fx-font-size: 24;
-    -fx-text-fill: white;
     -fx-wrap-text: true;
-    -fx-max-width: 780;
+    -fx-max-width: 500;
+}
+
+/* card label button icon */
+.pfx-alert-card-container-unread {
+    -fx-background-color: -pfx-accent;
 }
 .pfx-alert-card-title-text{
     -fx-font-size: 30;
@@ -44,24 +46,13 @@
 
 /* read card label button icon */
 .pfx-alert-card-container-read{
-    -fx-font-family: "Nunito Sans Light";
-    -fx-alignment: TOP_LEFT;
-    -fx-padding: 20 20;
-    -fx-background-color: white;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
-    -fx-spacing: 15;
-    -fx-background-radius: 12;
-    -fx-font-size: 24;
-    -fx-text-fill: -pfx-accent;
-    -fx-border-radius: 12;
-    -fx-wrap-text: true;
-    -fx-max-width: 780;
+    -fx-background-color: -pfx-primary;
 }
 
 .pfx-alert-card-container-read Label {
     -fx-font-family: "Nunito Sans Light";
     -fx-background-color: transparent;
-    -fx-text-fill: -pfx-navy;
+    -fx-text-fill: -pfx-text;
     -fx-font-spacing: 20;
 }
 

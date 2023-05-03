@@ -25,7 +25,7 @@ public class IdleScreen extends VBox {
     private boolean enabled = false;
 
     public IdleScreen(double idleTimeSeconds) {
-        this.idleTimeSeconds = 5;
+        this.idleTimeSeconds = idleTimeSeconds;
 
         ImageView image = new ImageView(new Image(App.getSingleton().resolveResource("frontend/assets/BW-logo.png").get().toString()));
         Label lab = new Label("Press Anywhere to Continue");
