@@ -1,8 +1,8 @@
 package edu.wpi.punchy_pegasi.generated;
 
 import edu.wpi.punchy_pegasi.backend.PdbController;
-import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.Signage;
+import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.TableType;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
@@ -111,10 +111,10 @@ public class SignageCachedDaoImpl implements IDao<java.lang.Long, Signage, Signa
         try (var rs = dbController.searchQuery(TableType.SIGNAGE)) {
             while (rs.next()) {
                 Signage req = new Signage(
-                        rs.getObject("uuid", java.lang.Long.class),
-                        rs.getObject("signName", java.lang.String.class),
-                        rs.getObject("longName", java.lang.String.class),
-                        edu.wpi.punchy_pegasi.schema.Signage.DirectionType.valueOf(rs.getString("directionType")));
+                    rs.getObject("uuid", java.lang.Long.class),
+                    rs.getObject("signName", java.lang.String.class),
+                    rs.getObject("longName", java.lang.String.class),
+                    edu.wpi.punchy_pegasi.schema.Signage.DirectionType.valueOf(rs.getString("directionType")));
                 add(req);
             }
         } catch (PdbController.DatabaseException | SQLException e) {

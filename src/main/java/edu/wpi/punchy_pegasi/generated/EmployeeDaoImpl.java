@@ -51,9 +51,9 @@ public class EmployeeDaoImpl implements IDao<java.lang.Long, Employee, Employee.
         try (var rs = dbController.searchQuery(TableType.EMPLOYEES, Arrays.stream(params).map(Employee.Field::getColName).toList().toArray(new String[params.length]), value)) {
             while (rs.next()) {
                 Employee req = new Employee(
-                        rs.getObject("employeeID", java.lang.Long.class),
-                        rs.getObject("firstName", java.lang.String.class),
-                        rs.getObject("lastName", java.lang.String.class));
+                    rs.getObject("employeeID", java.lang.Long.class),
+                    rs.getObject("firstName", java.lang.String.class),
+                    rs.getObject("lastName", java.lang.String.class));
                 if (req != null)
                     map.put(req.getEmployeeID(), req);
             }
@@ -69,9 +69,9 @@ public class EmployeeDaoImpl implements IDao<java.lang.Long, Employee, Employee.
         try (var rs = dbController.searchQuery(TableType.EMPLOYEES)) {
             while (rs.next()) {
                 Employee req = new Employee(
-                        rs.getObject("employeeID", java.lang.Long.class),
-                        rs.getObject("firstName", java.lang.String.class),
-                        rs.getObject("lastName", java.lang.String.class));
+                    rs.getObject("employeeID", java.lang.Long.class),
+                    rs.getObject("firstName", java.lang.String.class),
+                    rs.getObject("lastName", java.lang.String.class));
                 if (req != null)
                     map.put(req.getEmployeeID(), req);
             }

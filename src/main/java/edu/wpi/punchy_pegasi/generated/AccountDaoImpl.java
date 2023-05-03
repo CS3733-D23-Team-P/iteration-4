@@ -18,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 public class AccountDaoImpl implements IDao<java.lang.Long, Account, Account.Field> {
 
-    static String[] fields = {"uuid", "username", "password", "employeeID", "accountType", "theme"};
+    static String[] fields = {"uuid", "username", "password", "employeeID", "accountType", "theme", "accent"};
     private final PdbController dbController;
 
     public AccountDaoImpl(PdbController dbController) {
@@ -35,7 +35,8 @@ public class AccountDaoImpl implements IDao<java.lang.Long, Account, Account.Fie
                     rs.getObject("password", java.lang.String.class),
                     rs.getObject("employeeID", java.lang.Long.class),
                     edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf(rs.getString("accountType")),
-                    edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")));
+                    edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")),
+                    edu.wpi.punchy_pegasi.schema.Account.Accent.valueOf(rs.getString("accent")));
             return Optional.ofNullable(req);
         } catch (PdbController.DatabaseException | SQLException e) {
             log.error("", e);
@@ -54,12 +55,13 @@ public class AccountDaoImpl implements IDao<java.lang.Long, Account, Account.Fie
         try (var rs = dbController.searchQuery(TableType.ACCOUNTS, Arrays.stream(params).map(Account.Field::getColName).toList().toArray(new String[params.length]), value)) {
             while (rs.next()) {
                 Account req = new Account(
-                        rs.getObject("uuid", java.lang.Long.class),
-                        rs.getObject("username", java.lang.String.class),
-                        rs.getObject("password", java.lang.String.class),
-                        rs.getObject("employeeID", java.lang.Long.class),
-                        edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf(rs.getString("accountType")),
-                        edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")));
+                    rs.getObject("uuid", java.lang.Long.class),
+                    rs.getObject("username", java.lang.String.class),
+                    rs.getObject("password", java.lang.String.class),
+                    rs.getObject("employeeID", java.lang.Long.class),
+                    edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf(rs.getString("accountType")),
+                    edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")),
+                    edu.wpi.punchy_pegasi.schema.Account.Accent.valueOf(rs.getString("accent")));
                 if (req != null)
                     map.put(req.getUuid(), req);
             }
@@ -75,12 +77,13 @@ public class AccountDaoImpl implements IDao<java.lang.Long, Account, Account.Fie
         try (var rs = dbController.searchQuery(TableType.ACCOUNTS)) {
             while (rs.next()) {
                 Account req = new Account(
-                        rs.getObject("uuid", java.lang.Long.class),
-                        rs.getObject("username", java.lang.String.class),
-                        rs.getObject("password", java.lang.String.class),
-                        rs.getObject("employeeID", java.lang.Long.class),
-                        edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf(rs.getString("accountType")),
-                        edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")));
+                    rs.getObject("uuid", java.lang.Long.class),
+                    rs.getObject("username", java.lang.String.class),
+                    rs.getObject("password", java.lang.String.class),
+                    rs.getObject("employeeID", java.lang.Long.class),
+                    edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf(rs.getString("accountType")),
+                    edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")),
+                    edu.wpi.punchy_pegasi.schema.Account.Accent.valueOf(rs.getString("accent")));
                 if (req != null)
                     map.put(req.getUuid(), req);
             }
@@ -97,7 +100,7 @@ public class AccountDaoImpl implements IDao<java.lang.Long, Account, Account.Fie
 
     @Override
     public void save(Account account) {
-        Object[] values = {account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType(), account.getTheme()};
+        Object[] values = {account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType(), account.getTheme(), account.getAccent()};
         try {
             dbController.insertQuery(TableType.ACCOUNTS, fields, values);
         } catch (PdbController.DatabaseException e) {

@@ -1,7 +1,7 @@
 .pfx-button {
-    -pfx-button-background: -pfx-primary;
-    -pfx-button-text: black;
-    -pfx-button-hover: derive(-pfx-button-background, -20%);
+    -pfx-button-background: -pfx-accent;
+    -pfx-button-text: white;
+    -pfx-button-hover: -pfx-accent-dark;
     -pfx-button-selected: -pfx-accent;
     -pfx-button-selected-hover: derive(-pfx-accent, -20%);
     -pfx-button-selected-text: white;

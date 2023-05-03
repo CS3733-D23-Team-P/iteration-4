@@ -36,6 +36,7 @@
 }
 #cancelAlignButton {
     -pfx-button-background: -pfx-danger;
+    -pfx-button-hover: -pfx-accent-dark;
     -pfx-button-text: white;
 }
 .node-popover-date {
