@@ -156,7 +156,7 @@ public class GenericRequestEntryCachedDaoImpl implements IDao<String/*idFieldTyp
     public void save/*FacadeClassName*/(GenericRequestEntry genericRequestEntry) {
         Object[] values = {/*getFields*/};
         try {
-//            add(genericRequestEntry);
+            add(genericRequestEntry);
             dbController.insertQuery(TableType.GENERIC, fields, values);
         } catch (PdbController.DatabaseException e) {
             log.error("Error saving", e);
@@ -168,7 +168,7 @@ public class GenericRequestEntryCachedDaoImpl implements IDao<String/*idFieldTyp
         if (params.length < 1)
             return;
         try {
-//            update(genericRequestEntry);
+            update(genericRequestEntry);
             dbController.updateQuery(TableType.GENERIC, ""/*idField*/, "genericRequestEntry"/*getID*/, Arrays.stream(params).map(GenericRequestEntry.Field::getColName).toList().toArray(new String[params.length]), Arrays.stream(params).map(p -> p.getValue(genericRequestEntry)).toArray());
         } catch (PdbController.DatabaseException e) {
             log.error("Error saving", e);
@@ -178,7 +178,7 @@ public class GenericRequestEntryCachedDaoImpl implements IDao<String/*idFieldTyp
     @Override
     public void delete/*FacadeClassName*/(GenericRequestEntry genericRequestEntry) {
         try {
-//            remove(genericRequestEntry);
+            remove(genericRequestEntry);
             dbController.deleteQuery(TableType.GENERIC, ""/*idField*/, "genericRequestEntry"/*getID*/);
         } catch (PdbController.DatabaseException e) {
             log.error("Error deleting", e);
@@ -187,7 +187,7 @@ public class GenericRequestEntryCachedDaoImpl implements IDao<String/*idFieldTyp
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.GENERIC.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.GENERIC.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (GenericRequestEntry) update.data();
             switch (update.action()) {

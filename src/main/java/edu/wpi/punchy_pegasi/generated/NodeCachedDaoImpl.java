@@ -192,7 +192,7 @@ public class NodeCachedDaoImpl implements IDao<java.lang.Long, Node, Node.Field>
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.NODES.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.NODES.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Node) update.data();
             switch (update.action()) {

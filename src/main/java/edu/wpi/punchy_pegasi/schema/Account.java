@@ -51,19 +51,6 @@ public class Account {
         private final int shieldLevel;
     }
 
-    public String getFromFieldAsString(Field field) {
-        return switch (field) {
-            case UUID -> Long.toString(getUuid());
-            case USERNAME -> getUsername();
-            case PASSWORD -> getPassword();
-            case EMPLOYEE_ID -> Long.toString(getEmployeeID());
-            case ACCOUNT_TYPE -> getAccountType().name();
-            case THEME -> getTheme().name();
-        };
-    }
-    public enum Theme {
-        LIGHT, DARK
-    }
     @lombok.RequiredArgsConstructor
     public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Account, edu.wpi.punchy_pegasi.schema.Account.AccountBuilder> {
         UUID("uuid", true, false),
@@ -101,6 +88,21 @@ public class Account {
         public int oridinal() {
             return ordinal();
         }
+    }
+
+    public String getFromFieldAsString(Field field) {
+        return switch (field) {
+            case UUID -> Long.toString(getUuid());
+            case USERNAME -> getUsername();
+            case PASSWORD -> getPassword();
+            case EMPLOYEE_ID -> Long.toString(getEmployeeID());
+            case ACCOUNT_TYPE -> getAccountType().name();
+            case THEME -> getTheme().name();
+        };
+    }
+
+    public enum Theme {
+        LIGHT, DARK
     }
 
 }

@@ -46,7 +46,7 @@ public class PdbController {
         public void notification(int processId, String channelName, String payload) {
             var notification = JsonIterator.deserialize(payload, Notification.class);
             var data = JsonIterator.deserialize(notification.data, notification.tableType.getClazz());
-            support.firePropertyChange(notification.tableType.name() + "_update", null, new DatabaseChangeEvent(notification.action, data));
+            support.firePropertyChange(channelName, null, new DatabaseChangeEvent(notification.action, data));
             PGNotificationListener.super.notification(processId, channelName, payload);
         }
 

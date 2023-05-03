@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
 @Setter(AccessLevel.NONE)
 @NoArgsConstructor
 @AllArgsConstructor

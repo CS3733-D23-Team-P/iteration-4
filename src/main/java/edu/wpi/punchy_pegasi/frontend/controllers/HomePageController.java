@@ -141,13 +141,12 @@ public class HomePageController {
                 .orElse(TableType.GENERIC)));
 
 
-        var popover = new PopOver();
         requestTable.getSelectionModel().selectionProperty().addListener((observable, oldValue, newValue) -> {
             var rO = newValue.entrySet().stream().findFirst();
             if (rO.isEmpty()) {
-                popover.hide();
                 return;
             }
+            var popover = new PopOver();
             var r = rO.get().getValue();
             var i = rO.get().getKey();
             VBox vbox = new VBox();

@@ -193,7 +193,7 @@ public class GenericRequestEntryCachedDaoImpl implements IDao<java.util.UUID, Ge
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.GENERIC.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.GENERIC.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (GenericRequestEntry) update.data();
             switch (update.action()) {

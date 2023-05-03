@@ -268,6 +268,9 @@ public class SleepThroughTheWinter {
         var inheritanceString = parentClass != null && parentTable.size() == 1
                 ? " INHERITS (" + parentTable.get(0).name().toLowerCase() + ")"
                 : "";
+        var inheritanceNotify =  parentClass != null && parentTable.size() == 1
+         ? "PERFORM pg_notify('" + parentTable.get(0).name().toLowerCase() + "_update',output::text);"
+                : "";
 
         var classFields = inheritanceString.isBlank()
                 ? getFieldsRecursively(clazz)
@@ -302,6 +305,7 @@ public class SleepThroughTheWinter {
                     -- encode data as json inside a string
                     output = jsonb_build_object('tableType', '%2$s', 'action', TG_OP, 'data', to_json(row_to_json(row)::text));
                     PERFORM pg_notify('%1$s_update',output::text);
+                    %3$s
                     RETURN NULL;
                     END;
                 $$ LANGUAGE plpgsql;
@@ -310,7 +314,7 @@ public class SleepThroughTheWinter {
                   ON %1$s
                   FOR EACH ROW
                   EXECUTE PROCEDURE notify_%1$s_update();
-                """, tableName, tt.name());
+                """, tableName, tt.name(), inheritanceNotify);
 
         return idField.isPresent() && idField.get().getType() == Long.class ?
                 String.format("""

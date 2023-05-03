@@ -2,12 +2,12 @@ package edu.wpi.punchy_pegasi.schema;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.UUID;
 
-@Data
+@Getter
 @Setter(AccessLevel.NONE)
 @AllArgsConstructor
 public class GenericRequestEntry extends RequestEntry {
