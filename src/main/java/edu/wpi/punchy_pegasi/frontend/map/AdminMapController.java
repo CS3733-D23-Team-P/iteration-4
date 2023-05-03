@@ -8,13 +8,11 @@ import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
 import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
 import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
 import edu.wpi.punchy_pegasi.generated.Facade;
-import edu.wpi.punchy_pegasi.schema.Edge;
-import edu.wpi.punchy_pegasi.schema.LocationName;
-import edu.wpi.punchy_pegasi.schema.Move;
-import edu.wpi.punchy_pegasi.schema.Node;
+import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
 import io.github.palexdev.materialfx.controls.MFXProgressBar;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.*;
@@ -45,7 +43,7 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.controlsfx.control.PopOver;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -93,7 +91,40 @@ public class AdminMapController {
     private Point2D firstPoint, secondPoint;
     private Polyline alignmentLine;
     private HospitalFloor.Floors firstFloor;
+    private final EventHandler<MouseEvent> alignNode = e -> {
+        if (alignmentLine != null) return;
+        if (!isLeftClick.test(e) || e.getClickCount() != 1 || e.getTarget().getClass() != ImageView.class) return;
+        var location = map.getClickLocation(e);
+        if (firstPoint == null) {
+            firstPoint = location;
+            firstFloor = map.getLayer();
+            return;
+        }
+        if (map.getLayer() != firstFloor) return;
+        if (secondPoint == null)
+            secondPoint = location;
+        var line = map.drawLine(firstFloor, Arrays.asList(firstPoint, secondPoint), Color.BLUE, 3);
+        firstPoint = secondPoint = null;
+        alignmentLine = (Polyline) line.get();
+    };
     private ObservableMap<Node, ObservableList<Move>> nodeToLocation;
+
+    public static Point2D getClosestPointOnLine(Point2D p1, Point2D p2, Point2D p3) {
+        double x1 = p1.getX();
+        double y1 = p1.getY();
+        double x2 = p2.getX();
+        double y2 = p2.getY();
+        double x3 = p3.getX();
+        double y3 = p3.getY();
+
+        double slope = (y2 - y1) / (x2 - x1);
+        double perpendicularSlope = -1 / slope;
+
+        double x4 = (y3 - y1 + slope * x1 - perpendicularSlope * x3) / (slope - perpendicularSlope);
+        double y4 = slope * (x4 - x1) + y1;
+
+        return new Point2D(x4, y4);
+    }
 
     private Optional<Circle> drawNode(Node node, String color) {
         var location = nodeToLocation.get(node);
@@ -176,12 +207,12 @@ public class AdminMapController {
         buildingDropdown.selectedItemProperty().addListener(
 //        buildingDropdown.setOnAction(
                 e -> {
-            var old = node.toBuilder().build();
-            if (Objects.equals(old.getBuilding(), buildingDropdown.getValue())) return;
-            nodePoints.get(node.getNodeID()).setFill(Color.YELLOW);
-            popOver.setOnCloseRequest(null);
-            mapEdits.add(new MapEdit(MapEdit.ActionType.EDIT_NODE, node.toBuilder().building(buildingDropdown.getValue()).build(), old));
-        });
+                    var old = node.toBuilder().build();
+                    if (Objects.equals(old.getBuilding(), buildingDropdown.getValue())) return;
+                    nodePoints.get(node.getNodeID()).setFill(Color.YELLOW);
+                    popOver.setOnCloseRequest(null);
+                    mapEdits.add(new MapEdit(MapEdit.ActionType.EDIT_NODE, node.toBuilder().building(buildingDropdown.getValue()).build(), old));
+                });
 
         // make move
         var locationDropdown = new MFXFilterComboBox<LocationName>();
@@ -241,6 +272,38 @@ public class AdminMapController {
         var movesList = FacadeUtils.getFutureMoves(node, locations, moves, adminDatePicker.valueProperty());
         var futureMovesList = new PFXListView<>(movesList, renderMove, locationKey);
 
+        var button = new MFXToggleButton("Disabled");
+        var disableNodeDatepicker = new MFXDatePicker();
+        disableNodeDatepicker.setValue(disableNodeDatepicker.getCurrentDate());
+        disableNodeDatepicker.setText("Disabled Until");
+        var alert = Bindings.createObjectBinding(() -> App.getSingleton().getFacade().getAllAsListAlert().stream().filter(a -> a.getAlertType() == Alert.AlertType.MAP_DISABLED && Objects.equals(a.getNodeID(), node.getNodeID())).findFirst(), App.getSingleton().getFacade().getAllAsListAlert());
+        alert.addListener((o, ol, ne) -> {
+            button.setSelected(alert.get().isPresent());
+            alert.get().ifPresent(a -> disableNodeDatepicker.setValue(a.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate()));
+        });
+        button.setSelected(alert.get().isPresent());
+        button.setOnAction(e -> {
+            if (button.isSelected()) {
+                App.getSingleton().getFacade().saveAlert(Alert.builder()
+                        .uuid(UUID.randomUUID())
+                        .nodeID(node.getNodeID())
+                        .readStatus(Alert.ReadStatus.UNREAD)
+                        .alertType(Alert.AlertType.MAP_DISABLED)
+                        .employeeID(-1L)
+                        .alertTitle(nodeToLocation(node).get().getLongName())
+                        .description("This location will be inaccessible until " + disableNodeDatepicker.getValue().toString())
+                        .startDate(Instant.now().minus(Duration.ofMinutes(1)))
+                        .endDate(LocalDateTime.of(disableNodeDatepicker.getValue(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant())
+                        .build());
+            } else if (alert.get().isPresent()) {
+                App.getSingleton().getFacade().deleteAlert(alert.get().get());
+            }
+        });
+        disableNodeDatepicker.valueProperty().addListener((o, ol, ne) -> {
+            if (alert.get().isPresent())
+                App.getSingleton().getFacade().updateAlert(alert.get().get().toBuilder().endDate(LocalDateTime.of(disableNodeDatepicker.getValue(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant()).build(), new Alert.Field[]{Alert.Field.END_DATE});
+        });
+
         var delete = new PFXButton("Delete Node");
         delete.getStyleClass().add("node-popover-delete");
         delete.setOnAction(a -> {
@@ -279,28 +342,14 @@ public class AdminMapController {
                 new Label("Future Moves"),
                 futureMovesList,
                 new Separator(),
+                button,
+                disableNodeDatepicker,
+                new Separator(),
                 delete);
         // sort locations by long name
         popOver.setContentNode(editNode);
         popOver.setTitle("Edit Node " + node.getNodeID().toString());
         return popOver;
-    }
-
-    public static Point2D getClosestPointOnLine(Point2D p1, Point2D p2, Point2D p3) {
-        double x1 = p1.getX();
-        double y1 = p1.getY();
-        double x2 = p2.getX();
-        double y2 = p2.getY();
-        double x3 = p3.getX();
-        double y3 = p3.getY();
-
-        double slope = (y2 - y1) / (x2 - x1);
-        double perpendicularSlope = -1 / slope;
-
-        double x4 = (y3 - y1 + slope * x1 - perpendicularSlope * x3) / (slope - perpendicularSlope);
-        double y4 = slope * (x4 - x1) + y1;
-
-        return new Point2D(x4, y4);
     }
 
     private Optional<Circle> addEditableNode(Long nodeID) {
@@ -378,23 +427,6 @@ public class AdminMapController {
         edgeLines.put(edge.getEndNode(), edge.getUuid());
         return edgeLine;
     }
-
-    private final EventHandler<MouseEvent> alignNode = e -> {
-        if (alignmentLine != null) return;
-        if (!isLeftClick.test(e) || e.getClickCount() != 1 || e.getTarget().getClass() != ImageView.class) return;
-        var location = map.getClickLocation(e);
-        if (firstPoint == null) {
-            firstPoint = location;
-            firstFloor = map.getLayer();
-            return;
-        }
-        if (map.getLayer() != firstFloor) return;
-        if (secondPoint == null)
-            secondPoint = location;
-        var line = map.drawLine(firstFloor, Arrays.asList(firstPoint, secondPoint), Color.BLUE, 3);
-        firstPoint = secondPoint = null;
-        alignmentLine = (Polyline) line.get();
-    };
 
     @FXML
     private void alignNodes() {

@@ -32,6 +32,10 @@
             </VBox>
         </VBox>
     </left>
+    <center>
+        <VBox fx:id="alertBox" styleClass="pathfinding-overlay">
+        </VBox>
+    </center>
     <right>
         <VBox fx:id="robotInfo" styleClass="pathfinding-overlay">
             <VBox styleClass="pathfinding-overlay-box">

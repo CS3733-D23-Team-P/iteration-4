@@ -38,8 +38,9 @@
     -pfx-button-background: -pfx-danger;
     -pfx-button-text: white;
 }
-.node-popover-date {
 
+.node-popover Label{
+    -fx-text-fill: -pfx-text;
 }
 
 .move-delete-btn PFXIcon {

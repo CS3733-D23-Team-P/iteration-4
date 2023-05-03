@@ -151,7 +151,8 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>
 
     @Override
     public void setZoomAndFocus(double zoomScale, Node node){
-        withAnimation(()->focusOn(node)).zoomTo(zoomScale, new Point2D(gesturePane.getCurrentX(), gesturePane.getCurrentY()));
+        focusOn(node);
+        withAnimation(()->focusOn(node)).zoomTo(zoomScale, new Point2D(node.getXcoord(), node.getYcoord()));
     }
 
     @Override
