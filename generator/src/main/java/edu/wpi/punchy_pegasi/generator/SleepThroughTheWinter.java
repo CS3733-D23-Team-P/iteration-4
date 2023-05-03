@@ -17,7 +17,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -273,9 +272,9 @@ public class SleepThroughTheWinter {
          ? "PERFORM pg_notify('" + parentTable.get(0).name().toLowerCase() + "_update',output::text);"
                 : "";
 
-        var classFields = inheritanceString.isBlank()
+        var classFields = (inheritanceString.isBlank()
                 ? getFieldsRecursively(clazz)
-                : Arrays.stream(clazz.getDeclaredFields()).toList();
+                : Arrays.stream(clazz.getDeclaredFields()).toList()).stream().filter(f -> !Modifier.isStatic(f.getModifiers())).toList();
 
 
 //        var classFields = getFieldsRecursively(clazz);

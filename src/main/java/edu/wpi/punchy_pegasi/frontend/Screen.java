@@ -19,7 +19,7 @@ public enum Screen {
     LOGIN("Login", "frontend/views/Login.fxml", Account.AccountType.NONE, false, false, true),
     ADMIN_PAGE("Admin Page", "frontend/requests/admin/AdminPage.fxml", Account.AccountType.ADMIN),
     ADMIN_TABLE_PAGE("Admin Table Page", "frontend/requests/admin/AdminTablePage.fxml", Account.AccountType.ADMIN),
-    ADMIN_ALERT_PAGE("Admin Alert Page", "frontend/requests/admin/AlertPage.fxml", Account.AccountType.NONE),
+    ADMIN_ALERT_PAGE("Admin Alert Page", "frontend/requests/admin/AlertPage.fxml", Account.AccountType.ADMIN),
     FLOWER_DELIVERY_REQUEST("Request Flower Delivery", "frontend/requests/FlowerDeliveryRequest.fxml", Account.AccountType.STAFF, FlowerDeliveryRequestController::create),
     OFFICE_SERVICE_REQUEST("Request Office Supplies", "frontend/requests/OfficeServiceRequest.fxml", Account.AccountType.STAFF, OfficeServiceRequestController::create),
     FOOD_SERVICE_REQUEST("Request Food Delivery", "frontend/requests/FoodServiceRequest.fxml", Account.AccountType.STAFF, FoodServiceRequestController::create),
@@ -28,7 +28,7 @@ public enum Screen {
     SERVICE_REQUEST("Service Request", "frontend/requests/ServiceRequest.fxml", Account.AccountType.STAFF),
     ABOUT("About", "frontend/views/About.fxml", Account.AccountType.NONE),
     INFO("Info", "frontend/views/Info.fxml", Account.AccountType.NONE),
-    CREDITS("Credits",  "frontend/views/Credits.fxml", Account.AccountType.NONE);
+    CREDITS("Credits", "frontend/views/Credits.fxml", Account.AccountType.NONE);
     private final Function<String, ? extends Parent> createFunction;
     private final String path;
     private final String readable;
