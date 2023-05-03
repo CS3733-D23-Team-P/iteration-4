@@ -60,6 +60,7 @@ public class HomePageController {
     private ObservableList<Alert> alerts;
     private ObservableList<Alert> readAlerts;
     private ObservableList<Alert> unreadAlerts;
+    private ObservableList<RequestEntry> requestEntries;
 
     private FilteredList<Alert> read;
 
@@ -69,7 +70,8 @@ public class HomePageController {
 
         requestTable.prefWidthProperty().bind(tableContainer.widthProperty());
         requestTable.prefHeightProperty().bind(tableContainer.heightProperty());
-        ObservableList<RequestEntry> requestEntries = facade.getAllAsListRequestEntry();
+        initRequestTable();
+        //ObservableList<RequestEntry> requestEntries = facade.getAllAsListRequestEntry();
         var doneSlice = new PieChart.Data("Done", 0);
         var processingSlice =  new PieChart.Data("Processing", 0);
         doneSlice.pieValueProperty().bind(Bindings.createDoubleBinding(() -> requestEntries.stream().mapToDouble(r -> r.getStatus() == RequestEntry.Status.DONE ? 1 : 0).sum(), requestEntries));
@@ -93,7 +95,7 @@ public class HomePageController {
         alertScrollPane.visibleProperty().bind(Bindings.createBooleanBinding(() -> !alerts.isEmpty(), alerts));
         alertScrollPane.managedProperty().bind(Bindings.createBooleanBinding(() -> !alerts.isEmpty(), alerts));
 
-        initRequestTable();
+
         showServiceRequestTable(true);
     }
 
@@ -109,7 +111,7 @@ public class HomePageController {
 
     private void initRequestTable() {
         var employeeID = App.getSingleton().getAccount().getEmployeeID();
-        ObservableList<RequestEntry> requestEntries = facade.getAllAsListRequestEntry()
+        requestEntries = facade.getAllAsListRequestEntry()
                 .filtered(e ->
                         App.getSingleton().getAccount().getAccountType().getShieldLevel() >= Account.AccountType.ADMIN.getShieldLevel()
                                 || Objects.equals(e.getStaffAssignment(), employeeID));
