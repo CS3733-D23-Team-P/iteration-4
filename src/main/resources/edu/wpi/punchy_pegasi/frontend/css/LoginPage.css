@@ -30,8 +30,9 @@
 }
 
 .login-quicknav PFXButton {
-    -fx-text-fill: -pfx-text;
+    -pfx-button-text: -pfx-text;
     -pfx-button-background: -pfx-background;
+    -pfx-button-hover: -pfx-accent-transparent;
 }
 
 .login-quicknav PFXButton:hover {

@@ -195,7 +195,7 @@ public class FoodServiceRequestEntryCachedDaoImpl implements IDao<java.util.UUID
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.FOODREQUESTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.FOODREQUESTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (FoodServiceRequestEntry) update.data();
             switch (update.action()) {

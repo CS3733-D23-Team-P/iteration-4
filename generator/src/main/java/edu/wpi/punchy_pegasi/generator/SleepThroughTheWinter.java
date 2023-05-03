@@ -14,9 +14,9 @@ import org.objectweb.asm.tree.MethodNode;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -268,10 +268,13 @@ public class SleepThroughTheWinter {
         var inheritanceString = parentClass != null && parentTable.size() == 1
                 ? " INHERITS (" + parentTable.get(0).name().toLowerCase() + ")"
                 : "";
+        var inheritanceNotify =  parentClass != null && parentTable.size() == 1
+         ? "PERFORM pg_notify('" + parentTable.get(0).name().toLowerCase() + "_update',output::text);"
+                : "";
 
-        var classFields = inheritanceString.isBlank()
+        var classFields = (inheritanceString.isBlank()
                 ? getFieldsRecursively(clazz)
-                : Arrays.stream(clazz.getDeclaredFields()).toList();
+                : Arrays.stream(clazz.getDeclaredFields()).toList()).stream().filter(f -> !Modifier.isStatic(f.getModifiers())).toList();
 
 
 //        var classFields = getFieldsRecursively(clazz);
@@ -302,6 +305,7 @@ public class SleepThroughTheWinter {
                     -- encode data as json inside a string
                     output = jsonb_build_object('tableType', '%2$s', 'action', TG_OP, 'data', to_json(row_to_json(row)::text));
                     PERFORM pg_notify('%1$s_update',output::text);
+                    %3$s
                     RETURN NULL;
                     END;
                 $$ LANGUAGE plpgsql;
@@ -310,7 +314,7 @@ public class SleepThroughTheWinter {
                   ON %1$s
                   FOR EACH ROW
                   EXECUTE PROCEDURE notify_%1$s_update();
-                """, tableName, tt.name());
+                """, tableName, tt.name(), inheritanceNotify);
 
         return idField.isPresent() && idField.get().getType() == Long.class ?
                 String.format("""
@@ -381,7 +385,7 @@ public class SleepThroughTheWinter {
         var sourceFileText = new String(Files.readAllBytes(schemaSourcePath))
                 .replaceAll("edu\\.wpi\\.punchy_pegasi\\.generator\\.schema", "edu.wpi.punchy_pegasi.schema");
 
-        var classFields = getFieldsRecursively(entryClass);
+        var classFields = getFieldsRecursively(entryClass).stream().filter(f-> !Modifier.isStatic(f.getModifiers())).toList();
 
         // gen schema
         var schemaFileText = sourceFileText // remove @SchemaID annotations

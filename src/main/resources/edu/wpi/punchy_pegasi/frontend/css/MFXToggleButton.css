@@ -21,6 +21,8 @@
     -mfx-secondary: #424242;
 
     -fx-padding: 10;
+    -fx-font-size: 16;
+    -fx-text-fill: -pfx-text;
 }
 
 .mfx-circle-toggle-node .mfx-text-field {

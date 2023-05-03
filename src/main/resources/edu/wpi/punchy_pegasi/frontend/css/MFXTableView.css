@@ -17,15 +17,15 @@
  */
 
 .mfx-table-view {
-    -fx-background-color: white;
+    -fx-background-color: -pfx-background;
     -fx-background-radius: 5;
-    -fx-border-color: lightgray;
+    -fx-border-color: -pfx-secondary;
     -fx-border-radius: 5;
     -fx-padding: 0 0 2 0;
 }
 
 .mfx-table-view .columns-container {
-    -fx-border-color: transparent transparent lightgray transparent;
+    -fx-border-color: transparent transparent -pfx-secondary transparent;
 }
 
 .mfx-table-view .default-footer {
@@ -41,8 +41,9 @@
 Table Columns
 ********************/
 .mfx-table-column {
-    -fx-border-color: transparent white transparent transparent;
+    -fx-border-color: transparent -pfx-secondary transparent transparent;
     -fx-padding: 10 15 10 15;
+    -fx-text-fill: -pfx-text;
 }
 
 .mfx-table-column:hover,
@@ -58,11 +59,11 @@ Table Rows
 }
 
 .mfx-table-row:hover {
-    -fx-background-color: #F5F5F5;
+    -fx-background-color: -pfx-accent-transparent;
 }
 
 .mfx-table-row:selected {
-    -fx-background-color: #E1E1E1;
+    -fx-background-color: -pfx-accent-transparent;
 }
 
 .mfx-table-row .mfx-ripple-generator {
@@ -76,6 +77,7 @@ Table Row Cells
 .mfx-table-row-cell {
     -fx-background-color: transparent;
     -fx-padding: 5 15 5 15;
+    -fx-text-fill: -pfx-text;
 }
 
 .mfx-table-row-cell,

@@ -1,0 +1,12 @@
+.search-items Label{
+    -fx-cursor: hand;
+    -fx-text-fill: -pfx-text;
+}
+
+.search-items-big-font {
+    -fx-font-size: 16;
+}
+
+.search-items-descriptions {
+    -fx-font-size: 12;
+}

@@ -21,8 +21,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -85,7 +83,7 @@ public class App extends Application {
     @Getter
     private Scene scene;
     @Getter
-    private Account account = new Account(0L, "", "", 0L, Account.AccountType.NONE, Account.Theme.LIGHT);
+    private Account account = Account.DEFAULT;
     @Getter
     private LayoutController layout;
     @Getter
@@ -103,7 +101,7 @@ public class App extends Application {
 
     private static void showError(Thread t, Throwable e) {
         log.error("An unexpected error occurred in " + t, e);
-        if (Platform.isFxApplicationThread()) showErrorDialog(e);
+        if (Platform.isFxApplicationThread()) App.getSingleton().getLayout().notify("Unexpected error", "", 3);
     }
 
     private static void showErrorDialog(Throwable e) {
@@ -127,20 +125,32 @@ public class App extends Application {
             case LIGHT -> "frontend/css/PFXColors.css";
             case DARK -> "frontend/css/PFXColorsDark.css";
         };
+        var accentPath = switch (getAccount().getAccent()) {
+            case DEFAULT -> "frontend/css/accentColors/Default.css";
+            case PRIDE -> "frontend/css/accentColors/Pride.css";
+            case WATERMELON -> "frontend/css/accentColors/Watermelon.css";
+            case PINK -> "frontend/css/accentColors/Pink.css";
+            case ORANGE -> "frontend/css/accentColors/Orange.css";
+            case SUNSET -> "frontend/css/accentColors/Sunset.css";
+            case ZEBRA -> "frontend/css/accentColors/Zebra.css";
+        };
         scene.getStylesheets().clear();
+        loadStylesheet(accentPath);
         loadStylesheet(colorsPath);
         loadStylesheet("frontend/css/DefaultTheme.css");
     }
 
     public void setAccount(Account account) {
         if (account == null) {
+            account = Account.DEFAULT;
             navigate(Screen.LOGIN);
-            account = new Account(0L, "", "", 0L, Account.AccountType.NONE, Account.Theme.LIGHT);
         }
+
         var changeTheme = this.account.getTheme() != account.getTheme();
+        var changeAccent = this.account.getAccent() != account.getAccent();
         support.firePropertyChange("account", this.account, account);
         this.account = account;
-        if(changeTheme) loadTheme();
+        if (changeTheme || changeAccent) loadTheme();
     }
 
     public void exit() {
@@ -189,7 +199,7 @@ public class App extends Application {
             var loadingPage = new PageLoading();
             loadingPage.getStyleClass().add("page-loading");
             getViewPane().setCenter(loadingPage);
-            if(loadingThread !=null)
+            if (loadingThread != null)
                 loadingThread.interrupt();
             getExecutorService().execute(() -> {
                 loadingThread = Thread.currentThread();

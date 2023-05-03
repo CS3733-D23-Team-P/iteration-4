@@ -1,0 +1,6 @@
+* {
+    -pfx-accent: linear-gradient(to top, #ff7f50, #6a5acd);
+    -pfx-accent-transparent: linear-gradient(to top, rgba(255, 127, 80, 0.2), rgba(106, 90, 205, 0.2));
+    -pfx-accent-light: linear-gradient(to top, #ffa17f, #8f7eff);
+    -pfx-accent-dark: linear-gradient(to top, #a22c00, #1700a4);
+}

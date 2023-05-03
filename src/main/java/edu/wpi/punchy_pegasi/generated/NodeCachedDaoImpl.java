@@ -1,8 +1,8 @@
 package edu.wpi.punchy_pegasi.generated;
 
 import edu.wpi.punchy_pegasi.backend.PdbController;
-import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.Node;
+import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.TableType;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
@@ -111,11 +111,11 @@ public class NodeCachedDaoImpl implements IDao<java.lang.Long, Node, Node.Field>
         try (var rs = dbController.searchQuery(TableType.NODES)) {
             while (rs.next()) {
                 Node req = new Node(
-                        rs.getObject("nodeID", java.lang.Long.class),
-                        rs.getObject("xcoord", java.lang.Integer.class),
-                        rs.getObject("ycoord", java.lang.Integer.class),
-                        rs.getObject("floor", java.lang.String.class),
-                        rs.getObject("building", java.lang.String.class));
+                    rs.getObject("nodeID", java.lang.Long.class),
+                    rs.getObject("xcoord", java.lang.Integer.class),
+                    rs.getObject("ycoord", java.lang.Integer.class),
+                    rs.getObject("floor", java.lang.String.class),
+                    rs.getObject("building", java.lang.String.class));
                 add(req);
             }
         } catch (PdbController.DatabaseException | SQLException e) {
@@ -192,7 +192,7 @@ public class NodeCachedDaoImpl implements IDao<java.lang.Long, Node, Node.Field>
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.NODES.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.NODES.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Node) update.data();
             switch (update.action()) {

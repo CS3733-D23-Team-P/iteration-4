@@ -1,13 +1,10 @@
 package edu.wpi.punchy_pegasi.schema;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
 @Setter(AccessLevel.NONE)
 @AllArgsConstructor
 public class GenericRequestEntry extends RequestEntry {
@@ -19,42 +16,37 @@ public class GenericRequestEntry extends RequestEntry {
     public GenericRequestEntry(Long locationName, Long staffAssignment, String additionalNotes, Long employeeID) {
         super(UUID.randomUUID(), locationName, staffAssignment, additionalNotes, Status.PROCESSING, employeeID);
     }
-
-    @lombok.RequiredArgsConstructor
-    public enum Field implements IField<edu.wpi.punchy_pegasi.schema.GenericRequestEntry, edu.wpi.punchy_pegasi.schema.GenericRequestEntry.GenericRequestEntryBuilder> {
-        SERVICE_ID("serviceID", true, false),
-        LOCATION_NAME("locationName", false, false),
-        STAFF_ASSIGNMENT("staffAssignment", false, false),
-        ADDITIONAL_NOTES("additionalNotes", false, false),
-        STATUS("status", false, false),
-        EMPLOYEE_ID("employeeID", false, false);
+@lombok.RequiredArgsConstructor
+public enum Field implements IField<edu.wpi.punchy_pegasi.schema.GenericRequestEntry, edu.wpi.punchy_pegasi.schema.GenericRequestEntry.GenericRequestEntryBuilder>{
+        SERVICE_ID("serviceID", true,false),
+        LOCATION_NAME("locationName", false,false),
+        STAFF_ASSIGNMENT("staffAssignment", false,false),
+        ADDITIONAL_NOTES("additionalNotes", false,false),
+        STATUS("status", false,false),
+        EMPLOYEE_ID("employeeID", false,false);
         @lombok.Getter
         private final String colName;
         @lombok.Getter
         private final boolean primaryKey;
         @lombok.Getter
         private final boolean unique;
-
-        public Object getValue(edu.wpi.punchy_pegasi.schema.GenericRequestEntry ref) {
-            return ref.getFromField(this);
-        }
-
-        public String getValueAsString(edu.wpi.punchy_pegasi.schema.GenericRequestEntry ref) {
-            return ref.getFromFieldAsString(this);
-        }
-
-        public void setValueFromString(edu.wpi.punchy_pegasi.schema.GenericRequestEntry.GenericRequestEntryBuilder builder, String value) {
+        public Object getValue(edu.wpi.punchy_pegasi.schema.GenericRequestEntry ref){
+    return ref.getFromField(this);
+}
+public String getValueAsString(edu.wpi.punchy_pegasi.schema.GenericRequestEntry ref){
+    return ref.getFromFieldAsString(this);
+}
+    public void setValueFromString(edu.wpi.punchy_pegasi.schema.GenericRequestEntry.GenericRequestEntryBuilder builder, String value){
             switch (this) {
-                case SERVICE_ID -> builder.serviceID(java.util.UUID.fromString(value));
-                case LOCATION_NAME -> builder.locationName(Long.parseLong(value));
-                case STAFF_ASSIGNMENT -> builder.staffAssignment(Long.parseLong(value));
-                case ADDITIONAL_NOTES -> builder.additionalNotes(value);
-                case STATUS -> builder.status(Status.valueOf(value));
-                case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
+            case SERVICE_ID -> builder.serviceID(java.util.UUID.fromString(value));
+            case LOCATION_NAME -> builder.locationName(Long.parseLong(value));
+            case STAFF_ASSIGNMENT -> builder.staffAssignment(Long.parseLong(value));
+            case ADDITIONAL_NOTES -> builder.additionalNotes(value);
+            case STATUS -> builder.status(Status.valueOf(value));
+            case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
             }
         }
-
-        public int oridinal() {
+        public int oridinal(){
             return ordinal();
         }
     }

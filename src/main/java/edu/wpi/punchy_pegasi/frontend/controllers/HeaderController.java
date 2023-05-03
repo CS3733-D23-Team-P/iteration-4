@@ -55,22 +55,24 @@ public class HeaderController extends HBox implements PropertyChangeListener {
             if(s.getScreen().getShield().getShieldLevel() <= App.getSingleton().getAccount().getAccountType().getShieldLevel()){
                 if (item == null) {
                     item = new VBox();
+                    item.getStyleClass().add("search-items");
                     item.setId(name);
                     var separator = new Separator();
                     var nameLabel = new Label(name);
-                    nameLabel.setStyle("-fx-cursor: hand; -fx-fill: -pfx-accent; -fx-font-size: 16;");
+                    nameLabel.getStyleClass().add("search-items-big-font");
                     nameLabel.setWrapText(true);
                     nameLabel.setOnMouseClicked(e -> s.getNavigate().run());
                     items.put(name, item);
                     var description = new Label(s.getDescription());
-                    description.setStyle("-fx-cursor: hand; -fx-fill: -pfx-accent;");
                     description.setWrapText(true);
+                    description.getStyleClass().add("search-items-descriptions");
                     description.setOnMouseClicked(e -> s.getNavigate().run());
                     item.getChildren().addAll(nameLabel, separator, description);
                 } else {
+                    item.getStyleClass().add("search-items");
                     var description = new Label(s.getDescription());
-                    description.setStyle("-fx-cursor: hand; -fx-fill: -pfx-accent;");
                     description.setWrapText(true);
+                    description.getStyleClass().add("search-items-descriptions");
                     description.setOnMouseClicked(e -> s.getNavigate().run());
                     if (!item.getChildren().contains(description)) {
                         item.getChildren().add(description);
@@ -153,6 +155,8 @@ public class HeaderController extends HBox implements PropertyChangeListener {
         list.add(new AppSearch.SearchableItem("Order Office Chairs", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Order Blankets", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Order Frames", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
+        list.add(new AppSearch.SearchableItem("Order Pillows", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
+        list.add(new AppSearch.SearchableItem("Order Rugs", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Assign a staff", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Enter a patient name", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
         list.add(new AppSearch.SearchableItem("Assign a location name", Screen.FURNITURE_DELIVERY_SERVICE_REQUEST, () -> App.getSingleton().navigate(Screen.SERVICE_REQUEST)));
@@ -324,11 +328,12 @@ public class HeaderController extends HBox implements PropertyChangeListener {
         list.add(new AppSearch.SearchableItem("Meet the team", Screen.ABOUT, () -> App.getSingleton().navigate(Screen.INFO)));
         list.add(new AppSearch.SearchableItem("Acknowledgements", Screen.ABOUT, () -> App.getSingleton().navigate(Screen.INFO)));
 
-
         list.add(new AppSearch.SearchableItem( "View the credits page", Screen.CREDITS, () -> App.getSingleton().navigate(Screen.INFO)));
         list.add(new AppSearch.SearchableItem( "View resources", Screen.CREDITS, () -> App.getSingleton().navigate(Screen.INFO)));
         list.add(new AppSearch.SearchableItem( "View hyperlinks for resources", Screen.CREDITS, () -> App.getSingleton().navigate(Screen.INFO)));
 
+        list.add(new AppSearch.SearchableItem("View the alerts page", Screen.ADMIN_ALERT_PAGE, () -> App.getSingleton().navigate(Screen.ADMIN_PAGE)));
+        list.add(new AppSearch.SearchableItem("Create a new alert", Screen.ADMIN_ALERT_PAGE, () -> App.getSingleton().navigate(Screen.ADMIN_PAGE)));
 
         var filtered = list.filtered(s -> true);
 
@@ -353,10 +358,10 @@ public class HeaderController extends HBox implements PropertyChangeListener {
         resultScrollContainer.setStyle(" -fx-background-color: -pfx-background;");
         searchField.setStyle(" -fx-background-color: -pfx-background;");
         searchBox.getStyleClass().add("search-box");
-        searchField.setStyle("-fx-font-size: 18; -fx-text-fill: -pfx-text; -fx-background-color: -pfx-primary;");
-        searchField.setPrefHeight(30);
-        searchField.setMaxHeight(30);
-        searchField.setMinHeight(30);
+        searchField.setStyle("-fx-font-size: 18; -fx-text-fill: -pfx-text; -fx-background-color: -pfx-background;");
+        searchField.setPrefHeight(33);
+        searchField.setMaxHeight(33);
+        searchField.setMinHeight(33);
         var icon = new PFXIcon();
         icon.setTranslateY(-1);
         icon.setTranslateX(1);

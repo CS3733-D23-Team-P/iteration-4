@@ -1,8 +1,8 @@
 package edu.wpi.punchy_pegasi.generated;
 
 import edu.wpi.punchy_pegasi.backend.PdbController;
-import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.LocationName;
+import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.TableType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -52,10 +52,10 @@ public class LocationNameDaoImpl implements IDao<java.lang.Long, LocationName, L
         try (var rs = dbController.searchQuery(TableType.LOCATIONNAMES, Arrays.stream(params).map(LocationName.Field::getColName).toList().toArray(new String[params.length]), value)) {
             while (rs.next()) {
                 LocationName req = new LocationName(
-                        rs.getObject("uuid", java.lang.Long.class),
-                        rs.getObject("longName", java.lang.String.class),
-                        rs.getObject("shortName", java.lang.String.class),
-                        edu.wpi.punchy_pegasi.schema.LocationName.NodeType.valueOf(rs.getString("nodeType")));
+                    rs.getObject("uuid", java.lang.Long.class),
+                    rs.getObject("longName", java.lang.String.class),
+                    rs.getObject("shortName", java.lang.String.class),
+                    edu.wpi.punchy_pegasi.schema.LocationName.NodeType.valueOf(rs.getString("nodeType")));
                 if (req != null)
                     map.put(req.getUuid(), req);
             }
@@ -71,10 +71,10 @@ public class LocationNameDaoImpl implements IDao<java.lang.Long, LocationName, L
         try (var rs = dbController.searchQuery(TableType.LOCATIONNAMES)) {
             while (rs.next()) {
                 LocationName req = new LocationName(
-                        rs.getObject("uuid", java.lang.Long.class),
-                        rs.getObject("longName", java.lang.String.class),
-                        rs.getObject("shortName", java.lang.String.class),
-                        edu.wpi.punchy_pegasi.schema.LocationName.NodeType.valueOf(rs.getString("nodeType")));
+                    rs.getObject("uuid", java.lang.Long.class),
+                    rs.getObject("longName", java.lang.String.class),
+                    rs.getObject("shortName", java.lang.String.class),
+                    edu.wpi.punchy_pegasi.schema.LocationName.NodeType.valueOf(rs.getString("nodeType")));
                 if (req != null)
                     map.put(req.getUuid(), req);
             }

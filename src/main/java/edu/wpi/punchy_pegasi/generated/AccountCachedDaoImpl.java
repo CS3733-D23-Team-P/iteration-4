@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class AccountCachedDaoImpl implements IDao<java.lang.Long, Account, Account.Field>, PropertyChangeListener {
 
-    static String[] fields = {"uuid", "username", "password", "employeeID", "accountType", "theme"};
+    static String[] fields = {"uuid", "username", "password", "employeeID", "accountType", "theme", "accent"};
 
     private final ObservableMap<java.lang.Long, Account> cache = FXCollections.observableMap(new LinkedHashMap<>());
     private final ObservableList<Account> list = FXCollections.observableArrayList();
@@ -111,12 +111,13 @@ public class AccountCachedDaoImpl implements IDao<java.lang.Long, Account, Accou
         try (var rs = dbController.searchQuery(TableType.ACCOUNTS)) {
             while (rs.next()) {
                 Account req = new Account(
-                        rs.getObject("uuid", java.lang.Long.class),
-                        rs.getObject("username", java.lang.String.class),
-                        rs.getObject("password", java.lang.String.class),
-                        rs.getObject("employeeID", java.lang.Long.class),
-                        edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf(rs.getString("accountType")),
-                        edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")));
+                    rs.getObject("uuid", java.lang.Long.class),
+                    rs.getObject("username", java.lang.String.class),
+                    rs.getObject("password", java.lang.String.class),
+                    rs.getObject("employeeID", java.lang.Long.class),
+                    edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf(rs.getString("accountType")),
+                    edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf(rs.getString("theme")),
+                    edu.wpi.punchy_pegasi.schema.Account.Accent.valueOf(rs.getString("accent")));
                 add(req);
             }
         } catch (PdbController.DatabaseException | SQLException e) {
@@ -160,7 +161,7 @@ public class AccountCachedDaoImpl implements IDao<java.lang.Long, Account, Accou
 
     @Override
     public void save(Account account) {
-        Object[] values = {account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType(), account.getTheme()};
+        Object[] values = {account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType(), account.getTheme(), account.getAccent()};
         try {
             add(account);
             dbController.insertQuery(TableType.ACCOUNTS, fields, values);
@@ -193,7 +194,7 @@ public class AccountCachedDaoImpl implements IDao<java.lang.Long, Account, Accou
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.ACCOUNTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.ACCOUNTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Account) update.data();
             switch (update.action()) {

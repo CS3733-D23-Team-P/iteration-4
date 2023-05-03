@@ -26,6 +26,7 @@ public class PFXAlertCard extends HBox {
         this.alert = alert;
         this.active = MaterialSymbols.NOTIFICATIONS_ACTIVE;
         Alert.ReadStatus readStatus = alert.getReadStatus();
+        getStyleClass().add("pfx-alert-card-container");
         if(readStatus == Alert.ReadStatus.READ) {
             icon = new PFXIcon(MaterialSymbols.TASK_ALT);
             getStyleClass().add("pfx-alert-card-container-read");
@@ -86,10 +87,10 @@ public class PFXAlertCard extends HBox {
     public String getDescription(){ return description.getText(); }
 
     public void toggleRead() {
-        var n = alert.withReadStatus(switch (alert.getReadStatus()){
+        var n = alert.toBuilder().readStatus(switch (alert.getReadStatus()){
             case READ -> Alert.ReadStatus.UNREAD;
             case UNREAD -> Alert.ReadStatus.READ;
-        });
+        }).build();
         App.getSingleton().getFacade().updateAlert(n, new Alert.Field[]{Alert.Field.READ_STATUS});
         if(alert.getReadStatus() == Alert.ReadStatus.READ) {
             getStyleClass().remove("pfx-alert-card-container-unread");

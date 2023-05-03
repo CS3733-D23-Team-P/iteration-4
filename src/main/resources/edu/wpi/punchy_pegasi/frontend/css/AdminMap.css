@@ -36,10 +36,12 @@
 }
 #cancelAlignButton {
     -pfx-button-background: -pfx-danger;
+    -pfx-button-hover: -pfx-accent-dark;
     -pfx-button-text: white;
 }
-.node-popover-date {
 
+.node-popover Label{
+    -fx-text-fill: -pfx-text;
 }
 
 .move-delete-btn PFXIcon {
@@ -60,6 +62,7 @@
     -fx-cursor: hand;
     -fx-background-radius: 30;
     -pfx-button-background: transparent;
+    -pfx-button-hover: transparent;
 }
 
 .move-hbox {

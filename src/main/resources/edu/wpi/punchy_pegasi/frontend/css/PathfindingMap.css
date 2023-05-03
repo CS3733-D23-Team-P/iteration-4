@@ -28,16 +28,6 @@
     -fx-padding: 5;
 }
 
-.pathfinding-direction-box {
-    -fx-alignment: CENTER;
-    -fx-max-width: 300;
-    -fx-spacing: 10;
-    -fx-padding: 10;
-    -fx-background-color: -pfx-background;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
-}
-
 /*.pathfinding-direction-box > HBox {*/
 /*    -fx-spacing: 10;*/
 /*    -fx-alignment: CENTER;*/
@@ -52,6 +42,7 @@
 .pathfinding-direction-scroll-pane {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-max-height: 600;
 }
 
 .pathfinding-direction-scroll-pane .scroll-bar:vertical {
@@ -69,7 +60,6 @@
 .pathfinding-direction-overlay {
     -fx-spacing: 10;
     -fx-padding: 20;
-    -fx-max-height: 500;
 }
 .pathfinding-direction-overlay Label {
     -fx-text-fill: -pfx-text;
@@ -78,14 +68,22 @@
 .pathfinding-direction-overlay PFXIcon {
     -fx-fill: -pfx-text;
 }
-
+.pathfinding-direction-box {
+    -fx-alignment: CENTER;
+    -fx-spacing: 10;
+    -fx-padding: 10;
+    -fx-background-color: -pfx-background;
+    -fx-text-fill: -pfx-text;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
+}
 .pathfinding-direction-box:hover {
     -fx-background-color: -pfx-background-transparent;
 }
-.pathfinding-direction-box:hover Label {
+.pathfinding-direction-box Label {
     -fx-text-fill: -pfx-text;
 }
-.pathfinding-direction-box:hover PFXIcon {
+.pathfinding-direction-box PFXIcon {
     -fx-fill: -pfx-text;
 }
 
@@ -97,4 +95,45 @@
 .pathfinding-overlay .pfx-button-cancel {
     -pfx-button-background: -pfx-danger;
     -pfx-button-text: -pfx-text;
+}
+
+.pathfinding-direction-inner-box > VBox > .label {
+    -fx-font-size: 16;
+    -fx-underline: true;
+}
+
+.pathfinding-direction {
+    -fx-background-radius: 6;
+    -fx-padding: 0 3;
+    -fx-max-width: 300;
+    -fx-cursor: hand;
+}
+
+.pathfinding-direction .label {
+    -fx-font-size: 14;
+}
+.pathfinding-direction:hover {
+    -fx-background-color: -pfx-accent-transparent;
+}
+
+
+.pathfinding-direction-highlighted {
+    -fx-background-color: -pfx-accent;
+}
+
+
+.pathfinding-direction-highlighted:hover {
+    -fx-background-color: -pfx-accent;
+}
+
+.pathfinding-map-alert {
+    -fx-padding: 3 20;
+    -fx-background-radius: 6;
+    -fx-background-color: -pfx-background;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
+}
+.pathfinding-map-alert > .label {
+    -fx-text-fill: -pfx-danger;
+    -fx-font-size: 16;
 }

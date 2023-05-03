@@ -5,7 +5,7 @@ import lombok.*;
 import java.util.List;
 import java.util.UUID;
 
-@Data
+@Getter
 @Setter(AccessLevel.NONE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,47 +27,41 @@ public class FoodServiceRequestEntry extends RequestEntry {
         this.selectedFoods = selectedFoods;
         this.patientName = patientName;
     }
-
-    @lombok.RequiredArgsConstructor
-    public enum Field implements IField<edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry, edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry.FoodServiceRequestEntryBuilder> {
-        SERVICE_ID("serviceID", true, false),
-        LOCATION_NAME("locationName", false, false),
-        STAFF_ASSIGNMENT("staffAssignment", false, false),
-        ADDITIONAL_NOTES("additionalNotes", false, false),
-        STATUS("status", false, false),
-        EMPLOYEE_ID("employeeID", false, false),
-        SELECTED_FOODS("selectedFoods", false, false),
-        PATIENT_NAME("patientName", false, false);
+@lombok.RequiredArgsConstructor
+public enum Field implements IField<edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry, edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry.FoodServiceRequestEntryBuilder>{
+        SERVICE_ID("serviceID", true,false),
+        LOCATION_NAME("locationName", false,false),
+        STAFF_ASSIGNMENT("staffAssignment", false,false),
+        ADDITIONAL_NOTES("additionalNotes", false,false),
+        STATUS("status", false,false),
+        EMPLOYEE_ID("employeeID", false,false),
+        SELECTED_FOODS("selectedFoods", false,false),
+        PATIENT_NAME("patientName", false,false);
         @lombok.Getter
         private final String colName;
         @lombok.Getter
         private final boolean primaryKey;
         @lombok.Getter
         private final boolean unique;
-
-        public Object getValue(edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry ref) {
-            return ref.getFromField(this);
-        }
-
-        public String getValueAsString(edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry ref) {
-            return ref.getFromFieldAsString(this);
-        }
-
-        public void setValueFromString(edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry.FoodServiceRequestEntryBuilder builder, String value) {
+        public Object getValue(edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry ref){
+    return ref.getFromField(this);
+}
+public String getValueAsString(edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry ref){
+    return ref.getFromFieldAsString(this);
+}
+    public void setValueFromString(edu.wpi.punchy_pegasi.schema.FoodServiceRequestEntry.FoodServiceRequestEntryBuilder builder, String value){
             switch (this) {
-                case SERVICE_ID -> builder.serviceID(java.util.UUID.fromString(value));
-                case LOCATION_NAME -> builder.locationName(Long.parseLong(value));
-                case STAFF_ASSIGNMENT -> builder.staffAssignment(Long.parseLong(value));
-                case ADDITIONAL_NOTES -> builder.additionalNotes(value);
-                case STATUS -> builder.status(Status.valueOf(value));
-                case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
-                case SELECTED_FOODS ->
-                        builder.selectedFoods(new java.util.ArrayList<>(java.util.Arrays.asList(value.split("\\s*,\\s*"))));
-                case PATIENT_NAME -> builder.patientName(value);
+            case SERVICE_ID -> builder.serviceID(java.util.UUID.fromString(value));
+            case LOCATION_NAME -> builder.locationName(Long.parseLong(value));
+            case STAFF_ASSIGNMENT -> builder.staffAssignment(Long.parseLong(value));
+            case ADDITIONAL_NOTES -> builder.additionalNotes(value);
+            case STATUS -> builder.status(Status.valueOf(value));
+            case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
+            case SELECTED_FOODS -> builder.selectedFoods(new java.util.ArrayList<>(java.util.Arrays.asList(value.split("\\s*,\\s*"))));
+            case PATIENT_NAME -> builder.patientName(value);
             }
         }
-
-        public int oridinal() {
+        public int oridinal(){
             return ordinal();
         }
     }

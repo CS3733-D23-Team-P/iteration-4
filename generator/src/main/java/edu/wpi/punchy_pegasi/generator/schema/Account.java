@@ -18,9 +18,14 @@ public class Account {
     private Long employeeID;
     private AccountType accountType;
     private Theme theme;
+    private Accent accent;
+    public static final Account DEFAULT = new Account(0L, "", "", 0L, Account.AccountType.NONE, Account.Theme.LIGHT, Account.Accent.DEFAULT);
 
     public enum Theme {
         LIGHT, DARK;
+    }
+    public enum Accent {
+        DEFAULT, PRIDE, WATERMELON, PINK, ORANGE, SUNSET, ZEBRA;
     }
 
         @RequiredArgsConstructor

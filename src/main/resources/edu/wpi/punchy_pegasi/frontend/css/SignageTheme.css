@@ -46,6 +46,7 @@
     -fx-cursor: hand;
     -fx-background-radius: 15;
     -pfx-button-background: transparent;
+    -pfx-button-hover: transparent;
 }
 
 .signage-fullscreen-button PFXIcon {

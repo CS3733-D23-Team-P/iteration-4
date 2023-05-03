@@ -196,7 +196,7 @@ public class AlertCachedDaoImpl implements IDao<java.util.UUID, Alert, Alert.Fie
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.ALERT.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.ALERT.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Alert) update.data();
             switch (update.action()) {
