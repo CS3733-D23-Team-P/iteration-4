@@ -21,6 +21,7 @@
 .pfx-picker-container PFXButton {
     -fx-font-family: "Nunito Sans Regular";
     -pfx-button-background: transparent;
+    -pfx-button-hover: -pfx-secondary-transparent;
     -fx-font-size: 16;
     -fx-max-width: 9999;
     -fx-text-fill: -pfx-accent;

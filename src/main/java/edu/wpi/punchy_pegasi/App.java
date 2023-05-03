@@ -147,9 +147,10 @@ public class App extends Application {
         }
 
         var changeTheme = this.account.getTheme() != account.getTheme();
+        var changeAccent = this.account.getAccent() != account.getAccent();
         support.firePropertyChange("account", this.account, account);
         this.account = account;
-        if (changeTheme) loadTheme();
+        if (changeTheme || changeAccent) loadTheme();
     }
 
     public void exit() {
