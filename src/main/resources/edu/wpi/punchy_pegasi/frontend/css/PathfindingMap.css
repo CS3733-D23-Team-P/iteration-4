@@ -31,6 +31,9 @@
 .pathfinding-direction-box {
     -fx-alignment: CENTER;
     -fx-max-width: 300;
+    -fx-min-height: 700;
+    -fx-pref-height: 700;
+    -fx-max-height: 700;
     -fx-spacing: 10;
     -fx-padding: 10;
     -fx-background-color: -pfx-background;
@@ -69,7 +72,6 @@
 .pathfinding-direction-overlay {
     -fx-spacing: 10;
     -fx-padding: 20;
-    -fx-max-height: 500;
 }
 .pathfinding-direction-overlay Label {
     -fx-text-fill: -pfx-text;

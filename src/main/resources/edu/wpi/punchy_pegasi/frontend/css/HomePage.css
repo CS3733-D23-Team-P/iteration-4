@@ -13,6 +13,8 @@
 }
 
 .home-alert-scrollpane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
 .home-alert-scrollpane .viewport {
@@ -26,7 +28,7 @@
 }
 
 .alert-listview {
-    -fx-padding: 20;
+    -fx-padding: 10;
     -fx-spacing: 10;
     -fx-background-color: transparent;
 }

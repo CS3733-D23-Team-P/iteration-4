@@ -44,7 +44,7 @@
         </VBox>
         <VBox fx:id="pathDirections" styleClass="pathfinding-direction-overlay">
             <VBox styleClass="pathfinding-direction-box">
-                <ScrollPane styleClass="pathfinding-direction-scroll-pane" fitToWidth="true" hbarPolicy="NEVER">
+                <ScrollPane styleClass="pathfinding-direction-scroll-pane" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER">
                     <VBox fx:id="pathDirectionsBox" styleClass="pathfinding-direction-inner-box"/>
                 </ScrollPane>
             </VBox>
