@@ -4,6 +4,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.backend.pathfinding.Graph;
 import edu.wpi.punchy_pegasi.backend.pathfinding.PathfindingSingleton;
+import edu.wpi.punchy_pegasi.backend.pathfinding.TypedNode;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
 import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
 import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
@@ -24,7 +25,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 import lombok.Data;
 import lombok.Getter;
@@ -32,11 +32,11 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.javatuples.Pair;
 
-import javax.xml.stream.Location;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils.isDestination;
 
@@ -89,7 +89,7 @@ public class PathfindingMap {
     @FXML
     private PFXButton pathfindButton;
     @FXML
-    private Text pathfindStatus;
+    private Label pathfindStatus;
     private ObservableMap<Long, Node> nodes;
     private ObservableMap<UUID, Edge> edges;
     private ObservableMap<Long, LocationName> locations;
@@ -103,7 +103,7 @@ public class PathfindingMap {
     private String selectedAlgo;
     @FXML
     private Label batteryPercent;
-    private LinkedHashMap<Integer, List<DirectionalNode>> directionMap = new LinkedHashMap<>();
+    private final LinkedHashMap<Integer, List<DirectionalNode>> directionMap = new LinkedHashMap<>();
     private int directionFloorIndex = 0;
 
     public static byte[] generateMessage(String str, Integer startPos, Integer endPos) {
@@ -146,7 +146,7 @@ public class PathfindingMap {
         var moves = nodeToMoves.get(node);
         if (moves.isEmpty()) return Optional.empty();
         var labelBinding = Bindings.createStringBinding(() -> moves.size() == 0 ? "" : locations.get(moves.get(0).getLocationID()).getShortName(), moves);
-        var hoverBinding = Bindings.createStringBinding(() -> moves.size() == 0 ? "" : String.join("\n", moves.stream().map(e->locations.get(e.getLocationID())).filter(Objects::nonNull).map(LocationName::getLongName).toArray(String[]::new)), moves);
+        var hoverBinding = Bindings.createStringBinding(() -> moves.size() == 0 ? "" : String.join("\n", moves.stream().map(e -> locations.get(e.getLocationID())).filter(Objects::nonNull).map(LocationName::getLongName).toArray(String[]::new)), moves);
         return map.addNode(node, color, labelBinding, hoverBinding);
     }
 
@@ -246,7 +246,7 @@ public class PathfindingMap {
         });
         nodesList.forEach(n -> {
             if (!nodeToMoves.containsKey(n)) return;
-            var moves = nodeToMoves.get(n).stream().map(m -> locations.get(m.getLocationID())).filter(l->l != null && isDestination.test(l)).toList();
+            var moves = nodeToMoves.get(n).stream().map(m -> locations.get(m.getLocationID())).filter(l -> l != null && isDestination.test(l)).toList();
             if (moves.isEmpty()) return;
             var pointOpt = drawNode(n, "#FFFF00");
             if (pointOpt.isEmpty()) return;
@@ -293,33 +293,6 @@ public class PathfindingMap {
         pathfindStatus.setText(pathFind(startNode, endNode));
     }
 
-    @RequiredArgsConstructor
-    private enum PathDirectionType {
-        START(MaterialSymbols.STEP_OUT),
-        LEFT(MaterialSymbols.KEYBOARD_ARROW_LEFT),
-        RIGHT(MaterialSymbols.KEYBOARD_ARROW_RIGHT),
-        UP(MaterialSymbols.KEYBOARD_DOUBLE_ARROW_UP),
-        DOWN(MaterialSymbols.SOUTH_WEST),
-        UPSTAIRS(MaterialSymbols.NORTH_EAST),
-        DOWNSTAIRS(MaterialSymbols.SOUTH_WEST),
-        END(MaterialSymbols.STEP_INTO);
-
-        @Getter
-        private final MaterialSymbols icon;
-        public PFXIcon getPFXIcon(){
-            return new PFXIcon(getIcon());
-        }
-    }
-
-    @RequiredArgsConstructor
-    @Data
-    private class DirectionalNode {
-        private final String locationLongName;
-        private final LocationName.NodeType nodeType;
-        private final String floor;
-        private final PathDirectionType direction;
-    }
-
     private void pathDrawDirections() {
         pathDirections.setVisible(true);
         pathDirections.setManaged(true);
@@ -332,11 +305,11 @@ public class PathfindingMap {
                 directionIcon.setSize(15.0);
                 if (Objects.requireNonNull(dNode.getNodeType()) == LocationName.NodeType.HALL) {
                     var directionText = new Label(getDirectionText(dNode.getDirection()) + "Hallway");
-                    directionText.setWrapText(false);
+                    directionText.setWrapText(true);
                     directionsOnFloor.getChildren().add(new HBox(directionIcon, directionText));
                 } else {
                     var directionText = new Label(getDirectionText(dNode.getDirection()) + dNode.getLocationLongName());
-                    directionText.setWrapText(false);
+                    directionText.setWrapText(true);
                     directionsOnFloor.getChildren().add(new HBox(directionIcon, directionText));
                 }
             }
@@ -358,14 +331,13 @@ public class PathfindingMap {
 
     private void pathPutNodes(PathDirectionType direction, boolean floorWillChange, Node node, Node nextNode) {
         var floor = node.getFloor();
-        var moves =  nodeToMoves.get(node);
+        var moves = nodeToMoves.get(node);
         var currLocation = moves == null || moves.isEmpty() ? LocationName.builder().longName("Hallway").nodeType(LocationName.NodeType.HALL).build() : locations.get(moves.get(0).getLocationID());
         if (directionFloorIndex == 0) {
             directionFloorIndex++;
             directionMap.put(directionFloorIndex, new ArrayList<>());
             directionMap.get(directionFloorIndex).add(new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
-        }
-        else if (floorWillChange) {
+        } else if (floorWillChange) {
             String alterLocName;
             switch (currLocation.getNodeType()) {
                 case ELEV -> alterLocName = ("Elevator to Floor " + nextNode.getFloor());
@@ -382,7 +354,7 @@ public class PathfindingMap {
                 return;
             }
             // when floor doesn't change, check if the direction ever changes
-            var prevDirection = directionMap.get(directionFloorIndex).get(directionMap.get(directionFloorIndex).size()-1).getDirection();
+            var prevDirection = directionMap.get(directionFloorIndex).get(directionMap.get(directionFloorIndex).size() - 1).getDirection();
             if (!prevDirection.equals(direction)) {
                 // if the previous location has direction change, then add the node
                 var dNode = new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction);
@@ -399,7 +371,7 @@ public class PathfindingMap {
         pathDirections.setManaged(false);
     }
 
-    private PathDirectionType calculateDirection (Node prevNode, Node currNode, Node nextNode) {
+    private PathDirectionType calculateDirection(Node prevNode, Node currNode, Node nextNode) {
         if (currNode.equals(nextNode))
             return PathDirectionType.END;
         else if (prevNode.equals(currNode))
@@ -415,7 +387,7 @@ public class PathfindingMap {
         var dot = displacement1.dotProduct(displacement2);
 
         var cross = displacement1.crossProduct(displacement2);
-        if(dot > -.1 && dot < .1) {
+        if (dot > -.1 && dot < .1) {
             if (cross.getZ() > 0)
                 return PathDirectionType.RIGHT;
             else
@@ -426,9 +398,10 @@ public class PathfindingMap {
 
     private String pathFind(Node start, Node end) {
         var edgeList = edges.values().stream().map(v -> new Pair<>(v.getStartNode(), v.getEndNode())).toList();
-        var graph = new Graph<>(nodes, edgeList);
+        var typedNodes = nodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, n -> new TypedNode(n.getValue(), nodeToMoves.get(n.getValue()).stream().map(m->locations.get(m.getLocationID()).getNodeType()).toList())));
+        var graph = new Graph<>(typedNodes, edgeList);
         try {
-            var path = PathfindingSingleton.SINGLETON.getAlgorithm().findPath(graph, start, end);
+            var path = PathfindingSingleton.SINGLETON.getAlgorithm().findPath(graph, typedNodes.get(start.getNodeID()), typedNodes.get(end.getNodeID()));
             map.clearMap();
             clearDirections();
             String currentFloor = path.get(0).getFloor();
@@ -520,10 +493,9 @@ public class PathfindingMap {
 
         byte[] firstReadBuffer = new byte[1];
         byte[] secondReadBuffer = new byte[1];
-        for(int i=0;i<2;i++)
-        {
-            if(i == 0) comPort.readBytes(firstReadBuffer, firstReadBuffer.length);
-            if(i == 1) comPort.readBytes(secondReadBuffer, secondReadBuffer.length);
+        for (int i = 0; i < 2; i++) {
+            if (i == 0) comPort.readBytes(firstReadBuffer, firstReadBuffer.length);
+            if (i == 1) comPort.readBytes(secondReadBuffer, secondReadBuffer.length);
         }
 
         byte[] result = new byte[2];
@@ -547,5 +519,33 @@ public class PathfindingMap {
         } else {
             PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStar());
         }
+    }
+
+    @RequiredArgsConstructor
+    private enum PathDirectionType {
+        START(MaterialSymbols.STEP_OUT),
+        LEFT(MaterialSymbols.KEYBOARD_ARROW_LEFT),
+        RIGHT(MaterialSymbols.KEYBOARD_ARROW_RIGHT),
+        UP(MaterialSymbols.KEYBOARD_DOUBLE_ARROW_UP),
+        DOWN(MaterialSymbols.SOUTH_WEST),
+        UPSTAIRS(MaterialSymbols.NORTH_EAST),
+        DOWNSTAIRS(MaterialSymbols.SOUTH_WEST),
+        END(MaterialSymbols.STEP_INTO);
+
+        @Getter
+        private final MaterialSymbols icon;
+
+        public PFXIcon getPFXIcon() {
+            return new PFXIcon(getIcon());
+        }
+    }
+
+    @RequiredArgsConstructor
+    @Data
+    private class DirectionalNode {
+        private final String locationLongName;
+        private final LocationName.NodeType nodeType;
+        private final String floor;
+        private final PathDirectionType direction;
     }
 }

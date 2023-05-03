@@ -63,20 +63,19 @@
     -fx-spacing: 50;
     -fx-padding: 75 100 50 100;
     -fx-border-width: 1;
-    -fx-border-color: -pfx-accent;
+    -fx-border-color: -pfx-secondary;
     -fx-border-radius: 12;
+}
+
+.signage-right-edit-vbox Label {
+    /*-fx-background-color: green;*/
+    -fx-text-fill: -pfx-text;
 }
 
 .signage-right-edit-outer-vbox {
     -fx-padding: 60 60 60 60;
 }
 
-signage-right-edit-outer-vbox {
-    -fx-background-color: blue;
-    -fx-spacing: 10;
-    -fx-padding: 10 100 10 100;
-    -fx-alignment: center-right;
-}
 
 .signage-delete-btn:hover PFXIcon {
     -fx-fill: red;

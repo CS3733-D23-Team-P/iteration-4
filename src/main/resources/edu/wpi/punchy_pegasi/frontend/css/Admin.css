@@ -37,12 +37,21 @@
 }
 
 .admin-container {
-    -fx-background-color: -pfx-primary;
+    -fx-background-color: -pfx-background;
     -fx-border-radius: 6;
-    -fx-border-color: -pfx-accent;
+    -fx-border-color: -pfx-secondary;
     -fx-alignment: CENTER;
     -fx-text-fill: -pfx-text;
     -fx-font-size: 15;
+    -fx-fill: -pfx-text;
+}
+
+.admin-container > TextField{
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-color: -pfx-primary;
+    -fx-border-color: -pfx-secondary;
+    -fx-border-radius: 6;
+    -fx-text-fill: -pfx-text;
 }
 
 .admin-container > HBox > VBox{
@@ -82,6 +91,7 @@
 }
 .admin-container-title-text-size{
     -fx-font-size: 25;
+    -fx-text-fill: -pfx-text;
 }
 
 .admin-container-displayTable{
@@ -91,4 +101,30 @@
 
 .admin-container-parent{
     -fx-padding: 0 10 0 10;
+}
+
+.admin-container-parent{
+    -fx-padding: 10;
+}
+#tableContainer {
+    -fx-padding: 10;
+}
+
+.admin-table-container > Label {
+    -fx-font-size: 18;
+    -fx-fill: -pfx-text;
+    -fx-padding: 0 0 0 0;
+    -fx-text-fill: -pfx-text;
+}
+
+.admin-table-container > TextField{
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-color: -pfx-primary;
+    -fx-border-color: -pfx-secondary;
+    -fx-border-radius: 6;
+    -fx-text-fill: -pfx-text;
+}
+
+.admin-scrollpane {
+    -fx-background-color: -pfx-background;
 }

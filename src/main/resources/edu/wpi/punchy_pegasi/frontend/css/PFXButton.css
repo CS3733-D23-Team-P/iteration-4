@@ -4,7 +4,7 @@
     -pfx-button-hover: derive(-pfx-button-background, -20%);
     -pfx-button-selected: -pfx-accent;
     -pfx-button-selected-hover: derive(-pfx-accent, -20%);
-    -pfx-button-selected-text: -pfx-text-opposite;
+    -pfx-button-selected-text: white;
 }
 .pfx-button:armed,
 .pfx-button:hover,
@@ -14,7 +14,7 @@
     -fx-background-color: -pfx-button-background;
     -fx-background-radius: 6;
     -fx-background-insets: 0;
-    -fx-text-fill: -pfx-button-text;
+    -fx-text-fill: white;
     -fx-font-size: 16;
     -fx-font-family: "Nunito Sans Regular";
     -fx-cursor: hand;
