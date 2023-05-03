@@ -191,7 +191,7 @@ public class LocationNameCachedDaoImpl implements IDao<java.lang.Long, LocationN
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.LOCATIONNAMES.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.LOCATIONNAMES.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (LocationName) update.data();
             switch (update.action()) {

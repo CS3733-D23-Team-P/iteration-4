@@ -191,7 +191,7 @@ public class SignageCachedDaoImpl implements IDao<java.lang.Long, Signage, Signa
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.SIGNAGE.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.SIGNAGE.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Signage) update.data();
             switch (update.action()) {

@@ -191,7 +191,7 @@ public class MoveCachedDaoImpl implements IDao<java.lang.Long, Move, Move.Field>
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.MOVES.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.MOVES.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Move) update.data();
             switch (update.action()) {

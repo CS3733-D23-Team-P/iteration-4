@@ -4,7 +4,7 @@ import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
 @Setter(AccessLevel.NONE)
 @AllArgsConstructor
 public class GenericRequestEntry extends RequestEntry {

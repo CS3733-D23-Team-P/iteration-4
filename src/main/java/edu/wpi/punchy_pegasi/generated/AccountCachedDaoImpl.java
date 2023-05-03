@@ -193,7 +193,7 @@ public class AccountCachedDaoImpl implements IDao<java.lang.Long, Account, Accou
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.ACCOUNTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.ACCOUNTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Account) update.data();
             switch (update.action()) {

@@ -194,7 +194,7 @@ public class FurnitureRequestEntryCachedDaoImpl implements IDao<java.util.UUID, 
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.FURNITUREREQUESTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.FURNITUREREQUESTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (FurnitureRequestEntry) update.data();
             switch (update.action()) {

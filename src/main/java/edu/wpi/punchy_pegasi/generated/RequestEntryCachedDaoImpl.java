@@ -193,7 +193,7 @@ public class RequestEntryCachedDaoImpl implements IDao<java.util.UUID, RequestEn
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.REQUESTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.REQUESTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (RequestEntry) update.data();
             switch (update.action()) {

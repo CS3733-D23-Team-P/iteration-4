@@ -195,7 +195,7 @@ public class FlowerDeliveryRequestEntryCachedDaoImpl implements IDao<java.util.U
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.FLOWERREQUESTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.FLOWERREQUESTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (FlowerDeliveryRequestEntry) update.data();
             switch (update.action()) {

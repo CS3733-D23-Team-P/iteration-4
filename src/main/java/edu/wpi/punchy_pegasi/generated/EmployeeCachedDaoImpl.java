@@ -190,7 +190,7 @@ public class EmployeeCachedDaoImpl implements IDao<java.lang.Long, Employee, Emp
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.EMPLOYEES.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.EMPLOYEES.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Employee) update.data();
             switch (update.action()) {

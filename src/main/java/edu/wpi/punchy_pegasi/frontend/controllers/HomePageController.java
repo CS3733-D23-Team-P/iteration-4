@@ -7,7 +7,6 @@ import edu.wpi.punchy_pegasi.frontend.components.PFXListView;
 import edu.wpi.punchy_pegasi.generated.Facade;
 import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
-import io.github.palexdev.materialfx.controls.MFXTableRow;
 import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import javafx.application.Platform;
@@ -23,13 +22,11 @@ import javafx.geometry.Pos;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.controlsfx.control.PopOver;
-import org.phoenicis.javafx.collections.MappedList;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -79,21 +76,21 @@ public class HomePageController {
         piechart.setLegendVisible(false);
 
         alerts = App.getSingleton().getFacade().getAllAsListAlert().filtered(a -> a.getEmployeeID().equals(App.getSingleton().getAccount().getEmployeeID()) && a.getAlertType().equals(Alert.AlertType.EMPLOYEE));
-        alerts.addListener((ListChangeListener<? super Alert>) e->{
+        alerts.addListener((ListChangeListener<? super Alert>) e -> {
             System.out.println("");
         });
-        read = alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.READ);
+        read = alerts.filtered(a -> a.getReadStatus() == Alert.ReadStatus.READ);
 //        read.setPredicate(a-> a.getReadStatus() == Alert.ReadStatus.READ);
-        read.addListener((ListChangeListener<? super Alert>) e->{
+        read.addListener((ListChangeListener<? super Alert>) e -> {
             System.out.println("");
         });
-        var listViewUnread = new PFXListView<>(alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.UNREAD), PFXAlertCard::new, a -> a.getUuid().toString());
-        var listViewRead = new PFXListView<>(alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.READ), PFXAlertCard::new, a -> a.getUuid().toString());
-        alertScrollPane.setContent(new VBox(listViewUnread, listViewRead));
+//        var listViewUnread = new PFXListView<>(alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.UNREAD), PFXAlertCard::new, a -> a.getUuid().toString());
+//        var listViewRead = new PFXListView<>(alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.READ), PFXAlertCard::new, a -> a.getUuid().toString());
+        alertScrollPane.setContent(new PFXListView<>(alerts, PFXAlertCard::new, a -> a.getUuid().toString()));
         noAlertsLabel.visibleProperty().bind(Bindings.createBooleanBinding(alerts::isEmpty, alerts));
         noAlertsLabel.managedProperty().bind(Bindings.createBooleanBinding(alerts::isEmpty, alerts));
-        alertScrollPane.visibleProperty().bind(Bindings.createBooleanBinding(()-> !alerts.isEmpty(), alerts));
-        alertScrollPane.managedProperty().bind(Bindings.createBooleanBinding(()-> !alerts.isEmpty(), alerts));
+        alertScrollPane.visibleProperty().bind(Bindings.createBooleanBinding(() -> !alerts.isEmpty(), alerts));
+        alertScrollPane.managedProperty().bind(Bindings.createBooleanBinding(() -> !alerts.isEmpty(), alerts));
 
         initRequestTable();
         showServiceRequestTable(true);
@@ -116,20 +113,6 @@ public class HomePageController {
                         App.getSingleton().getAccount().getAccountType().getShieldLevel() >= Account.AccountType.ADMIN.getShieldLevel()
                                 || Objects.equals(e.getStaffAssignment(), employeeID));
 
-
-        ObservableList<GenericRequestEntry> requestList = new MappedList<>(requestEntries,
-                GenericRequestEntry::new);
-//        requestEntries.addListener((ListChangeListener<? super RequestEntry>) c -> {
-//            while(c.next()){
-//                System.out.println();
-//            }
-//        });
-//        requestList.addListener((ListChangeListener<? super GenericRequestEntry>) c -> {
-//            while(c.next()){
-//                System.out.println();
-//            }
-//        });
-
         MFXTableColumn<RequestEntry> locationCol = new MFXTableColumn<>("Location", true);
         MFXTableColumn<RequestEntry> employeeCol = new MFXTableColumn<>("Employee", true);
         MFXTableColumn<RequestEntry> additionalCol = new MFXTableColumn<>("Additional Notes", true);
@@ -147,56 +130,60 @@ public class HomePageController {
         locationCol.setRowCellFactory(r -> new MFXTableRowCell<>(re -> locationNames.getOrDefault(re.getLocationName(), new LocationName(null, "Unknown location", "", null)).getLongName()));
         employeeCol.setRowCellFactory(r -> new MFXTableRowCell<>(re -> employees.getOrDefault(re.getStaffAssignment(), new Employee(0L, "Unknown", "Employee")).getFullName()));
         additionalCol.setRowCellFactory(r -> new MFXTableRowCell<>(RequestEntry::getAdditionalNotes));
-        statusCol.setRowCellFactory(r -> new MFXTableRowCell<>(RequestEntry::getStatus));
+        statusCol.setRowCellFactory(r -> {
+            var cell = new MFXTableRowCell<>(RequestEntry::getStatus);
+
+            return cell;
+        });
         typeCol.setRowCellFactory(r -> new MFXTableRowCell<>(re -> Arrays.stream(TableType.values())
                 .filter(tt -> tt != TableType.REQUESTS && tt.getClazz() == re.getClass())
                 .findFirst()
                 .orElse(TableType.GENERIC)));
-        requestTable.setTableRowFactory(r -> {
-            var row = new MFXTableRow<>(requestTable, r);
-            row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-                VBox vbox = new VBox();
-                var popover = new PopOver();
-                popover.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
-                vbox.setAlignment(Pos.CENTER);
-                vbox.setPadding(new Insets(10));
-                PFXButton button = new PFXButton();
-                button.setMinWidth(200);
-                button.setMaxHeight(200);
 
-                button.setOnAction(m -> {
-                    if (button.getText().equalsIgnoreCase("change to done")) {
-                        button.setText("Change To Processing");
-                        button.setStyle("-fx-background-color: -pfx-danger");
-                        facade.updateRequestEntry(r.withStatus(RequestEntry.Status.DONE), new RequestEntry.Field[]{RequestEntry.Field.STATUS});
-                        requestTable.update();
-                    } else if (button.getText().equalsIgnoreCase("change to processing")) {
-                        button.setText("Change To Done");
-                        button.setStyle("-fx-background-color: -pfx-success");
-                        facade.updateRequestEntry(r.withStatus(RequestEntry.Status.DONE), new RequestEntry.Field[]{RequestEntry.Field.STATUS});
-                        requestTable.update();
-                    }
-                });
 
-                if (r.getStatus() == RequestEntry.Status.DONE) {
+        requestTable.getSelectionModel().selectionProperty().addListener((observable, oldValue, newValue) -> {
+            var rO = newValue.entrySet().stream().findFirst();
+            if (rO.isEmpty()) {
+                return;
+            }
+            var popover = new PopOver();
+            var r = rO.get().getValue();
+            var i = rO.get().getKey();
+            VBox vbox = new VBox();
+            popover.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
+            vbox.setAlignment(Pos.CENTER);
+            vbox.setPadding(new Insets(10));
+            PFXButton button = new PFXButton();
+            button.setMinWidth(200);
+            button.setMaxHeight(200);
+
+            button.setOnAction(m -> {
+                if (button.getText().equalsIgnoreCase("change to done")) {
                     button.setText("Change To Processing");
-                    button.setStyle("-fx-background-color: -pfx-warning");
-                } else if (r.getStatus() == RequestEntry.Status.PROCESSING) {
+                    button.setStyle("-fx-background-color: -pfx-danger");
+                    facade.updateRequestEntry(r.withStatus(RequestEntry.Status.DONE), new RequestEntry.Field[]{RequestEntry.Field.STATUS});
+                    requestTable.update();
+                } else if (button.getText().equalsIgnoreCase("change to processing")) {
                     button.setText("Change To Done");
                     button.setStyle("-fx-background-color: -pfx-success");
+                    facade.updateRequestEntry(r.withStatus(RequestEntry.Status.PROCESSING), new RequestEntry.Field[]{RequestEntry.Field.STATUS});
+                    requestTable.update();
                 }
+                });
 
-                vbox.getChildren().add(button);
-                vbox.getStyleClass().add("homepage-popup");
-                popover.setContentNode(vbox);
-                popover.show(row);
+            if (r.getStatus() == RequestEntry.Status.DONE) {
+                button.setText("Change To Processing");
+                button.setStyle("-fx-background-color: -pfx-danger");
+            } else if (r.getStatus() == RequestEntry.Status.PROCESSING) {
+                button.setText("Change To Done");
+                button.setStyle("-fx-background-color: -pfx-success");
+            }
 
-            });
-            return row;
+            vbox.getChildren().add(button);
+            vbox.getStyleClass().add("homepage-popup");
+            popover.setContentNode(vbox);
+            popover.show(requestTable.getCell(i));
         });
-//        requestTable.getSelectionModel().selectionProperty().addListener((observable, oldValue, newValue) -> {
-//            newValue.values().stream().findFirst().ifPresent(r -> rowClicked.accept(r));
-//        });
 
 
         requestTable.getTableColumns().addAll(locationCol, employeeCol, additionalCol, statusCol, typeCol);

@@ -194,7 +194,7 @@ public class OfficeServiceRequestEntryCachedDaoImpl implements IDao<java.util.UU
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.OFFICEREQUESTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.OFFICEREQUESTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (OfficeServiceRequestEntry) update.data();
             switch (update.action()) {

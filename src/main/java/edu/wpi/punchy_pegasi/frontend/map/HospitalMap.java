@@ -273,6 +273,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>
 
     @Override
     public Optional<Circle> addNode(Node node, String color, ObservableStringValue labelText, ObservableStringValue hoverText) {
+        if(node == null) return Optional.empty();
         var floor = floorMap.get(HospitalFloor.floorMap.get(node.getFloor()));
         if (floor == null || nodeCircles.containsKey(node.getNodeID())) return Optional.empty();
         var circle = new Circle(0, 0, 15);

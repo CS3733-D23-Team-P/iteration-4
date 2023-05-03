@@ -197,7 +197,7 @@ public class ConferenceRoomEntryCachedDaoImpl implements IDao<java.util.UUID, Co
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.CONFERENCEREQUESTS.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.CONFERENCEREQUESTS.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (ConferenceRoomEntry) update.data();
             switch (update.action()) {

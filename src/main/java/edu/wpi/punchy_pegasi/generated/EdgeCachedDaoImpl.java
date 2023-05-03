@@ -190,7 +190,7 @@ public class EdgeCachedDaoImpl implements IDao<java.util.UUID, Edge, Edge.Field>
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Objects.equals(evt.getPropertyName(), TableType.EDGES.name() + "_update")) {
+        if (Objects.equals(evt.getPropertyName(), TableType.EDGES.name().toLowerCase() + "_update")) {
             var update = (PdbController.DatabaseChangeEvent) evt.getNewValue();
             var data = (Edge) update.data();
             switch (update.action()) {
