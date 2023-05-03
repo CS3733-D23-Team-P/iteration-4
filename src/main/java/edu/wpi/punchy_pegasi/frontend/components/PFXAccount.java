@@ -63,10 +63,10 @@ public class PFXAccount extends HBox implements PropertyChangeListener {
         accountInformation.getChildren().add(accountLevel);
         accountInformation.getStyleClass().add("pfx-account-information");
 
-        nameLabel.setStyle("-fx-font-size: 14");
-
+        nameLabel.setStyle("-fx-font-size: 14; -fx-text-fill: -pfx-text;");
+        accountLevel.setStyle("-fx-font-size: 12; -fx-text-fill: -pfx-text;");
         colorToggle.setText("Dark Mode");
-        colorToggle.setStyle("-fx-font-size: 12");
+        colorToggle.setStyle("-fx-font-size: 12; -fx-text-fill: -pfx-text;");
 //        ttsToggle.setText("Text to Speech");
 //        ttsToggle.setStyle("-fx-font-size: 12");
 
