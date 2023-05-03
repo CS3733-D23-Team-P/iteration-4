@@ -24,11 +24,11 @@
                             <Label text="End Date" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
                             <MFXDatePicker fx:id="endDatePicker"/>
                             <Label text="End Time" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
-                            <MFXComboBox fx:id="endTimeComboBox" promptText="End Time" floatMode="DISABLED"/>
+                            <MFXComboBox styleClass="conference-dropDown" fx:id="endTimeComboBox" promptText="End Time" floatMode="DISABLED"/>
                         </HBox>
                         <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="employeePickerContainer">
                             <Label text="Assign Employee" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
-                            <MFXFilterComboBox fx:id="employeeComboBox" floatMode="DISABLED"/>
+                            <MFXFilterComboBox styleClass="conference-dropDown" fx:id="employeeComboBox" floatMode="DISABLED"/>
                         </HBox>
                         <MFXComboBox promptText="Select Alert Type" fx:id="alertTypeComboBox"/>
                         <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS">
@@ -39,9 +39,9 @@
                 </VBox>
                 <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                     <Label styleClass="admin-container-title-text-size" text="Active Alerts" VBox.vgrow="ALWAYS"/>
-                    <ScrollPane styleClass= "admin-scrollpane" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-                        <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="admin-scrollpane">
-                            <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="activeAlertsContainer" spacing="15" styleClass="admin-scrollpane">
+                    <ScrollPane styleClass= "admin-container" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                        <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS">
+                            <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="activeAlertsContainer" spacing="15">
                             </VBox>
                         </HBox>
                     </ScrollPane>

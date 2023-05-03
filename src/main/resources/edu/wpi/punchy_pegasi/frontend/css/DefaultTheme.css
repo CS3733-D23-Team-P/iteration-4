@@ -43,8 +43,6 @@
 @import "PFXAlert.css";
 @import "PFXAlertCard.css";
 @import "PFXButton.css";
-@import "PFXColors.css";
-@import "PFXColorsDark.css";
 @import "PFXCardVertical.css";
 @import "PFXCardHorizontal.css";
 @import "PFXCardHolder.css";
@@ -55,10 +53,10 @@
 @import "PFXSidebarItem.css";
 @import "PFXTab.css";
 @import "PFXTabLayout.css";
-@import "Chart.css";
 /* Pages */
 @import "AboutCredits.css";
 @import "Admin.css";
+@import "AdminTablePage.css";
 @import "Conference.css";
 @import "AdminMap.css";
 @import "HomePage.css";

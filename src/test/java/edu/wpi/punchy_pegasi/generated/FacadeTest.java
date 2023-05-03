@@ -45,7 +45,7 @@ class FacadeTest {
         furnitureRequestFields = new String[]{"serviceID", "locationName", "staffAssignment", "additionalNotes", "status", "selectFurniture", "employeeID"};
         officeServiceFields = new String[]{"serviceID", "locationName", "staffAssignment", "additionalNotes", "status", "officeSupplies", "employeeID"};
         employeeFields = new String[]{"employeeID", "firstName", "lastName"};
-        accountFields = new String[]{"uuid", "username", "password", "employeeID", "accountType", "theme"};
+        accountFields = new String[]{"uuid", "username", "password", "employeeID", "accountType"};
         try {
             pdbController = new PdbController(Config.source, "test");
         } catch (PdbController.DatabaseException e) {
@@ -2649,8 +2649,8 @@ class FacadeTest {
 
     @Test
     void getAccount() {
-        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN, Account.Theme.DARK);
-        Object[] values = new Object[]{account.getUuid(), account.getUsername(), "testPassword", account.getEmployeeID(), account.getAccountType(), account.getTheme()};
+        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN);
+        Object[] values = new Object[]{account.getUuid(), account.getUsername(), "testPassword", account.getEmployeeID(), account.getAccountType()};
         try {
             pdbController.insertQuery(TableType.ACCOUNTS, accountFields, values);
         } catch (PdbController.DatabaseException e) {
@@ -2668,10 +2668,10 @@ class FacadeTest {
 
     @Test
     void testGetAccount() {
-        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN, Account.Theme.DARK);
-        Account account2 = new Account(101L, "testUsername1", "testPassword", 100L, Account.AccountType.ADMIN, Account.Theme.DARK);
-        Object[] values = new Object[]{account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType(), account.getTheme()};
-        Object[] values2 = new Object[]{account2.getUuid(), account2.getUsername(), account2.getPassword(), account2.getEmployeeID(), account2.getAccountType(), account2.getTheme()};
+        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN);
+        Account account2 = new Account(101L, "testUsername1", "testPassword", 100L, Account.AccountType.ADMIN);
+        Object[] values = new Object[]{account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType()};
+        Object[] values2 = new Object[]{account2.getUuid(), account2.getUsername(), account2.getPassword(), account2.getEmployeeID(), account2.getAccountType()};
         try {
             pdbController.insertQuery(TableType.ACCOUNTS, accountFields, values);
             pdbController.insertQuery(TableType.ACCOUNTS, accountFields, values2);
@@ -2687,8 +2687,7 @@ class FacadeTest {
                         (java.lang.String) rs.getObject("username"),
                         (java.lang.String) rs.getObject("password"),
                         (java.lang.Long) rs.getObject("employeeID"),
-                        edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf((String) rs.getObject("accountType")),
-                        edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf((String) rs.getObject("theme")));
+                        edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf((String) rs.getObject("accountType")));
                 if (req != null)
                     map.put(req.getUuid(), req);
             }
@@ -2707,10 +2706,10 @@ class FacadeTest {
 
     @Test
     void testGetAccount1() {
-        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN, Account.Theme.DARK);
-        Account account2 = new Account(101L, "testUsername1", "testPassword", 200L, Account.AccountType.STAFF, Account.Theme.DARK);
-        Object[] values = new Object[]{account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType(), account.getTheme()};
-        Object[] values2 = new Object[]{account2.getUuid(), account2.getUsername(), account2.getPassword(), account2.getEmployeeID(), account2.getAccountType(), account2.getTheme()};
+        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN);
+        Account account2 = new Account(101L, "testUsername1", "testPassword", 200L, Account.AccountType.STAFF);
+        Object[] values = new Object[]{account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType()};
+        Object[] values2 = new Object[]{account2.getUuid(), account2.getUsername(), account2.getPassword(), account2.getEmployeeID(), account2.getAccountType()};
         try {
             pdbController.insertQuery(TableType.ACCOUNTS, accountFields, values);
             pdbController.insertQuery(TableType.ACCOUNTS, accountFields, values2);
@@ -2729,8 +2728,7 @@ class FacadeTest {
                         (java.lang.String) rs.getObject("username"),
                         (java.lang.String) rs.getObject("password"),
                         (java.lang.Long) rs.getObject("employeeID"),
-                        edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf((String) rs.getObject("accountType")),
-                        edu.wpi.punchy_pegasi.schema.Account.Theme.valueOf((String) rs.getObject("theme")));
+                        edu.wpi.punchy_pegasi.schema.Account.AccountType.valueOf((String) rs.getObject("accountType")));
                 if (req != null)
                     map.put(req.getUsername(), req);
             }
@@ -2780,7 +2778,7 @@ class FacadeTest {
     @Test
     void saveAccount() {
         Long uuid = 100L;
-        Account account = new Account(uuid, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN, Account.Theme.DARK);
+        Account account = new Account(uuid, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN);
         facade.saveAccount(account);
         Optional<Account> results = facade.getAccount(account.getUuid());
         Account daoresult = results.get();
@@ -2794,10 +2792,10 @@ class FacadeTest {
 
     @Test
     void updateAccount() {
-        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN, Account.Theme.DARK);
+        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN);
         facade.saveAccount(account);
 
-        Account updatedAccount = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.STAFF, Account.Theme.DARK);
+        Account updatedAccount = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.STAFF);
         Account.Field[] fields = {Account.Field.ACCOUNT_TYPE};
         facade.updateAccount(updatedAccount, fields);
 
@@ -2813,8 +2811,8 @@ class FacadeTest {
 
     @Test
     void deleteAccount() {
-        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN, Account.Theme.DARK);
-        Object[] values = new Object[]{account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType(), account.getTheme()};
+        Account account = new Account(100L, "testUsername", "testPassword", 100L, Account.AccountType.ADMIN);
+        Object[] values = new Object[]{account.getUuid(), account.getUsername(), account.getPassword(), account.getEmployeeID(), account.getAccountType()};
         try {
             pdbController.insertQuery(TableType.ACCOUNTS, accountFields, values);
         } catch (PdbController.DatabaseException e) {

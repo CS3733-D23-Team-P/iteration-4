@@ -8,9 +8,9 @@ import lombok.Setter;
 public enum PathfindingSingleton {
     SINGLETON;
     @Setter
-    private IPathFind<Long, TypedNode> algorithm;
-    private AStar<Long, TypedNode> aStar = new AStar<>(new MapHeuristic(), new MapHeuristic());
-    private DFS<Long, TypedNode> DFS = new DFS<>();
-    private BFS<Long, TypedNode> BFS = new BFS<>();
-    private Dijkstra<Long, TypedNode> dijkstra = new Dijkstra<Long, TypedNode>(new CartesianHeuristic());
+    private IPathFind<Long, Node> algorithm;
+    private AStar<Long, Node> aStar = new AStar<>(new CartesianHeuristic(), new CartesianHeuristic());
+    private DFS<Long, Node> DFS = new DFS<>();
+    private BFS<Long, Node> BFS = new BFS<>();
+    private Dijkstra<Long, Node> dijkstra = new Dijkstra<>(new CartesianHeuristic());
 }

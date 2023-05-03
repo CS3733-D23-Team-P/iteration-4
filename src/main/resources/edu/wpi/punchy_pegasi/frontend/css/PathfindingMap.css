@@ -17,11 +17,6 @@
     -fx-text-fill: -pfx-text;
 }
 
-.pathfinding-overlay-box PFXButton {
-    -fx-text-fill: white;
-}
-
-
 .pathfinding-overlay-box > HBox {
     -fx-spacing: 10;
     -fx-alignment: CENTER;
@@ -36,6 +31,10 @@
     -fx-background-color: -pfx-background;
     -fx-background-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
+}
+
+.pathfinding-direction-box:hover {
+    -fx-background-color: -pfx-background-transparent;
 }
 
 /*.pathfinding-direction-box > HBox {*/
@@ -70,23 +69,6 @@
     -fx-spacing: 10;
     -fx-padding: 20;
     -fx-max-height: 500;
-}
-.pathfinding-direction-overlay Label {
-    -fx-text-fill: -pfx-text;
-}
-
-.pathfinding-direction-overlay PFXIcon {
-    -fx-fill: -pfx-text;
-}
-
-.pathfinding-direction-box:hover {
-    -fx-background-color: -pfx-background-transparent;
-}
-.pathfinding-direction-box:hover Label {
-    -fx-text-fill: -pfx-text;
-}
-.pathfinding-direction-box:hover PFXIcon {
-    -fx-fill: -pfx-text;
 }
 
 .pathfinding-overlay .pfx-button {

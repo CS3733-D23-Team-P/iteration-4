@@ -1,5 +1,5 @@
 .thumb {
-    -fx-background-color: -pfx-secondary;
+    -fx-background-color: -pfx-primary;
     -fx-background-radius: 5px;
     -fx-background-insets: 2;
     -fx-padding:2px;
@@ -11,7 +11,7 @@
 }
 
 .increment-button, .decrement-button {
-    -fx-background-color: transparent;
+    -fx-background-color: -pfx-background;
     -fx-background-insets: 0;
     -fx-padding: 0px;
 }
