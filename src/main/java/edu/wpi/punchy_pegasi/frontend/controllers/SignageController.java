@@ -8,22 +8,20 @@ import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
 import edu.wpi.punchy_pegasi.frontend.map.HospitalFloor;
 import edu.wpi.punchy_pegasi.frontend.map.HospitalMap;
 import edu.wpi.punchy_pegasi.frontend.map.IMap;
-import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
 import edu.wpi.punchy_pegasi.generated.Facade;
 import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
 import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -40,7 +38,6 @@ import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -69,7 +66,7 @@ public class SignageController {
     private final MFXFilterComboBox<LocationName> locNameCB = new MFXFilterComboBox<>();
     private final MFXComboBox<Signage.DirectionType> directionCB = new MFXComboBox<>();
     private final PFXButton submitButton = new PFXButton("Submit");
-    private static final IMap<HospitalFloor.Floors> hospitalMap = new HospitalMap();
+    private final IMap<HospitalFloor.Floors> hospitalMap = new HospitalMap();
 
     private String prefSignageName;
     @FXML
@@ -90,12 +87,31 @@ public class SignageController {
     private VBox signageBodyLeft;
     @FXML
     private HBox signageHeader;
-    private Rectangle maxRectangle = new Rectangle(0, 0, 0,0);
+    private Rectangle maxRectangle = new Rectangle(0, 0, 0, 0);
+    private FilteredList<Signage> filteredList;
 
-    private static ObservableMap<Node, ObservableList<LocationName>> nodeToLocation;
-    private ObservableMap<LocationName, Node> locationToNode;
+    private static String nodeToLocation(Node node) {
+        var locID = facade.getMove(Move.Field.NODE_ID, node.getNodeID()).values().iterator().next().getLocationID();
+        return facade.getLocationName(LocationName.Field.UUID, locID).values().iterator().next().getLongName();
+    }
 
-    private static void initSignSelector() {
+    private static ObservableList<Node> signageToNodes(ObservableList<Signage> signageList) {
+        var locationNames = facade.getAllAsListLocationName().filtered(
+                locationName -> signageList.stream().map(Signage::getLongName).distinct().toList().contains(locationName.getLongName()));
+        var moves = facade.getAllAsListMove().filtered(
+                move -> locationNames.stream().map(LocationName::getUuid).toList().contains(move.getLocationID()));
+        return facade.getAllAsListNode().filtered(
+                node -> moves.stream().map(Move::getNodeID).toList().contains(node.getNodeID()));
+    }
+
+    public static double computeTextWidth(Font font, String text, double wrappingWidth) {
+        Text textNode = new Text(text);
+        textNode.setFont(font);
+        textNode.setWrappingWidth(wrappingWidth);
+        return textNode.getBoundsInLocal().getWidth();
+    }
+
+    private void initSignSelector() {
         ObservableList<Signage> signageList = facade.getAllAsListSignage();
         signageNames.clear();
         signageNames.addAll(signageList.stream().map(Signage::getSignName).distinct().sorted().toList());
@@ -113,8 +129,7 @@ public class SignageController {
         }));
     }
 
-    private static void addDelButton(HBox hbox, Signage signage) {
-
+    private void addDelButton(HBox hbox, Signage signage) {
         var deleteBtn = new PFXButton("", new PFXIcon(MaterialSymbols.DELETE_FOREVER));
         deleteBtn.getStyleClass().add("signage-delete-btn");
 
@@ -124,7 +139,6 @@ public class SignageController {
         hbox.getChildren().add(deleteBtn);
         deleteBtn.visibleProperty().bind(App.getSingleton().getPrimaryStage().fullScreenProperty().not().and(editing));
         deleteBtn.managedProperty().bind(App.getSingleton().getPrimaryStage().fullScreenProperty().not().and(editing));
-
     }
 
     @FXML
@@ -132,6 +146,7 @@ public class SignageController {
         editing = Bindings.createBooleanBinding
                 (() -> App.getSingleton().getAccount().getAccountType().getShieldLevel() >= Account.AccountType.ADMIN.getShieldLevel());
         configTimer(1000);
+        filteredList = facade.getAllAsListSignage().filtered(s -> false);
         initIcons();
         initHeader();
         buildSignage();
@@ -139,10 +154,13 @@ public class SignageController {
         buildEditSignage();
         buildSignageMap();
 
+        filteredList.addListener((ListChangeListener<? super Signage>) s -> updateMapView());
+        filteredList.addListener((InvalidationListener) l -> updateMapView());
+        ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) -> Platform.runLater(this::updateMapView);
 
-        Platform.runLater(() -> {
-            setFullScreen(false);
-        });
+        App.getSingleton().getPrimaryStage().widthProperty().addListener(stageSizeListener);
+        App.getSingleton().getPrimaryStage().heightProperty().addListener(stageSizeListener);
+
         myScene.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.F11))
                 setFullScreen(true);
@@ -163,7 +181,7 @@ public class SignageController {
         signageBodyMap.managedProperty().bind(App.getSingleton().getPrimaryStage().fullScreenProperty().or(Bindings.not(editing)));
     }
 
-    private static void updateMapView(ObservableList<Signage> signageList) {
+    private void updateMapView() {
 //        var nodesList = getNode(signageList);
 //        signageList.addListener((ListChangeListener<Signage>) c -> {
 //            if (editing) return;
@@ -191,8 +209,8 @@ public class SignageController {
 //            });
 //        });
 
-        var signageHere = signageList.filtered(signage -> signage.getDirectionType().equals(Signage.DirectionType.HERE));
-        var signageRest = signageList.filtered(signage -> !signage.getDirectionType().equals(Signage.DirectionType.HERE));
+        var signageHere = filteredList.filtered(signage -> signage.getDirectionType().equals(Signage.DirectionType.HERE));
+        var signageRest = filteredList.filtered(signage -> !signage.getDirectionType().equals(Signage.DirectionType.HERE));
         if (signageHere.size() > 0) {
             var nodeHere = signageToNodes(signageHere);
             var nodeRest = signageToNodes(signageRest);
@@ -213,7 +231,7 @@ public class SignageController {
                 hospitalMap.showRectangle(new Rectangle(minX - 100, minY - 100, maxX - minX + 200, maxY - minY + 200));
             });
         } else {
-            var nodes = signageToNodes(signageList);
+            var nodes = signageToNodes(filteredList);
             var minX = nodes.stream().mapToDouble(Node::getXcoord).min().orElse(0);
             var maxX = nodes.stream().mapToDouble(Node::getXcoord).max().orElse(0);
             var minY = nodes.stream().mapToDouble(Node::getYcoord).min().orElse(0);
@@ -227,57 +245,6 @@ public class SignageController {
             });
         }
     }
-
-    private static String nodeToLocation(Node node) {
-        var locID = facade.getMove(Move.Field.NODE_ID, node.getNodeID()).values().iterator().next().getLocationID();
-        return facade.getLocationName(LocationName.Field.UUID, locID).values().iterator().next().getLongName();
-    }
-
-    private static ObservableList<Node> signageToNodes(ObservableList<Signage> signageList) {
-        var locationNames = facade.getAllAsListLocationName().filtered(
-                locationName -> signageList.stream().map(Signage::getLongName).distinct().toList().contains(locationName.getLongName()));
-        var moves = facade.getAllAsListMove().filtered(
-                move -> locationNames.stream().map(LocationName::getUuid).toList().contains(move.getLocationID()));
-        return facade.getAllAsListNode().filtered(
-                node -> moves.stream().map(Move::getNodeID).toList().contains(node.getNodeID()));
-    }
-
-//    @NotNull
-//    private static VBox getSignageTableView(ObservableList<Signage> rightList) {
-//        var vBox = new VBox();
-////        Bindings.bindContent(vBox.getChildren(), new MappedList<>(rightList, signage ->{
-////            var hbox = new HBox(new Label(signage.getLongName()));
-////            hbox.setId(signage.getUuid().toString());
-////            addDelButton(hbox, signage);
-////            return hbox;
-////        }));
-//        rightList.addListener((ListChangeListener<? super Signage>) c -> {
-//            while (c.next()) {
-//                if (c.wasAdded())
-//                    for (Signage signage : c.getAddedSubList()) {
-//                        var hbox = new HBox(new Label(signage.getLongName()));
-//                        hbox.setId(signage.getUuid().toString());
-//                        addDelButton(hbox, signage);
-//                        Platform.runLater(() ->
-//                                vBox.getChildren().add(hbox)
-//                        );
-//                    }
-//                if (c.wasRemoved())
-//                    for (Signage signage : c.getRemoved())
-//                        Platform.runLater(() ->
-//                                vBox.getChildren().removeIf(node -> node.getId().equals(signage.getUuid().toString()))
-//                        );
-//            }
-//        });
-////        init the vBox
-//        for (Signage signage : rightList) {
-//            var hbox = new HBox(new Label(signage.getLongName()));
-//            addDelButton(hbox, signage);
-//            hbox.setId(signage.getUuid().toString());
-//            vBox.getChildren().add(hbox);
-//        }
-//        return vBox;
-//    }
 
     private void setFullScreen(boolean setFullScreen) {
         if (setFullScreen) {
@@ -444,33 +411,15 @@ public class SignageController {
 
     private void setSignageName(String name) {
         filterUpdaters.forEach(updater -> updater.accept(name));
-
-        // set up the listener to change to map size when stage size changes
-        ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) ->
-                Platform.runLater(() -> {
-                    updateMapView(facade.getAllAsListSignage().filtered(s -> s.getSignName().equals(name)));
-                });
-
-        App.getSingleton().getPrimaryStage().widthProperty().addListener(stageSizeListener);
-        App.getSingleton().getPrimaryStage().heightProperty().addListener(stageSizeListener);
+        filteredList.setPredicate(s -> s.getSignName().equals(name));
         // update the map view when the signage name is changed
-        updateMapView(facade.getAllAsListSignage().filtered(s -> s.getSignName().equals(name)));
+        updateMapView();
     }
-    public static double computeTextWidth(Font font, String text, double wrappingWidth) {
-        Text textNode = new Text(text);
-        textNode.setFont(font);
-        textNode.setWrappingWidth(wrappingWidth);
-        return textNode.getBoundsInLocal().getWidth();
-    }
+
     private void buildSignage() {
 //        updateView(facade.getAllAsListSignage());
         for (var direction : Signage.DirectionType.values()) {
-            var signageList = facade.getAllAsListSignage().filtered(s -> true);
-            Consumer<String> updated = s ->
-                    signageList.setPredicate(signage -> signage.getDirectionType() == direction && signage.getSignName().equals(s));
-
-            filterUpdaters.add(updated);
-            updated.accept(prefSignageName);
+            var signageList = filteredList.filtered(signage -> signage.getDirectionType() == direction);
             var listView = new PFXListView<>(
                     signageList,
                     s -> {
