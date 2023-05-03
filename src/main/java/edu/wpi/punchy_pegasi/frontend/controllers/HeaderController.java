@@ -358,7 +358,7 @@ public class HeaderController extends HBox implements PropertyChangeListener {
         resultScrollContainer.setStyle(" -fx-background-color: -pfx-background;");
         searchField.setStyle(" -fx-background-color: -pfx-background;");
         searchBox.getStyleClass().add("search-box");
-        searchField.setStyle("-fx-font-size: 18; -fx-text-fill: -pfx-text; -fx-background-color: -pfx-primary;");
+        searchField.setStyle("-fx-font-size: 18; -fx-text-fill: -pfx-text; -fx-background-color: -pfx-background;");
         searchField.setPrefHeight(33);
         searchField.setMaxHeight(33);
         searchField.setMinHeight(33);
