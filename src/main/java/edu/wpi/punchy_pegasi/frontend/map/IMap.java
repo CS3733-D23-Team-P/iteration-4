@@ -19,6 +19,8 @@ public interface IMap<Layer> {
 
     void setZoom(double zoomScale);
 
+    void setZoomAndFocus(double zoomScale, Node node);
+
     void enableMove(boolean enabled);
 
     javafx.scene.Node get();

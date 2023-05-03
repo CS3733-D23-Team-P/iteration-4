@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import edu.wpi.punchy_pegasi.frontend.components.*?>
+<?import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon?>
 <?import io.github.palexdev.materialfx.controls.*?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
 <?import javafx.scene.control.Label?>
-<?import edu.wpi.punchy_pegasi.frontend.components.PFXButton?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             xmlns="http://javafx.com/javafx"
             fx:controller="edu.wpi.punchy_pegasi.frontend.map.PathfindingMap"
@@ -28,6 +26,9 @@
                     <PFXButton text="Find Path!" fx:id="pathfindButton" onMouseClicked="#pathFindWithSelectedNodes"/>
                     <Label fx:id="pathfindStatus" textAlignment="CENTER"/>
                 </VBox>
+                <VBox styleClass="pathfinding-overlay-box">
+                    <MFXToggleButton text="Avoid Stairs" fx:id="avoidStairs"/>
+                </VBox>
             </VBox>
         </VBox>
     </left>
@@ -42,11 +43,30 @@
                 <MFXDatePicker floatingText="Current Date" fx:id="adminDatePicker"/>
             </VBox>
         </VBox>
-        <VBox fx:id="pathDirections" styleClass="pathfinding-direction-overlay">
+        <VBox fx:id="pathDirections" styleClass="pathfinding-overlay">
             <VBox styleClass="pathfinding-direction-box">
-                <ScrollPane styleClass="pathfinding-direction-scroll-pane" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER">
+                <ScrollPane styleClass="pathfinding-direction-scroll-pane" fitToWidth="true" fitToHeight="true"
+                            hbarPolicy="NEVER">
                     <VBox fx:id="pathDirectionsBox" styleClass="pathfinding-direction-inner-box"/>
                 </ScrollPane>
+                <HBox spacing="10" alignment="CENTER" >
+                    <PFXButton onAction="#showPreviousStep" text="">
+                        <graphic>
+                            <HBox alignment="CENTER">
+                                <PFXIcon icon="SKIP_PREVIOUS" style="-fx-fill: white"/>
+                                <Label text="Back" style="-fx-text-fill:white"/>
+                            </HBox>
+                        </graphic>
+                    </PFXButton>
+                    <PFXButton onAction="#showNodeStep" text="">
+                        <graphic>
+                            <HBox alignment="CENTER">
+                                <Label text="Next" style="-fx-text-fill: white"/>
+                                <PFXIcon icon="SKIP_NEXT" style="-fx-fill:white"/>
+                            </HBox>
+                        </graphic>
+                    </PFXButton>
+                </HBox>
             </VBox>
         </VBox>
     </right>

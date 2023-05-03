@@ -13,8 +13,10 @@ import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
 import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -63,6 +65,10 @@ public class PathfindingMap {
     private final LocalDate movesDate = LocalDate.now();
     private final VBox alertBox = new VBox();
     private final LinkedHashMap<Integer, List<DirectionalNode>> directionMap = new LinkedHashMap<>();
+    private final List<DirectionalNode> allDirections = new ArrayList<>();
+    private SimpleIntegerProperty currentDirection = new SimpleIntegerProperty();
+    @FXML
+    private MFXToggleButton avoidStairs;
     @FXML
     private VBox pathDirectionsBox;
     @FXML
@@ -146,6 +152,22 @@ public class PathfindingMap {
         result[result.length - 1] = '\n';
 
         return result;
+    }
+
+    @FXML
+    private void showNodeStep() {
+        if (currentDirection.get() < allDirections.size() - 1) {
+            currentDirection.set(currentDirection.get() + 1);
+            map.focusOn(allDirections.get(currentDirection.get()).getNode());
+        }
+    }
+
+    @FXML
+    private void showPreviousStep() {
+        if (currentDirection.get() > 0) {
+            currentDirection.set(currentDirection.get() - 1);
+            map.focusOn(allDirections.get(currentDirection.get()).getNode());
+        }
     }
 
     private Optional<Circle> drawNode(Node node, String color) {
@@ -311,15 +333,28 @@ public class PathfindingMap {
             for (var dNode : dNodeList) {
                 var directionIcon = dNode.getDirection().getPFXIcon();
                 directionIcon.setSize(15.0);
-                if (Objects.requireNonNull(dNode.getNodeType()) == LocationName.NodeType.HALL) {
-                    var directionText = new Label(getDirectionText(dNode.getDirection()) + "Hallway");
-                    directionText.setWrapText(true);
-                    directionsOnFloor.getChildren().add(new HBox(directionIcon, directionText));
-                } else {
-                    var directionText = new Label(getDirectionText(dNode.getDirection()) + dNode.getLocationLongName());
-                    directionText.setWrapText(true);
-                    directionsOnFloor.getChildren().add(new HBox(directionIcon, directionText));
-                }
+                Label directionText;
+                if (Objects.requireNonNull(dNode.getNodeType()) == LocationName.NodeType.HALL)
+                    directionText = new Label(getDirectionText(dNode.getDirection()) + "Hallway");
+                else
+                    directionText = new Label(getDirectionText(dNode.getDirection()) + dNode.getLocationLongName());
+                directionText.setWrapText(true);
+                var hbox = new HBox(directionIcon, directionText);
+                var index = allDirections.indexOf(dNode);
+                hbox.getStyleClass().add("pathfinding-direction");
+                hbox.setOnMouseClicked(e -> {
+                    currentDirection.set(index);
+                    map.focusOn(dNode.getNode());
+                });
+                if (currentDirection.get() == index)
+                    hbox.getStyleClass().add("pathfinding-direction-highlighted");
+                currentDirection.addListener((e, ol, ne) -> {
+                    if (ne.equals(index))
+                        hbox.getStyleClass().add("pathfinding-direction-highlighted");
+                    else if (ol.equals(index))
+                        hbox.getStyleClass().remove("pathfinding-direction-highlighted");
+                });
+                directionsOnFloor.getChildren().add(hbox);
             }
             pathDirectionsBox.getChildren().add(directionsOnFloor);
         }
@@ -344,7 +379,7 @@ public class PathfindingMap {
         if (directionFloorIndex == 0) {
             directionFloorIndex++;
             directionMap.put(directionFloorIndex, new ArrayList<>());
-            directionMap.get(directionFloorIndex).add(new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
+            directionMap.get(directionFloorIndex).add(new DirectionalNode(node, currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
         } else if (floorWillChange) {
             String alterLocName;
             switch (currLocation.getNodeType()) {
@@ -352,20 +387,20 @@ public class PathfindingMap {
                 case STAI -> alterLocName = ("Stairs to Floor " + nextNode.getFloor());
                 default -> alterLocName = (currLocation.getLongName() + " to Floor " + nextNode.getFloor());
             }
-            directionMap.get(directionFloorIndex).add(new DirectionalNode(alterLocName, currLocation.getNodeType(), floor, direction));  // put current node as the last entry of this floor
+            directionMap.get(directionFloorIndex).add(new DirectionalNode(node, alterLocName, currLocation.getNodeType(), floor, direction));  // put current node as the last entry of this floor
             directionFloorIndex++;
             directionMap.put(directionFloorIndex, new ArrayList<>());
         } else {
             if (directionMap.get(directionFloorIndex).isEmpty()) {
                 // if no previous location on this floor, then add the node
-                directionMap.get(directionFloorIndex).add(new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
+                directionMap.get(directionFloorIndex).add(new DirectionalNode(node, currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
                 return;
             }
             // when floor doesn't change, check if the direction ever changes
             var prevDirection = directionMap.get(directionFloorIndex).get(directionMap.get(directionFloorIndex).size() - 1).getDirection();
             if (!prevDirection.equals(direction)) {
                 // if the previous location has direction change, then add the node
-                var dNode = new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction);
+                var dNode = new DirectionalNode(node, currLocation.getLongName(), currLocation.getNodeType(), floor, direction);
                 directionMap.get(directionFloorIndex).add(dNode);
             }
         }
@@ -374,6 +409,8 @@ public class PathfindingMap {
     private void clearDirections() {
         pathDirectionsBox.getChildren().clear();
         directionMap.clear();
+        allDirections.clear();
+        currentDirection.set(0);
         directionFloorIndex = 0;
         pathDirections.setVisible(false);
         pathDirections.setManaged(false);
@@ -406,7 +443,11 @@ public class PathfindingMap {
 
     private String pathFind(Node start, Node end) {
         var edgeList = edges.values().stream().map(v -> new Pair<>(v.getStartNode(), v.getEndNode())).toList();
-        var typedNodes = nodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, n -> new TypedNode(n.getValue(), nodeToMoves.get(n.getValue()).stream().map(m -> locations.get(m.getLocationID()).getNodeType()).toList())));
+        var typedNodes = nodes.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, n -> new TypedNode(n.getValue(), nodeToMoves.get(n.getValue()).stream().map(m -> locations.get(m.getLocationID()).getNodeType()).toList())));
+        if (avoidStairs.isSelected()) {
+            typedNodes = typedNodes.entrySet().stream().filter(n -> !n.getValue().getNodeType().contains(LocationName.NodeType.STAI)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
         var graph = new Graph<>(typedNodes, edgeList);
         try {
             var path = PathfindingSingleton.SINGLETON.getAlgorithm().findPath(graph, typedNodes.get(start.getNodeID()), typedNodes.get(end.getNodeID()));
@@ -446,11 +487,12 @@ public class PathfindingMap {
                 currentPath.add(node);
                 nodeIndex++;
             }
+            allDirections.addAll(directionMap.values().stream().flatMap(Collection::stream).toList());
             pathDrawDirections();
             map.drawDirectedPath(currentPath);
             map.drawYouAreHere(path.get(0));
             drawNode(path.get(path.size() - 1), "#3cb043");
-            map.focusOn(path.get(0));
+            map.setZoomAndFocus(2, path.get(0));
 
             for (Node node : path) {
                 xCoords.add(node.getXcoord());
@@ -551,6 +593,7 @@ public class PathfindingMap {
     @RequiredArgsConstructor
     @Data
     private class DirectionalNode {
+        private final Node node;
         private final String locationLongName;
         private final LocationName.NodeType nodeType;
         private final String floor;

@@ -20,11 +20,12 @@
 @import "MFXColors.css";
 
 .mfx-checkbox {
-    -mfx-main: #6200EE;
+    -mfx-main: -pfx-accent;
     -mfx-secondary: #424242;
 
     -fx-font-family: "Nunito Sans Regular";
-    -fx-text-fill: -mfx-text-he;
+    -fx-text-fill: -pfx-text;
+    -fx-font-size: 16;
 }
 
 .mfx-checkbox .box {

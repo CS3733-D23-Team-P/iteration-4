@@ -28,19 +28,6 @@
     -fx-padding: 5;
 }
 
-.pathfinding-direction-box {
-    -fx-alignment: CENTER;
-    -fx-max-width: 300;
-    -fx-min-height: 700;
-    -fx-pref-height: 700;
-    -fx-max-height: 700;
-    -fx-spacing: 10;
-    -fx-padding: 10;
-    -fx-background-color: -pfx-background;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
-}
-
 /*.pathfinding-direction-box > HBox {*/
 /*    -fx-spacing: 10;*/
 /*    -fx-alignment: CENTER;*/
@@ -55,6 +42,7 @@
 .pathfinding-direction-scroll-pane {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-max-height: 600;
 }
 
 .pathfinding-direction-scroll-pane .scroll-bar:vertical {
@@ -80,7 +68,15 @@
 .pathfinding-direction-overlay PFXIcon {
     -fx-fill: -pfx-text;
 }
-
+.pathfinding-direction-box {
+    -fx-alignment: CENTER;
+    -fx-max-width: 300;
+    -fx-spacing: 10;
+    -fx-padding: 10;
+    -fx-background-color: -pfx-background;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
+}
 .pathfinding-direction-box:hover {
     -fx-background-color: -pfx-background-transparent;
 }
@@ -99,4 +95,21 @@
 .pathfinding-overlay .pfx-button-cancel {
     -pfx-button-background: -pfx-danger;
     -pfx-button-text: -pfx-text;
+}
+
+.pathfinding-direction {
+    -fx-background-radius: 6;
+}
+.pathfinding-direction:hover {
+    -fx-background-color: -pfx-accent-transparent;
+}
+
+
+.pathfinding-direction-highlighted {
+    -fx-background-color: -pfx-accent;
+}
+
+
+.pathfinding-direction-highlighted:hover {
+    -fx-background-color: -pfx-accent;
 }
