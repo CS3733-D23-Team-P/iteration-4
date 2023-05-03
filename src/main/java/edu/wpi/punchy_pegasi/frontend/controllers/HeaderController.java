@@ -55,22 +55,24 @@ public class HeaderController extends HBox implements PropertyChangeListener {
             if(s.getScreen().getShield().getShieldLevel() <= App.getSingleton().getAccount().getAccountType().getShieldLevel()){
                 if (item == null) {
                     item = new VBox();
+                    item.getStyleClass().add("search-items");
                     item.setId(name);
                     var separator = new Separator();
                     var nameLabel = new Label(name);
-                    nameLabel.setStyle("-fx-cursor: hand; -fx-fill: -pfx-accent; -fx-font-size: 16;");
+                    nameLabel.getStyleClass().add("search-items-big-font");
                     nameLabel.setWrapText(true);
                     nameLabel.setOnMouseClicked(e -> s.getNavigate().run());
                     items.put(name, item);
                     var description = new Label(s.getDescription());
-                    description.setStyle("-fx-cursor: hand; -fx-fill: -pfx-accent;");
                     description.setWrapText(true);
+                    description.getStyleClass().add("search-items-descriptions");
                     description.setOnMouseClicked(e -> s.getNavigate().run());
                     item.getChildren().addAll(nameLabel, separator, description);
                 } else {
+                    item.getStyleClass().add("search-items");
                     var description = new Label(s.getDescription());
-                    description.setStyle("-fx-cursor: hand; -fx-fill: -pfx-accent;");
                     description.setWrapText(true);
+                    description.getStyleClass().add("search-items-descriptions");
                     description.setOnMouseClicked(e -> s.getNavigate().run());
                     if (!item.getChildren().contains(description)) {
                         item.getChildren().add(description);
