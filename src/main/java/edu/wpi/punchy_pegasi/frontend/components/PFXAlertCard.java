@@ -82,10 +82,10 @@ public class PFXAlertCard extends HBox {
     public String getDescription(){ return description.getText(); }
 
     public void toggleRead() {
-        var n = alert.withReadStatus(switch (alert.getReadStatus()){
+        var n = alert.toBuilder().readStatus(switch (alert.getReadStatus()){
             case READ -> Alert.ReadStatus.UNREAD;
             case UNREAD -> Alert.ReadStatus.READ;
-        });
+        }).build();
         App.getSingleton().getFacade().updateAlert(n, new Alert.Field[]{Alert.Field.READ_STATUS});
         if(alert.getReadStatus() == Alert.ReadStatus.READ) {
             getStyleClass().remove("pfx-alert-card-container-unread");
