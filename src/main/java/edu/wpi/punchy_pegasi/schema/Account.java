@@ -8,7 +8,7 @@ import lombok.*;
 @Setter(AccessLevel.NONE)
 @AllArgsConstructor
 @NoArgsConstructor
-@lombok.Builder(toBuilder = true)
+@lombok.Builder(toBuilder=true)
 public class Account {
     @SchemaID
     @lombok.With
@@ -30,7 +30,63 @@ public class Account {
     @lombok.With
     @com.jsoniter.annotation.JsonProperty("theme")
     private Theme theme;
+    @lombok.With
+    @com.jsoniter.annotation.JsonProperty("accent")
+    private Accent accent;
+    public static final Account DEFAULT = new Account(0L, "", "", 0L, Account.AccountType.NONE, Account.Theme.LIGHT, Account.Accent.DEFAULT);
 
+    public enum Theme {
+        LIGHT, DARK;
+    }
+    public enum Accent {
+        DEFAULT, PRIDE, WATERMELON, PINK, ORANGE, SUNSET, ZEBRA;
+    }
+
+        @RequiredArgsConstructor
+        public enum AccountType {
+            NONE(0),
+            ADMIN(2),
+            STAFF(1);
+            @Getter
+            private final int shieldLevel;
+        }
+
+@lombok.RequiredArgsConstructor
+public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Account, edu.wpi.punchy_pegasi.schema.Account.AccountBuilder>{
+        UUID("uuid", true,false),
+        USERNAME("username", false,true),
+        PASSWORD("password", false,false),
+        EMPLOYEE_ID("employeeID", false,false),
+        ACCOUNT_TYPE("accountType", false,false),
+        THEME("theme", false,false),
+        ACCENT("accent", false,false);
+        @lombok.Getter
+        private final String colName;
+        @lombok.Getter
+        private final boolean primaryKey;
+        @lombok.Getter
+        private final boolean unique;
+        public Object getValue(edu.wpi.punchy_pegasi.schema.Account ref){
+    return ref.getFromField(this);
+}
+public String getValueAsString(edu.wpi.punchy_pegasi.schema.Account ref){
+    return ref.getFromFieldAsString(this);
+}
+    public void setValueFromString(edu.wpi.punchy_pegasi.schema.Account.AccountBuilder builder, String value){
+            switch (this) {
+            case UUID -> builder.uuid(Long.parseLong(value));
+            case USERNAME -> builder.username(value);
+            case PASSWORD -> builder.password(value);
+            case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
+            case ACCOUNT_TYPE -> builder.accountType(AccountType.valueOf(value));
+            case THEME -> builder.theme(Theme.valueOf(value));
+            case ACCENT -> builder.accent(Accent.valueOf(value));
+            }
+        }
+        public int oridinal(){
+            return ordinal();
+        }
+    }
     public Object getFromField(Field field) {
         return switch (field) {
             case UUID -> getUuid();
@@ -39,57 +95,9 @@ public class Account {
             case EMPLOYEE_ID -> getEmployeeID();
             case ACCOUNT_TYPE -> getAccountType();
             case THEME -> getTheme();
+            case ACCENT -> getAccent();
         };
     }
-
-    @RequiredArgsConstructor
-    public enum AccountType {
-        NONE(0),
-        ADMIN(2),
-        STAFF(1);
-        @Getter
-        private final int shieldLevel;
-    }
-
-    @lombok.RequiredArgsConstructor
-    public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Account, edu.wpi.punchy_pegasi.schema.Account.AccountBuilder> {
-        UUID("uuid", true, false),
-        USERNAME("username", false, true),
-        PASSWORD("password", false, false),
-        EMPLOYEE_ID("employeeID", false, false),
-        ACCOUNT_TYPE("accountType", false, false),
-        THEME("theme", false, false);
-        @lombok.Getter
-        private final String colName;
-        @lombok.Getter
-        private final boolean primaryKey;
-        @lombok.Getter
-        private final boolean unique;
-
-        public Object getValue(edu.wpi.punchy_pegasi.schema.Account ref) {
-            return ref.getFromField(this);
-        }
-
-        public String getValueAsString(edu.wpi.punchy_pegasi.schema.Account ref) {
-            return ref.getFromFieldAsString(this);
-        }
-
-        public void setValueFromString(edu.wpi.punchy_pegasi.schema.Account.AccountBuilder builder, String value) {
-            switch (this) {
-                case UUID -> builder.uuid(Long.parseLong(value));
-                case USERNAME -> builder.username(value);
-                case PASSWORD -> builder.password(value);
-                case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
-                case ACCOUNT_TYPE -> builder.accountType(AccountType.valueOf(value));
-                case THEME -> builder.theme(Theme.valueOf(value));
-            }
-        }
-
-        public int oridinal() {
-            return ordinal();
-        }
-    }
-
     public String getFromFieldAsString(Field field) {
         return switch (field) {
             case UUID -> Long.toString(getUuid());
@@ -98,11 +106,8 @@ public class Account {
             case EMPLOYEE_ID -> Long.toString(getEmployeeID());
             case ACCOUNT_TYPE -> getAccountType().name();
             case THEME -> getTheme().name();
+            case ACCENT -> getAccent().name();
         };
-    }
-
-    public enum Theme {
-        LIGHT, DARK
     }
 
 }

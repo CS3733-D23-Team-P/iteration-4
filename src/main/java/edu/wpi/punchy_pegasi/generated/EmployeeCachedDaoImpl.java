@@ -111,9 +111,9 @@ public class EmployeeCachedDaoImpl implements IDao<java.lang.Long, Employee, Emp
         try (var rs = dbController.searchQuery(TableType.EMPLOYEES)) {
             while (rs.next()) {
                 Employee req = new Employee(
-                        rs.getObject("employeeID", java.lang.Long.class),
-                        rs.getObject("firstName", java.lang.String.class),
-                        rs.getObject("lastName", java.lang.String.class));
+                    rs.getObject("employeeID", java.lang.Long.class),
+                    rs.getObject("firstName", java.lang.String.class),
+                    rs.getObject("lastName", java.lang.String.class));
                 add(req);
             }
         } catch (PdbController.DatabaseException | SQLException e) {

@@ -41,40 +41,35 @@ public class Node implements INode {
             default -> -1;
         };
     }
-
-    @lombok.RequiredArgsConstructor
-    public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Node, edu.wpi.punchy_pegasi.schema.Node.NodeBuilder> {
-        NODE_ID("nodeID", true, false),
-        XCOORD("xcoord", false, false),
-        YCOORD("ycoord", false, false),
-        FLOOR("floor", false, false),
-        BUILDING("building", false, false);
+@lombok.RequiredArgsConstructor
+public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Node, edu.wpi.punchy_pegasi.schema.Node.NodeBuilder>{
+        NODE_ID("nodeID", true,false),
+        XCOORD("xcoord", false,false),
+        YCOORD("ycoord", false,false),
+        FLOOR("floor", false,false),
+        BUILDING("building", false,false);
         @lombok.Getter
         private final String colName;
         @lombok.Getter
         private final boolean primaryKey;
         @lombok.Getter
         private final boolean unique;
-
-        public Object getValue(edu.wpi.punchy_pegasi.schema.Node ref) {
-            return ref.getFromField(this);
-        }
-
-        public String getValueAsString(edu.wpi.punchy_pegasi.schema.Node ref) {
-            return ref.getFromFieldAsString(this);
-        }
-
-        public void setValueFromString(edu.wpi.punchy_pegasi.schema.Node.NodeBuilder builder, String value) {
+        public Object getValue(edu.wpi.punchy_pegasi.schema.Node ref){
+    return ref.getFromField(this);
+}
+public String getValueAsString(edu.wpi.punchy_pegasi.schema.Node ref){
+    return ref.getFromFieldAsString(this);
+}
+    public void setValueFromString(edu.wpi.punchy_pegasi.schema.Node.NodeBuilder builder, String value){
             switch (this) {
-                case NODE_ID -> builder.nodeID(Long.parseLong(value));
-                case XCOORD -> builder.xcoord(Integer.parseInt(value));
-                case YCOORD -> builder.ycoord(Integer.parseInt(value));
-                case FLOOR -> builder.floor(value);
-                case BUILDING -> builder.building(value);
+            case NODE_ID -> builder.nodeID(Long.parseLong(value));
+            case XCOORD -> builder.xcoord(Integer.parseInt(value));
+            case YCOORD -> builder.ycoord(Integer.parseInt(value));
+            case FLOOR -> builder.floor(value);
+            case BUILDING -> builder.building(value);
             }
         }
-
-        public int oridinal() {
+        public int oridinal(){
             return ordinal();
         }
     }

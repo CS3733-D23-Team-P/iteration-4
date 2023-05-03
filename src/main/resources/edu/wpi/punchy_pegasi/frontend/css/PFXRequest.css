@@ -62,6 +62,7 @@
 #clear {
     -pfx-button-background: -pfx-danger;
     -pfx-button-text: -pfx-text-opposite;
+    -pfx-button-hover: -pfx-danger-dark;
 }
 
 #submit {

@@ -1,8 +1,8 @@
 package edu.wpi.punchy_pegasi.generated;
 
 import edu.wpi.punchy_pegasi.backend.PdbController;
-import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.Node;
+import edu.wpi.punchy_pegasi.schema.IDao;
 import edu.wpi.punchy_pegasi.schema.TableType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -53,11 +53,11 @@ public class NodeDaoImpl implements IDao<java.lang.Long, Node, Node.Field> {
         try (var rs = dbController.searchQuery(TableType.NODES, Arrays.stream(params).map(Node.Field::getColName).toList().toArray(new String[params.length]), value)) {
             while (rs.next()) {
                 Node req = new Node(
-                        rs.getObject("nodeID", java.lang.Long.class),
-                        rs.getObject("xcoord", java.lang.Integer.class),
-                        rs.getObject("ycoord", java.lang.Integer.class),
-                        rs.getObject("floor", java.lang.String.class),
-                        rs.getObject("building", java.lang.String.class));
+                    rs.getObject("nodeID", java.lang.Long.class),
+                    rs.getObject("xcoord", java.lang.Integer.class),
+                    rs.getObject("ycoord", java.lang.Integer.class),
+                    rs.getObject("floor", java.lang.String.class),
+                    rs.getObject("building", java.lang.String.class));
                 if (req != null)
                     map.put(req.getNodeID(), req);
             }
@@ -73,11 +73,11 @@ public class NodeDaoImpl implements IDao<java.lang.Long, Node, Node.Field> {
         try (var rs = dbController.searchQuery(TableType.NODES)) {
             while (rs.next()) {
                 Node req = new Node(
-                        rs.getObject("nodeID", java.lang.Long.class),
-                        rs.getObject("xcoord", java.lang.Integer.class),
-                        rs.getObject("ycoord", java.lang.Integer.class),
-                        rs.getObject("floor", java.lang.String.class),
-                        rs.getObject("building", java.lang.String.class));
+                    rs.getObject("nodeID", java.lang.Long.class),
+                    rs.getObject("xcoord", java.lang.Integer.class),
+                    rs.getObject("ycoord", java.lang.Integer.class),
+                    rs.getObject("floor", java.lang.String.class),
+                    rs.getObject("building", java.lang.String.class));
                 if (req != null)
                     map.put(req.getNodeID(), req);
             }

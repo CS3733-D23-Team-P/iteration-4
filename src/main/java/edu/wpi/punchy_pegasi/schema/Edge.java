@@ -9,7 +9,7 @@ import java.util.UUID;
 @Setter(AccessLevel.NONE)
 @AllArgsConstructor
 @NoArgsConstructor
-@lombok.Builder(toBuilder = true)
+@lombok.Builder(toBuilder=true)
 public class Edge {
     @SchemaID
     @lombok.With
@@ -21,36 +21,31 @@ public class Edge {
     @lombok.With
     @com.jsoniter.annotation.JsonProperty("endnode")
     private Long endNode;
-
-    @lombok.RequiredArgsConstructor
-    public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Edge, edu.wpi.punchy_pegasi.schema.Edge.EdgeBuilder> {
-        UUID("uuid", true, false),
-        START_NODE("startNode", false, false),
-        END_NODE("endNode", false, false);
+@lombok.RequiredArgsConstructor
+public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Edge, edu.wpi.punchy_pegasi.schema.Edge.EdgeBuilder>{
+        UUID("uuid", true,false),
+        START_NODE("startNode", false,false),
+        END_NODE("endNode", false,false);
         @lombok.Getter
         private final String colName;
         @lombok.Getter
         private final boolean primaryKey;
         @lombok.Getter
         private final boolean unique;
-
-        public Object getValue(edu.wpi.punchy_pegasi.schema.Edge ref) {
-            return ref.getFromField(this);
-        }
-
-        public String getValueAsString(edu.wpi.punchy_pegasi.schema.Edge ref) {
-            return ref.getFromFieldAsString(this);
-        }
-
-        public void setValueFromString(edu.wpi.punchy_pegasi.schema.Edge.EdgeBuilder builder, String value) {
+        public Object getValue(edu.wpi.punchy_pegasi.schema.Edge ref){
+    return ref.getFromField(this);
+}
+public String getValueAsString(edu.wpi.punchy_pegasi.schema.Edge ref){
+    return ref.getFromFieldAsString(this);
+}
+    public void setValueFromString(edu.wpi.punchy_pegasi.schema.Edge.EdgeBuilder builder, String value){
             switch (this) {
-                case UUID -> builder.uuid(java.util.UUID.fromString(value));
-                case START_NODE -> builder.startNode(Long.parseLong(value));
-                case END_NODE -> builder.endNode(Long.parseLong(value));
+            case UUID -> builder.uuid(java.util.UUID.fromString(value));
+            case START_NODE -> builder.startNode(Long.parseLong(value));
+            case END_NODE -> builder.endNode(Long.parseLong(value));
             }
         }
-
-        public int oridinal() {
+        public int oridinal(){
             return ordinal();
         }
     }

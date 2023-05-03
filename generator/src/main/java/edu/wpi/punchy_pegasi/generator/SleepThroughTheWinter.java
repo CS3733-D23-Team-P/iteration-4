@@ -14,6 +14,7 @@ import org.objectweb.asm.tree.MethodNode;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
@@ -385,7 +386,7 @@ public class SleepThroughTheWinter {
         var sourceFileText = new String(Files.readAllBytes(schemaSourcePath))
                 .replaceAll("edu\\.wpi\\.punchy_pegasi\\.generator\\.schema", "edu.wpi.punchy_pegasi.schema");
 
-        var classFields = getFieldsRecursively(entryClass);
+        var classFields = getFieldsRecursively(entryClass).stream().filter(f-> !Modifier.isStatic(f.getModifiers())).toList();
 
         // gen schema
         var schemaFileText = sourceFileText // remove @SchemaID annotations
