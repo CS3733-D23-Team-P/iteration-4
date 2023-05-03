@@ -113,14 +113,14 @@ public class PFXAccount extends HBox implements PropertyChangeListener {
             getChildren().addAll(defaultIcon);
             accountInformation.setVisible(true);
             accountInformation.setManaged(true);
+            nameLabel.setText(account.getUsername());
+            accountLevel.setText(account.getAccountType().toString());
+            colorToggle.setSelected(switch (account.getTheme()) {
+                case LIGHT -> false;
+                case DARK -> true;
+            });
+            accentPicker.setValue(account.getAccent());
         }
-        nameLabel.setText(account.getUsername());
-        accountLevel.setText(account.getAccountType().toString());
-        colorToggle.setSelected(switch (account.getTheme()) {
-            case LIGHT -> false;
-            case DARK -> true;
-        });
-        accentPicker.setValue(account.getAccent());
     }
 
     @Override
