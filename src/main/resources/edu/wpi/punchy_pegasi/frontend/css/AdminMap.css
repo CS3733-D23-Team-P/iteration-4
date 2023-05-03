@@ -22,9 +22,7 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
-.changes-edit-scrollpane > .viewport {
-    -fx-background-color: tranparent;
-}
+
 #commitProgress {
     -fx-min-height: 20;
     -fx-max-height: 20;
