@@ -6,6 +6,7 @@ import edu.wpi.punchy_pegasi.frontend.animations.FollowPath;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
 import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
 import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
+import edu.wpi.punchy_pegasi.schema.Account;
 import edu.wpi.punchy_pegasi.schema.Edge;
 import edu.wpi.punchy_pegasi.schema.Node;
 import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
@@ -39,12 +40,14 @@ import net.kurobako.gesturefx.GesturePaneOps;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors> {
+public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>, PropertyChangeListener {
     private static final Image downArrow = new Image(Objects.requireNonNull(App.class.getResourceAsStream("frontend/assets/double-chevron-down-512.png")));
     private final StackPane maps = new StackPane();
     private final GesturePane gesturePane = new GesturePane(maps);
@@ -100,6 +103,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>
 
         Arrays.stream(HospitalFloor.Floors.values()).forEach(f -> {
             var floor = new HospitalFloor(f);
+            floor.setTheme(App.getSingleton().getAccount().getTheme());
             floorMap.put(f, floor);
             floor.getButton().addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showLayer(f));
             floorContainer.getChildren().add(floor.getButton());
@@ -411,6 +415,15 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>
     @Override
     public void setDefaultOverlaysVisible(boolean isVisible) {
         overlay.setVisible(isVisible);
+    }
+    public void setAccount(Account account) {;
+        floorMap.values().forEach(f->f.setTheme(account.getTheme()));
+    }
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (Objects.equals(evt.getPropertyName(), "account")) {
+            setAccount((Account) evt.getNewValue());
+        }
     }
 
     private record RenderedEdge(Line line, HospitalFloor floor) {

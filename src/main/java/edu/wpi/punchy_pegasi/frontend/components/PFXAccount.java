@@ -109,6 +109,4 @@ public class PFXAccount extends HBox implements PropertyChangeListener {
             setAccount((Account) evt.getNewValue());
         }
     }
-
-
 }
