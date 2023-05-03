@@ -25,13 +25,13 @@ public class IdleScreen extends VBox {
     private boolean enabled = false;
 
     public IdleScreen(double idleTimeSeconds) {
-        this.idleTimeSeconds = idleTimeSeconds;
+        this.idleTimeSeconds = 5;
 
         ImageView image = new ImageView(new Image(App.getSingleton().resolveResource("frontend/assets/BW-logo.png").get().toString()));
         Label lab = new Label("Press Anywhere to Continue");
-        setStyle("-fx-background-color: white");
+        setStyle("-fx-background-color: -pfx-background");
         //setStyle("-fx-text-fill: black");
-        lab.setStyle("-fx-font-size: 24");
+        lab.setStyle("-fx-font-size: 24; -fx-text-fill: -pfx-text");
         setAlignment(Pos.CENTER);
         getChildren().add(image);
         getChildren().add(lab);
