@@ -40,8 +40,10 @@ public class PFXAccount extends HBox implements PropertyChangeListener {
         var content = new VBox();
         content.getStyleClass().add("pfx-account-menu");
         accountMenu.setContentNode(content);
+        accountMenu.getStyleClass().add("pfx-account-menu-popover");
         accountMenu.setDetachable(false);
         accountMenu.setArrowLocation(PopOver.ArrowLocation.TOP_RIGHT);
+        accountMenu.setArrowSize(0);
         logout.setText("Logout");
         logout.setIcon(MaterialSymbols.LOGOUT);
         logout.setOnMouseClicked(e -> {

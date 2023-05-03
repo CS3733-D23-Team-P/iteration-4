@@ -1,5 +1,5 @@
 .pfx-alert {
-    -fx-background-color: -pfx-background;
+    -fx-background-color: -pfx-primary;
     -fx-background-radius: 6;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
     -fx-alignment: center;
@@ -8,12 +8,13 @@
 
 .pfx-alert .pfx-button {
     -fx-background-color: -pfx-accent;
-    -fx-text-fill: -pfx-background;
+    -fx-text-fill: white;
 }
 
 .pfx-alert .label {
     -fx-font-size: 24;
     -fx-padding: 0 0 10 0;
+    -fx-text-fill: -pfx-text;
 }
 
 .pfx-alert-container {
