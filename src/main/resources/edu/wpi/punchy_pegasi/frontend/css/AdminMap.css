@@ -67,6 +67,10 @@
     -fx-padding: 0 5;
 }
 
+.changes-edit-scrollpane > .viewport {
+    -fx-background-color: tranparent;
+}
+
 .move-hbox:hover {
     -fx-background-color: -pfx-accent-transparent;
 }
