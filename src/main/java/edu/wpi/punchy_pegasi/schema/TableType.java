@@ -425,8 +425,7 @@ BEGIN
       employeeID bigint,
       accountType varchar NOT NULL,
       theme varchar NOT NULL,
-      accent varchar NOT NULL,
-      DEFAULT null
+      accent varchar NOT NULL
     );
     ALTER SEQUENCE accounts_id_seq OWNED BY accounts.uuid;
   END IF;

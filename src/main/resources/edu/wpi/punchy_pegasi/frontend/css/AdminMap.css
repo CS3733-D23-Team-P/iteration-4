@@ -62,6 +62,7 @@
     -fx-cursor: hand;
     -fx-background-radius: 30;
     -pfx-button-background: transparent;
+    -pfx-button-hover: transparent;
 }
 
 .move-hbox {
