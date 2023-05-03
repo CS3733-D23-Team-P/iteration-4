@@ -15,22 +15,23 @@
             <HBox spacing="10.0" alignment="CENTER" HBox.hgrow="ALWAYS">
                 <VBox alignment="TOP_LEFT" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="admin-container-parent" spacing="15.0">
                     <Label styleClass="admin-container-title-text-size" text="Create Alert" VBox.vgrow="ALWAYS"/>
-                    <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="admin-container" fx:id="alertsContainer" spacing="15.0">
+                    <VBox alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="admin-container-left-aligned" fx:id="alertsContainer" spacing="15.0">
+                        <Label alignment="CENTER_LEFT" text="Alert Type" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
+                        <MFXComboBox floatingText="Select Alert Type" fx:id="alertTypeComboBox" styleClass="admin-MFXComboBox" minWidth="300"/>
                         <Label alignment="CENTER_LEFT" text="Alert Title" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
-                        <TextField promptText="Alert title" fx:id="alertTitle"/>
+                        <TextField promptText="Alert title" fx:id="alertTitle" maxWidth="400" styleClass="admin-text-field"/>
                         <Label text="Alert Description" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
-                        <TextField promptText="Alert description" fx:id="alertDescription"/>
-                        <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="timePickerContainer">
+                        <TextField promptText="Alert description" fx:id="alertDescription" maxWidth="400" styleClass="admin-text-field"/>
+                        <HBox spacing="15.0" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="timePickerContainer">
                             <Label text="End Date" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
-                            <MFXDatePicker fx:id="endDatePicker"/>
+                            <MFXDatePicker fx:id="endDatePicker" styleClass="admin-MFXComboBox"/>
                             <Label text="End Time" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
-                            <MFXComboBox styleClass="conference-dropDown" fx:id="endTimeComboBox" promptText="End Time" floatMode="DISABLED"/>
+                            <MFXComboBox styleClass="admin-MFXComboBox" fx:id="endTimeComboBox" floatingText="End Time" floatMode="DISABLED"/>
                         </HBox>
-                        <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="employeePickerContainer">
+                        <HBox spacing="15.0" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" fx:id="employeePickerContainer">
                             <Label text="Assign Employee" styleClass="admin-container-text-size" VBox.vgrow="ALWAYS"/>
-                            <MFXFilterComboBox styleClass="conference-dropDown" fx:id="employeeComboBox" floatMode="DISABLED"/>
+                            <MFXFilterComboBox styleClass="admin-MFXComboBox" fx:id="employeeComboBox" floatMode="DISABLED"/>
                         </HBox>
-                        <MFXComboBox promptText="Select Alert Type" fx:id="alertTypeComboBox"/>
                         <HBox spacing="15.0" alignment="CENTER" HBox.hgrow="ALWAYS">
                             <PFXButton styleClass="admin-container-buttons" text="Send" fx:id="sendButton"/>
                             <PFXButton styleClass="admin-container-buttons-remove"  text="Remove" fx:id="removeButton"/>

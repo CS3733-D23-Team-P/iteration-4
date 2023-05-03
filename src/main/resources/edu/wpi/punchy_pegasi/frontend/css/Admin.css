@@ -102,6 +102,7 @@
 }
 .admin-container-title-text-size{
     -fx-font-size: 25;
+    -fx-text-fill: -pfx-text;
 }
 
 .admin-container-displayTable{
@@ -136,9 +137,20 @@
 }
 
 .admin-scrollpane {
-    -fx-background-color: transparent;
+    -fx-background-color: -pfx-background;
 }
 
 .admin-MFXComboBox {
     -fx-font-size: 12;
+    -fx-text-fill: -pfx-text;
+    -fx-background-color: -pfx-background;
+    -fx-border-color: -pfx-primary;
+    -fx-border-radius: 6;
+}
+.admin-text-field{
+    -fx-font-size: 12;
+    -fx-text-fill: -pfx-text;
+    -fx-background-color: -pfx-background;
+    -fx-border-color: -pfx-primary;
+    -fx-border-radius: 6;
 }
