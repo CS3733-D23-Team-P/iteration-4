@@ -4,18 +4,18 @@
     -fx-cursor: hand;
 }
 .pfx-account:hover .pfx-default-account-icon {
-    -fx-fill: -pfx-secondary-light;
+    -fx-fill: -pfx-text;
 }
 .pfx-account-menu {
     -fx-padding: 10;
     -fx-min-width: 150;
-    -fx-opacity: 1;
+    -fx-background-color: -pfx-primary;
 }
 
 
 .pfx-account Label {
     -fx-font-size: 12;
-    -fx-fill: -pfx-text;
+    -fx-text-fill: -pfx-text;
 }
 
 .pfx-account PFXIcon {
@@ -23,12 +23,12 @@
 }
 
 .pfx-default-account-icon {
-    -fx-fill: -pfx-secondary;
+    -fx-fill: -pfx-text;
 }
 
 .pfx-account-information {
     -fx-alignment: CENTER;
     -fx-padding: 0 0 15 0;
-    -fx-border-color: -pfx-secondary-light;
+    -fx-border-color: -pfx-text;
     -fx-border-width: 0 0 1 0;
 }
