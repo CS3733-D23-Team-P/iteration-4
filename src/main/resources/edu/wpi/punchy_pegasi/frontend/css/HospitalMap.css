@@ -10,6 +10,7 @@
     -pfx-button-background: -pfx-background;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 20, 0, 0.0, 0.0);
     -fx-text-fill: -pfx-text;
+    -pfx-button-hover: -pfx-secondary-light;
 }
 
 .hospital-map-overlay-bottom {
@@ -37,6 +38,7 @@
     -fx-padding: 0 3;
     -fx-background-color: -pfx-background;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 5, 0, 0.0, 0.0);
+    -pfx-button-hover: -pfx-secondary-light;
 }
 .hospital-map-zoom-modal PFXButton:focused {
     -fx-background-color: -pfx-background;
