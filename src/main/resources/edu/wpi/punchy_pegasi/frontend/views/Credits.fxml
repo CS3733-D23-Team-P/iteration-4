@@ -22,9 +22,6 @@
                 <VBox style="-fx-background-color: -pfx-background" spacing="10">
                     <Label text="RESOURCES" styleClass="about-subtitles"/>
                     <GridPane fx:id="sourceGrid" styleClass="about-grid">
-                        <Label alignment="CENTER_LEFT" text="Resource" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: 900;"/>
-                        <Label alignment="CENTER_LEFT" text="Description" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-font-weight: 900;"/>
-                        <Label alignment="CENTER_RIGHT" text="Link" GridPane.columnIndex="2" GridPane.rowIndex="0" style="-fx-font-weight: 900;"/>
                     </GridPane>
                 </VBox>
             </children>

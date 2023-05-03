@@ -39,7 +39,8 @@ public class AdminAlertPageController {
     private VBox alertsContainer;
     @FXML
     private PFXButton sendButton;
-    private PFXListView<Alert> activeAlertsContainer;
+    @FXML
+    private VBox activeAlertsContainer;
     @FXML
     private BorderPane container;
     @FXML

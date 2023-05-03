@@ -37,14 +37,18 @@ public class PFXAlertCard extends HBox {
         description = new Label(alert.getDescription());
         read = new Button("", icon);
 
-
-        getChildren().addAll(textContainer, read);
+        VBox.setVgrow(textContainer, Priority.ALWAYS);
+        HBox hboxSpacer = new HBox();
+        HBox.setHgrow(hboxSpacer, Priority.ALWAYS);
+        HBox.setHgrow(read, Priority.ALWAYS);
+        HBox.setHgrow(description, Priority.ALWAYS);
         Label alertType = new Label(alert.getAlertType().toString());
+        description.setWrapText(true);
+        getChildren().addAll(textContainer, hboxSpacer, read);
         textContainer.getChildren().addAll(titleLabel, alertType, description);
         alertType.getStyleClass().add("pfx-alert-card-type-text");
         titleLabel.getStyleClass().add("pfx-alert-card-title-text");
-        HBox.setHgrow(read, Priority.ALWAYS);
-        HBox.setHgrow(description, Priority.ALWAYS);
+
 
         if (alert.getAlertType() == Alert.AlertType.MAP) {
             Label endDateTimeLabel = new Label();
@@ -100,8 +104,4 @@ public class PFXAlertCard extends HBox {
     }
 
     public Alert getAlert(){return this.alert;}
-    public void changeToDeleteIcon(){
-        this.active = MaterialSymbols.DELETE;
-        icon.setIcon(active);
-    }
 }

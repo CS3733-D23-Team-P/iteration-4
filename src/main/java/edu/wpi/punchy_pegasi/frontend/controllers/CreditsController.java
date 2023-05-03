@@ -1,6 +1,9 @@
 package edu.wpi.punchy_pegasi.frontend.controllers;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -10,12 +13,17 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Desktop;
 
 
-
+@Slf4j
 public class CreditsController {
 
     List<Resource> resources = new ArrayList<>();
@@ -24,10 +32,19 @@ public class CreditsController {
 
     @FXML
     private void initialize(){
+        sourceGrid.getColumnConstraints().add(new ColumnConstraints(200));
         sourceGrid.getColumnConstraints().add(new ColumnConstraints(150));
-        sourceGrid.getColumnConstraints().add(new ColumnConstraints(150));
-//        sourceGrid.getColumnConstraints().add(new ColumnConstraints(500));
 
+        Label resourceHeader = new Label("Resource");
+        resourceHeader.alignmentProperty().setValue(Pos.CENTER_LEFT);
+        resourceHeader.setStyle("-fx-font-weight: 900;");
+        Label descriptionHeader = new Label("Description");
+        descriptionHeader.alignmentProperty().setValue(Pos.CENTER_LEFT);
+        descriptionHeader.setStyle("-fx-font-weight: 900;");
+        Label linkHeader = new Label("Link");
+        linkHeader.alignmentProperty().setValue(Pos.CENTER_LEFT);
+        linkHeader.setStyle("-fx-font-weight: 900;");
+        sourceGrid.addRow(0,resourceHeader,descriptionHeader,linkHeader);
 
         resources.add(new Resource("Google Fonts", "icons", new Hyperlink("https://fonts.google.com/icons")));
         resources.add(new Resource("jSerialComm", "Java library", new Hyperlink("https://fazecast.github.io/jSerialComm/")));
@@ -86,11 +103,23 @@ public class CreditsController {
             description.setWrapText(true);
             //description.setMaxWidth(150);
 
-            Label link = new Label(resource.getLink().getText());
+            Hyperlink link = new Hyperlink(resource.getLink().getText());
+
+            //Label link = new Label(resource.getLink().getText());
             link.setAlignment(Pos.CENTER_LEFT);
             link.setWrapText(true);
+            link.setPadding(new Insets(0,0,0,50));
+            link.setStyle("-fx-font-size: 16");
             //link.setMaxWidth(200);
-
+            link.setOnMouseClicked(e -> {
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    try {
+                        Desktop.getDesktop().browse(new URI(resource.getLink().getText()));
+                    } catch (IOException | URISyntaxException ex) {
+                        log.error("Unable to open link.");
+                    }
+                }
+            });
 
             sourceGrid.addRow(rowIndex, nameLabel, description, link);
             rowIndex++;
