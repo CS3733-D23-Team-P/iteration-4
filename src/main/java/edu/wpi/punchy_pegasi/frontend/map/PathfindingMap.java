@@ -66,10 +66,10 @@ public class PathfindingMap {
     private final ArrayList<Integer> yCoords = new ArrayList<Integer>();
     private final HBox container = new HBox();
     private final LocalDate movesDate = LocalDate.now();
-    @FXML
-    private VBox alertBox;
     private final LinkedHashMap<Integer, List<DirectionalNode>> directionMap = new LinkedHashMap<>();
     private final List<DirectionalNode> allDirections = new ArrayList<>();
+    @FXML
+    private VBox alertBox;
     private SimpleIntegerProperty currentDirection = new SimpleIntegerProperty();
     @FXML
     private MFXToggleButton avoidStairs;
@@ -207,7 +207,22 @@ public class PathfindingMap {
             robotInfo.setManaged(true);
         }
 
-        selectAlgo.setItems(FXCollections.observableArrayList("AStar", "Depth-First Search", "Breadth-First Search", "Dijkstra"));
+        avoidStairs.setOnAction(e -> {
+            if (avoidStairs.isSelected()) {
+                selectAlgo.clearSelection();
+                selectAlgo.getSelectionModel().selectItem("AStar (No Stairs)");
+            } else {
+                selectAlgo.clearSelection();
+                selectAlgo.getSelectionModel().selectItem("AStar");
+            }
+        });
+        selectAlgo.setOnAction(e ->{
+            if (selectAlgo.getSelectedItem().equals("AStar (No Stairs)"))
+                avoidStairs.setSelected(true);
+            else
+                avoidStairs.setSelected(false);
+        });
+        selectAlgo.setItems(FXCollections.observableArrayList("AStar", "AStar (No Stairs)", "Depth-First Search", "Breadth-First Search", "Dijkstra"));
         selectGraphically.setDisable(true);
         pathfindStatus.managedProperty().bind(Bindings.createBooleanBinding(() -> !pathfindStatus.textProperty().get().isBlank(), pathfindStatus.textProperty()));
         pathfindStatus.visibleProperty().bind(Bindings.createBooleanBinding(() -> !pathfindStatus.textProperty().get().isBlank(), pathfindStatus.textProperty()));
@@ -218,14 +233,14 @@ public class PathfindingMap {
         PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStar());
         load(() -> {
             alertBox.getChildren().add(new PFXListView<>(mapAlerts, a -> {
-                var hbox =  new HBox();
+                var hbox = new HBox();
                 hbox.getStyleClass().add("pathfinding-map-alert");
                 var label = new Label(a.getAlertTitle() + ": " + a.getDescription());
                 hbox.getChildren().add(label);
                 return hbox;
             }, a -> a.getUuid().toString()));
-            alertBox.getChildren().add(new PFXListView<>(mapDisabledAlerts,  a -> {
-                var hbox =  new HBox();
+            alertBox.getChildren().add(new PFXListView<>(mapDisabledAlerts, a -> {
+                var hbox = new HBox();
                 hbox.getStyleClass().add("pathfinding-map-alert");
                 var label = new Label(a.getAlertTitle() + ": " + a.getDescription());
                 hbox.getChildren().add(label);
@@ -309,7 +324,7 @@ public class PathfindingMap {
             alerts = App.getSingleton().getFacade().getAllAsListAlert();
             mapAlerts = alerts.filtered(a -> a.getStartDate().isBefore(Instant.now()) && a.getEndDate().isAfter(Instant.now()) && a.getAlertType() == Alert.AlertType.MAP);
             mapDisabledAlerts = alerts.filtered(a -> a.getStartDate().isBefore(Instant.now()) && a.getEndDate().isAfter(Instant.now()) && a.getAlertType() == Alert.AlertType.MAP_DISABLED);
-            adminDatePicker.valueProperty().addListener((o, ol, ne) ->{
+            adminDatePicker.valueProperty().addListener((o, ol, ne) -> {
                 var now = ne.atTime(LocalTime.now()).atZone(ZoneId.systemDefault()).toInstant();
                 mapAlerts.setPredicate(a -> a.getStartDate().isBefore(now) && a.getEndDate().isAfter(now) && a.getAlertType() == Alert.AlertType.MAP);
                 mapDisabledAlerts.setPredicate(a -> a.getStartDate().isBefore(now) && a.getEndDate().isAfter(now) && a.getAlertType() == Alert.AlertType.MAP_DISABLED);
@@ -468,11 +483,9 @@ public class PathfindingMap {
         var edgeList = edges.values().stream().map(v -> new Pair<>(v.getStartNode(), v.getEndNode())).toList();
         var typedNodes = nodes.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, n -> new TypedNode(n.getValue(), nodeToMoves.get(n.getValue()).stream().map(m -> locations.get(m.getLocationID()).getNodeType()).toList())));
-        if (avoidStairs.isSelected()) {
-            PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStarAvoidStairs());
-        }
+        setAlgo();
 
-        typedNodes = typedNodes.entrySet().stream().filter(n -> !mapDisabledAlerts.stream().anyMatch(f-> Objects.equals(f.getNodeID(), n.getValue().getNodeID()))).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        typedNodes = typedNodes.entrySet().stream().filter(n -> !mapDisabledAlerts.stream().anyMatch(f -> Objects.equals(f.getNodeID(), n.getValue().getNodeID()))).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         var graph = new Graph<>(typedNodes, edgeList);
         try {
             var path = PathfindingSingleton.SINGLETON.getAlgorithm().findPath(graph, typedNodes.get(start.getNodeID()), typedNodes.get(end.getNodeID()));
@@ -586,12 +599,16 @@ public class PathfindingMap {
     @FXML
     private void setAlgo() {
         selectedAlgo = selectAlgo.getSelectedItem();
-        if (selectedAlgo.equals("Depth-First Search")) {
+        if(selectedAlgo == null)
+            PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStar());
+        else if (selectedAlgo.equals("Depth-First Search")) {
             PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getDFS());
         } else if (selectedAlgo.equals("Breadth-First Search")) {
             PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getBFS());
         } else if (selectedAlgo.equals("Dijkstra")) {
             PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getDijkstra());
+        } else if (selectedAlgo.equals("AStar (No Stairs)")) {
+            PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStarAvoidStairs());
         } else {
             PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStar());
         }
