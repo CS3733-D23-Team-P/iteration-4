@@ -6,17 +6,21 @@ import edu.wpi.punchy_pegasi.backend.pathfinding.Graph;
 import edu.wpi.punchy_pegasi.backend.pathfinding.PathfindingSingleton;
 import edu.wpi.punchy_pegasi.backend.pathfinding.TypedNode;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
+import edu.wpi.punchy_pegasi.frontend.components.PFXListView;
 import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
 import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
 import edu.wpi.punchy_pegasi.frontend.utils.FacadeUtils;
 import edu.wpi.punchy_pegasi.schema.*;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -33,7 +37,10 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.javatuples.Pair;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -59,6 +66,13 @@ public class PathfindingMap {
     private final ArrayList<Integer> yCoords = new ArrayList<Integer>();
     private final HBox container = new HBox();
     private final LocalDate movesDate = LocalDate.now();
+    @FXML
+    private VBox alertBox;
+    private final LinkedHashMap<Integer, List<DirectionalNode>> directionMap = new LinkedHashMap<>();
+    private final List<DirectionalNode> allDirections = new ArrayList<>();
+    private SimpleIntegerProperty currentDirection = new SimpleIntegerProperty();
+    @FXML
+    private MFXToggleButton avoidStairs;
     @FXML
     private VBox pathDirectionsBox;
     @FXML
@@ -103,8 +117,10 @@ public class PathfindingMap {
     private String selectedAlgo;
     @FXML
     private Label batteryPercent;
-    private final LinkedHashMap<Integer, List<DirectionalNode>> directionMap = new LinkedHashMap<>();
     private int directionFloorIndex = 0;
+    private ObservableList<Alert> alerts;
+    private FilteredList<Alert> mapAlerts;
+    private FilteredList<Alert> mapDisabledAlerts;
 
     public static byte[] generateMessage(String str, Integer startPos, Integer endPos) {
         byte[] strArray = str.getBytes();
@@ -142,6 +158,22 @@ public class PathfindingMap {
         return result;
     }
 
+    @FXML
+    private void showNodeStep() {
+        if (currentDirection.get() < allDirections.size() - 1) {
+            currentDirection.set(currentDirection.get() + 1);
+            map.focusOn(allDirections.get(currentDirection.get()).getNode());
+        }
+    }
+
+    @FXML
+    private void showPreviousStep() {
+        if (currentDirection.get() > 0) {
+            currentDirection.set(currentDirection.get() - 1);
+            map.focusOn(allDirections.get(currentDirection.get()).getNode());
+        }
+    }
+
     private Optional<Circle> drawNode(Node node, String color) {
         var moves = nodeToMoves.get(node);
         if (moves.isEmpty()) return Optional.empty();
@@ -155,10 +187,12 @@ public class PathfindingMap {
         map = new HospitalMap();
         root.setCenter(map.get());
         map.addLayer(container);
-        container.getChildren().addAll(pathfinding, robotInfo, pathDirections);
-        HBox.setHgrow(pathfinding, Priority.ALWAYS);
+        HBox.setHgrow(alertBox, Priority.ALWAYS);
+        alertBox.setPickOnBounds(false);
+        container.getChildren().addAll(pathfinding, alertBox, robotInfo, pathDirections);
         invalidText.setVisible(false);
         robotInfo.setVisible(false);
+        robotInfo.setManaged(false);
         container.setPickOnBounds(false);
         pathfinding.setPickOnBounds(false);
         robotInfo.setPickOnBounds(false);
@@ -170,6 +204,7 @@ public class PathfindingMap {
         // Check account status for admin features
         if (App.getSingleton().getAccount().getAccountType().getShieldLevel() >= Account.AccountType.ADMIN.getShieldLevel()) {
             robotInfo.setVisible(true);
+            robotInfo.setManaged(true);
         }
 
         selectAlgo.setItems(FXCollections.observableArrayList("AStar", "Depth-First Search", "Breadth-First Search", "Dijkstra"));
@@ -182,16 +217,26 @@ public class PathfindingMap {
 
         PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStar());
         load(() -> {
+            alertBox.getChildren().add(new PFXListView<>(mapAlerts, a -> {
+                var hbox =  new HBox();
+                hbox.getStyleClass().add("pathfinding-map-alert");
+                var label = new Label(a.getAlertTitle() + ": " + a.getDescription());
+                hbox.getChildren().add(label);
+                return hbox;
+            }, a -> a.getUuid().toString()));
+            alertBox.getChildren().add(new PFXListView<>(mapDisabledAlerts,  a -> {
+                var hbox =  new HBox();
+                hbox.getStyleClass().add("pathfinding-map-alert");
+                var label = new Label(a.getAlertTitle() + ": " + a.getDescription());
+                hbox.getChildren().add(label);
+                return hbox;
+            }, a -> a.getUuid().toString()));
             // set zoom to average of all nodes
             var minX = nodesList.stream().mapToDouble(Node::getXcoord).min().orElse(0);
-//            var averageX = nodesList.stream().mapToDouble(Node::getXcoord).sum() / nodesList.size();
             var maxX = nodesList.stream().mapToDouble(Node::getXcoord).max().orElse(0);
             var minY = nodesList.stream().mapToDouble(Node::getYcoord).min().orElse(0);
-//            var averageY = nodesList.stream().mapToDouble(Node::getYcoord).sum() / nodesList.size();
             var maxY = nodesList.stream().mapToDouble(Node::getYcoord).max().orElse(0);
-//            map.focusOn(new Node(0L, (int)averageX, (int)averageY, "1", ""));
-//            map.setZoom(1);
-            map.showRectangle(new Rectangle(minX, minY, maxX - minX, maxY - minY));
+            map.showRectangle(new Rectangle(minX - 100, minY - 100, maxX - minX + 200, maxY - minY + 200));
 
             var filteredSorted = locationsList.filtered(isDestination).sorted(Comparator.comparing(LocationName::getLongName));
             nodeStartCombo.setItems(filteredSorted);
@@ -261,6 +306,14 @@ public class PathfindingMap {
 
     private void load(Runnable callback) {
         App.getSingleton().getExecutorService().execute(() -> {
+            alerts = App.getSingleton().getFacade().getAllAsListAlert();
+            mapAlerts = alerts.filtered(a -> a.getStartDate().isBefore(Instant.now()) && a.getEndDate().isAfter(Instant.now()) && a.getAlertType() == Alert.AlertType.MAP);
+            mapDisabledAlerts = alerts.filtered(a -> a.getStartDate().isBefore(Instant.now()) && a.getEndDate().isAfter(Instant.now()) && a.getAlertType() == Alert.AlertType.MAP_DISABLED);
+            adminDatePicker.valueProperty().addListener((o, ol, ne) ->{
+                var now = ne.atTime(LocalTime.now()).atZone(ZoneId.systemDefault()).toInstant();
+                mapAlerts.setPredicate(a -> a.getStartDate().isBefore(now) && a.getEndDate().isAfter(now) && a.getAlertType() == Alert.AlertType.MAP);
+                mapDisabledAlerts.setPredicate(a -> a.getStartDate().isBefore(now) && a.getEndDate().isAfter(now) && a.getAlertType() == Alert.AlertType.MAP_DISABLED);
+            });
             nodes = App.getSingleton().getFacade().getAllNode();
             edges = App.getSingleton().getFacade().getAllEdge();
             moves = App.getSingleton().getFacade().getAllMove();
@@ -303,15 +356,28 @@ public class PathfindingMap {
             for (var dNode : dNodeList) {
                 var directionIcon = dNode.getDirection().getPFXIcon();
                 directionIcon.setSize(15.0);
-                if (Objects.requireNonNull(dNode.getNodeType()) == LocationName.NodeType.HALL) {
-                    var directionText = new Label(getDirectionText(dNode.getDirection()) + "Hallway");
-                    directionText.setWrapText(true);
-                    directionsOnFloor.getChildren().add(new HBox(directionIcon, directionText));
-                } else {
-                    var directionText = new Label(getDirectionText(dNode.getDirection()) + dNode.getLocationLongName());
-                    directionText.setWrapText(true);
-                    directionsOnFloor.getChildren().add(new HBox(directionIcon, directionText));
-                }
+                Label directionText;
+                if (Objects.requireNonNull(dNode.getNodeType()) == LocationName.NodeType.HALL)
+                    directionText = new Label(getDirectionText(dNode.getDirection()) + "Hallway");
+                else
+                    directionText = new Label(getDirectionText(dNode.getDirection()) + dNode.getLocationLongName());
+                directionText.setWrapText(true);
+                var hbox = new HBox(directionIcon, directionText);
+                var index = allDirections.indexOf(dNode);
+                hbox.getStyleClass().add("pathfinding-direction");
+                hbox.setOnMouseClicked(e -> {
+                    currentDirection.set(index);
+                    map.focusOn(dNode.getNode());
+                });
+                if (currentDirection.get() == index)
+                    hbox.getStyleClass().add("pathfinding-direction-highlighted");
+                currentDirection.addListener((e, ol, ne) -> {
+                    if (ne.equals(index))
+                        hbox.getStyleClass().add("pathfinding-direction-highlighted");
+                    else if (ol.equals(index))
+                        hbox.getStyleClass().remove("pathfinding-direction-highlighted");
+                });
+                directionsOnFloor.getChildren().add(hbox);
             }
             pathDirectionsBox.getChildren().add(directionsOnFloor);
         }
@@ -336,7 +402,7 @@ public class PathfindingMap {
         if (directionFloorIndex == 0) {
             directionFloorIndex++;
             directionMap.put(directionFloorIndex, new ArrayList<>());
-            directionMap.get(directionFloorIndex).add(new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
+            directionMap.get(directionFloorIndex).add(new DirectionalNode(node, currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
         } else if (floorWillChange) {
             String alterLocName;
             switch (currLocation.getNodeType()) {
@@ -344,20 +410,20 @@ public class PathfindingMap {
                 case STAI -> alterLocName = ("Stairs to Floor " + nextNode.getFloor());
                 default -> alterLocName = (currLocation.getLongName() + " to Floor " + nextNode.getFloor());
             }
-            directionMap.get(directionFloorIndex).add(new DirectionalNode(alterLocName, currLocation.getNodeType(), floor, direction));  // put current node as the last entry of this floor
+            directionMap.get(directionFloorIndex).add(new DirectionalNode(node, alterLocName, currLocation.getNodeType(), floor, direction));  // put current node as the last entry of this floor
             directionFloorIndex++;
             directionMap.put(directionFloorIndex, new ArrayList<>());
         } else {
             if (directionMap.get(directionFloorIndex).isEmpty()) {
                 // if no previous location on this floor, then add the node
-                directionMap.get(directionFloorIndex).add(new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
+                directionMap.get(directionFloorIndex).add(new DirectionalNode(node, currLocation.getLongName(), currLocation.getNodeType(), floor, direction));
                 return;
             }
             // when floor doesn't change, check if the direction ever changes
             var prevDirection = directionMap.get(directionFloorIndex).get(directionMap.get(directionFloorIndex).size() - 1).getDirection();
             if (!prevDirection.equals(direction)) {
                 // if the previous location has direction change, then add the node
-                var dNode = new DirectionalNode(currLocation.getLongName(), currLocation.getNodeType(), floor, direction);
+                var dNode = new DirectionalNode(node, currLocation.getLongName(), currLocation.getNodeType(), floor, direction);
                 directionMap.get(directionFloorIndex).add(dNode);
             }
         }
@@ -366,6 +432,8 @@ public class PathfindingMap {
     private void clearDirections() {
         pathDirectionsBox.getChildren().clear();
         directionMap.clear();
+        allDirections.clear();
+        currentDirection.set(0);
         directionFloorIndex = 0;
         pathDirections.setVisible(false);
         pathDirections.setManaged(false);
@@ -398,7 +466,13 @@ public class PathfindingMap {
 
     private String pathFind(Node start, Node end) {
         var edgeList = edges.values().stream().map(v -> new Pair<>(v.getStartNode(), v.getEndNode())).toList();
-        var typedNodes = nodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, n -> new TypedNode(n.getValue(), nodeToMoves.get(n.getValue()).stream().map(m->locations.get(m.getLocationID()).getNodeType()).toList())));
+        var typedNodes = nodes.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, n -> new TypedNode(n.getValue(), nodeToMoves.get(n.getValue()).stream().map(m -> locations.get(m.getLocationID()).getNodeType()).toList())));
+        if (avoidStairs.isSelected()) {
+            PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStarAvoidStairs());
+        }
+
+        typedNodes = typedNodes.entrySet().stream().filter(n -> !mapDisabledAlerts.stream().anyMatch(f-> Objects.equals(f.getNodeID(), n.getValue().getNodeID()))).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         var graph = new Graph<>(typedNodes, edgeList);
         try {
             var path = PathfindingSingleton.SINGLETON.getAlgorithm().findPath(graph, typedNodes.get(start.getNodeID()), typedNodes.get(end.getNodeID()));
@@ -438,11 +512,13 @@ public class PathfindingMap {
                 currentPath.add(node);
                 nodeIndex++;
             }
+            allDirections.addAll(directionMap.values().stream().flatMap(Collection::stream).toList());
             pathDrawDirections();
             map.drawDirectedPath(currentPath);
             map.drawYouAreHere(path.get(0));
             drawNode(path.get(path.size() - 1), "#3cb043");
-            map.focusOn(path.get(0));
+            map.setZoomAndFocus(1, path.get(0));
+            map.setZoomAndFocus(1, path.get(0));
 
             for (Node node : path) {
                 xCoords.add(node.getXcoord());
@@ -543,6 +619,7 @@ public class PathfindingMap {
     @RequiredArgsConstructor
     @Data
     private class DirectionalNode {
+        private final Node node;
         private final String locationLongName;
         private final LocationName.NodeType nodeType;
         private final String floor;

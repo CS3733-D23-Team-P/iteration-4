@@ -39,8 +39,9 @@
     -pfx-button-hover: -pfx-accent-dark;
     -pfx-button-text: white;
 }
-.node-popover-date {
 
+.node-popover Label{
+    -fx-text-fill: -pfx-text;
 }
 
 .move-delete-btn PFXIcon {

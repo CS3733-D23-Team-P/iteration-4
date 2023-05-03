@@ -101,7 +101,7 @@ public class App extends Application {
 
     private static void showError(Thread t, Throwable e) {
         log.error("An unexpected error occurred in " + t, e);
-        if (Platform.isFxApplicationThread()) showErrorDialog(e);
+        if (Platform.isFxApplicationThread()) App.getSingleton().getLayout().notify("Unexpected error", "", 3);
     }
 
     private static void showErrorDialog(Throwable e) {

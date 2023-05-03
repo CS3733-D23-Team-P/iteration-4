@@ -4,11 +4,14 @@ import edu.wpi.punchy_pegasi.App;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
 import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
 import edu.wpi.punchy_pegasi.frontend.icons.PFXIcon;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
+import javafx.util.Duration;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -66,6 +69,10 @@ public class LayoutController extends StackPane {
     }
 
     public void notify(String title, String body) {
+        notify(title, body, 30);
+    }
+
+    public void notify(String title, String body, double timeout) {
         var notification = new VBox();
         var topBar = new HBox();
         var titleLabel = new Label(title);
@@ -83,6 +90,10 @@ public class LayoutController extends StackPane {
         HBox.setHgrow(grow, Priority.ALWAYS);
         dismissButton.setGraphic(new PFXIcon(MaterialSymbols.CLOSE));
         dismissButton.setOnAction(e -> notificationsContainer.getChildren().remove(notification));
+
+        if (timeout > 0) {
+            new Timeline(new KeyFrame(Duration.seconds(timeout), e -> notificationsContainer.getChildren().remove(notification))).play();
+        }
         var showBody = !body.isBlank();
         bodyLabel.setVisible(showBody);
         bodyLabel.setManaged(showBody);

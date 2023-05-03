@@ -40,6 +40,10 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -55,6 +59,7 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>
     private final Map<UUID, RenderedEdge> edgeLines = new HashMap<>();
     private final MultiValuedMap<Long, UUID> nodeEdges = new ArrayListValuedHashMap<>();
     private HospitalFloor.Floors currentFloor;
+
     @Setter
     private boolean animate = true;
     private Map<HospitalFloor.Floors, HospitalFloor> floorMap = new HashMap<>();
@@ -142,6 +147,12 @@ public class HospitalMap extends StackPane implements IMap<HospitalFloor.Floors>
     @Override
     public void setZoom(double zoomScale) {
         withAnimation().zoomTo(zoomScale, new Point2D(gesturePane.getCurrentX(), gesturePane.getCurrentY()));
+    }
+
+    @Override
+    public void setZoomAndFocus(double zoomScale, Node node){
+        focusOn(node);
+        withAnimation(()->focusOn(node)).zoomTo(zoomScale, new Point2D(node.getXcoord(), node.getYcoord()));
     }
 
     @Override

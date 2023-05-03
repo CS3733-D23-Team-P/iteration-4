@@ -22,6 +22,7 @@ import javafx.geometry.Pos;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
@@ -57,6 +58,8 @@ public class HomePageController {
     private AnchorPane dateTimeAnchor;
 
     private ObservableList<Alert> alerts;
+    private ObservableList<Alert> readAlerts;
+    private ObservableList<Alert> unreadAlerts;
 
     private FilteredList<Alert> read;
 
@@ -76,17 +79,15 @@ public class HomePageController {
         piechart.setLegendVisible(false);
 
         alerts = App.getSingleton().getFacade().getAllAsListAlert().filtered(a -> a.getEmployeeID().equals(App.getSingleton().getAccount().getEmployeeID()) && a.getAlertType().equals(Alert.AlertType.EMPLOYEE));
-        alerts.addListener((ListChangeListener<? super Alert>) e -> {
-            System.out.println("");
-        });
-        read = alerts.filtered(a -> a.getReadStatus() == Alert.ReadStatus.READ);
-//        read.setPredicate(a-> a.getReadStatus() == Alert.ReadStatus.READ);
-        read.addListener((ListChangeListener<? super Alert>) e -> {
-            System.out.println("");
-        });
-//        var listViewUnread = new PFXListView<>(alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.UNREAD), PFXAlertCard::new, a -> a.getUuid().toString());
-//        var listViewRead = new PFXListView<>(alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.READ), PFXAlertCard::new, a -> a.getUuid().toString());
-        alertScrollPane.setContent(new PFXListView<>(alerts, PFXAlertCard::new, a -> a.getUuid().toString()));
+        readAlerts = alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.READ);
+        unreadAlerts = alerts.filtered(a-> a.getReadStatus() == Alert.ReadStatus.UNREAD);
+        var listViewUnread = new PFXListView<>(unreadAlerts, PFXAlertCard::new, a -> a.getUuid().toString());
+        listViewUnread.getStyleClass().add("alerts-vbox");
+        var listViewRead = new PFXListView<>(readAlerts, PFXAlertCard::new, a -> a.getUuid().toString());
+        listViewRead.getStyleClass().add("alerts-vbox");
+        var vbox =new VBox(listViewUnread, new Separator(), listViewRead);
+        vbox.setSpacing(5);
+        alertScrollPane.setContent(vbox);
         noAlertsLabel.visibleProperty().bind(Bindings.createBooleanBinding(alerts::isEmpty, alerts));
         noAlertsLabel.managedProperty().bind(Bindings.createBooleanBinding(alerts::isEmpty, alerts));
         alertScrollPane.visibleProperty().bind(Bindings.createBooleanBinding(() -> !alerts.isEmpty(), alerts));
@@ -118,15 +119,6 @@ public class HomePageController {
         MFXTableColumn<RequestEntry> additionalCol = new MFXTableColumn<>("Additional Notes", true);
         MFXTableColumn<RequestEntry> statusCol = new MFXTableColumn<>("Status", true);
         MFXTableColumn<RequestEntry> typeCol = new MFXTableColumn<>("Request Type", true);
-//        MFXTableColumn<PFXButton> buttonCol = new MFXTableColumn<>();
-//        location = locationNames.getOrDefault(re.getLocationName(), new LocationName(null, "Unknown location", "", null)).getLongName();
-//        assigned = employees.getOrDefault(re.getStaffAssignment(), new Employee(0L, "Unknown", "Employee")).getFullName();
-//        additionalNotes = re.getAdditionalNotes();
-//        status = re.getStatus();
-//        tableType = Arrays.stream(TableType.values())
-//                .filter(tt -> tt.getClazz() == re.getClass())
-//                .findFirst()
-//                .orElseGet(() -> TableType.GENERIC);
         locationCol.setRowCellFactory(r -> new MFXTableRowCell<>(re -> locationNames.getOrDefault(re.getLocationName(), new LocationName(null, "Unknown location", "", null)).getLongName()));
         employeeCol.setRowCellFactory(r -> new MFXTableRowCell<>(re -> employees.getOrDefault(re.getStaffAssignment(), new Employee(0L, "Unknown", "Employee")).getFullName()));
         additionalCol.setRowCellFactory(r -> new MFXTableRowCell<>(RequestEntry::getAdditionalNotes));
