@@ -1,0 +1,6 @@
+* {
+    -pfx-accent: linear-gradient(from 10px 10px to 25px 10px, reflect, #000000 0%, #ffffff 80%);
+    -pfx-accent-transparent: linear-gradient(from 10px 10px to 20px 10px, reflect, #00000033, #ffffff33 100%);
+    -pfx-accent-light: linear-gradient(from 10px 10px to 20px 10px, reflect, #000000, #ffffff 100%);
+    -pfx-accent-dark: linear-gradient(from 10px 10px to 20px 10px, reflect, #000000, #ffffff 100%);
+}

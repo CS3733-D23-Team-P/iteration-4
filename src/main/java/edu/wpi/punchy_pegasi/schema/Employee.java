@@ -1,7 +1,9 @@
 package edu.wpi.punchy_pegasi.schema;
 
+import com.jsoniter.annotation.JsonProperty;
 import edu.wpi.punchy_pegasi.backend.SchemaID;
 import lombok.*;
+import com.jsoniter.annotation.JsonCreator;
 
 @Data
 @Setter(AccessLevel.NONE)
@@ -23,36 +25,31 @@ public class Employee {
     public String getFullName() {
         return firstName + " " + lastName;
     }
-
-    @lombok.RequiredArgsConstructor
-    public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Employee, edu.wpi.punchy_pegasi.schema.Employee.EmployeeBuilder> {
-        EMPLOYEE_ID("employeeID", true, false),
-        FIRST_NAME("firstName", false, false),
-        LAST_NAME("lastName", false, false);
+@lombok.RequiredArgsConstructor
+public enum Field implements IField<edu.wpi.punchy_pegasi.schema.Employee, edu.wpi.punchy_pegasi.schema.Employee.EmployeeBuilder>{
+        EMPLOYEE_ID("employeeID", true,false),
+        FIRST_NAME("firstName", false,false),
+        LAST_NAME("lastName", false,false);
         @lombok.Getter
         private final String colName;
         @lombok.Getter
         private final boolean primaryKey;
         @lombok.Getter
         private final boolean unique;
-
-        public Object getValue(edu.wpi.punchy_pegasi.schema.Employee ref) {
-            return ref.getFromField(this);
-        }
-
-        public String getValueAsString(edu.wpi.punchy_pegasi.schema.Employee ref) {
-            return ref.getFromFieldAsString(this);
-        }
-
-        public void setValueFromString(edu.wpi.punchy_pegasi.schema.Employee.EmployeeBuilder builder, String value) {
+        public Object getValue(edu.wpi.punchy_pegasi.schema.Employee ref){
+    return ref.getFromField(this);
+}
+public String getValueAsString(edu.wpi.punchy_pegasi.schema.Employee ref){
+    return ref.getFromFieldAsString(this);
+}
+    public void setValueFromString(edu.wpi.punchy_pegasi.schema.Employee.EmployeeBuilder builder, String value){
             switch (this) {
-                case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
-                case FIRST_NAME -> builder.firstName(value);
-                case LAST_NAME -> builder.lastName(value);
+            case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
+            case FIRST_NAME -> builder.firstName(value);
+            case LAST_NAME -> builder.lastName(value);
             }
         }
-
-        public int oridinal() {
+        public int oridinal(){
             return ordinal();
         }
     }

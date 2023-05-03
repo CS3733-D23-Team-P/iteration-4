@@ -111,9 +111,9 @@ public class EdgeCachedDaoImpl implements IDao<java.util.UUID, Edge, Edge.Field>
         try (var rs = dbController.searchQuery(TableType.EDGES)) {
             while (rs.next()) {
                 Edge req = new Edge(
-                        rs.getObject("uuid", java.util.UUID.class),
-                        rs.getObject("startNode", java.lang.Long.class),
-                        rs.getObject("endNode", java.lang.Long.class));
+                    rs.getObject("uuid", java.util.UUID.class),
+                    rs.getObject("startNode", java.lang.Long.class),
+                    rs.getObject("endNode", java.lang.Long.class));
                 add(req);
             }
         } catch (PdbController.DatabaseException | SQLException e) {
