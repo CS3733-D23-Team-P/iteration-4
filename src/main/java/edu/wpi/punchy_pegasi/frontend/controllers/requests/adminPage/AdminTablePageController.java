@@ -51,9 +51,11 @@ public class AdminTablePageController {
         put("Alert", new AdminTable<>("Alerts", TableType.ALERT, facade::getAllAsListAlert));
         put("Signage", new AdminTable<>("Signage", TableType.SIGNAGE, facade::getAllAsListSignage));
     }};
-    public PFXButton importButton;
-    public PFXButton exportButton;
-    public PFXButton clearButton;
+    @FXML
+    private PFXButton importButton;
+    @FXML
+    private PFXButton exportButton;
+//    public PFXButton clearButton;
     @FXML
     private MFXComboBox<String> displayTableTypeComboBox;
     @FXML
