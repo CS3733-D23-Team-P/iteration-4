@@ -18,6 +18,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -253,7 +254,17 @@ public class App extends Application {
         facade = new Facade(pdb);
         layout = new LayoutController();
         viewPane = layout.getViewPane();
+
         scene = new Scene(layout, 1280, 720);
+        primaryStage.fullScreenProperty().addListener((o, ol, ne) -> {
+            support.firePropertyChange("fullscreen", ol, ne);
+        });
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, event ->
+        {
+            if (event.getCode().equals(KeyCode.F11))
+                primaryStage.setFullScreen(true);
+        });
+
         loadTheme();
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -295,6 +306,8 @@ public class App extends Application {
     public void start(Stage primaryStage) throws IOException {
         Thread.setDefaultUncaughtExceptionHandler(App::showError);
         this.primaryStage = primaryStage;
+        App.getSingleton().getPrimaryStage().widthProperty().addListener(l -> support.firePropertyChange("windowResize", null, null));
+        App.getSingleton().getPrimaryStage().heightProperty().addListener(l -> support.firePropertyChange("windowResize", null, null));
         this.primaryStage.setTitle("Brigham and Women's Hospital");
         var genericResource = this.getClass().getResource("");
         if (genericResource != null && Objects.equals(genericResource.getProtocol(), "file")) development = true;

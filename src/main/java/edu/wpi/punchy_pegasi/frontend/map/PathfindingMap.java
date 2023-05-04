@@ -232,20 +232,23 @@ public class PathfindingMap {
 
         PathfindingSingleton.SINGLETON.setAlgorithm(PathfindingSingleton.SINGLETON.getAStar());
         load(() -> {
-            alertBox.getChildren().add(new PFXListView<>(mapAlerts, a -> {
+            var alertList = new PFXListView<>(mapAlerts, a -> {
                 var hbox = new HBox();
                 hbox.getStyleClass().add("pathfinding-map-alert");
                 var label = new Label(a.getAlertTitle() + ": " + a.getDescription());
                 hbox.getChildren().add(label);
                 return hbox;
-            }, a -> a.getUuid().toString()));
-            alertBox.getChildren().add(new PFXListView<>(mapDisabledAlerts, a -> {
+            }, a -> a.getUuid().toString());
+            alertList.setSpacing(10);
+            var disableAlertList = new PFXListView<>(mapDisabledAlerts, a -> {
                 var hbox = new HBox();
                 hbox.getStyleClass().add("pathfinding-map-alert");
                 var label = new Label(a.getAlertTitle() + ": " + a.getDescription());
                 hbox.getChildren().add(label);
                 return hbox;
-            }, a -> a.getUuid().toString()));
+            }, a -> a.getUuid().toString());
+            disableAlertList.setSpacing(10);
+            alertBox.getChildren().addAll(alertList, disableAlertList);
             // set zoom to average of all nodes
             var minX = nodesList.stream().mapToDouble(Node::getXcoord).min().orElse(0);
             var maxX = nodesList.stream().mapToDouble(Node::getXcoord).max().orElse(0);

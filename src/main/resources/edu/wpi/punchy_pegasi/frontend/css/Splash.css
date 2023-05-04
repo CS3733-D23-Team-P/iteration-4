@@ -3,5 +3,5 @@
     -fx-background-repeat: no-repeat;
     -fx-background-size: contain;
     -fx-background-position: center;
-    -fx-pref-height: 100;
+    -fx-min-height: 100;
 }
