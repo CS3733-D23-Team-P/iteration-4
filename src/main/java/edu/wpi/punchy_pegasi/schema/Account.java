@@ -73,7 +73,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Account ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.Account.AccountBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case UUID -> builder.uuid(Long.parseLong(value));
             case USERNAME -> builder.username(value);
             case PASSWORD -> builder.password(value);
@@ -99,6 +101,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Account ref){
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case UUID -> Long.toString(getUuid());
             case USERNAME -> getUsername();

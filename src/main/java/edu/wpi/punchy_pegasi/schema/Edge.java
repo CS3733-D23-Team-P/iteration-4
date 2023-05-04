@@ -39,7 +39,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Edge ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.Edge.EdgeBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case UUID -> builder.uuid(java.util.UUID.fromString(value));
             case START_NODE -> builder.startNode(Long.parseLong(value));
             case END_NODE -> builder.endNode(Long.parseLong(value));
@@ -57,6 +59,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Edge ref){
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case UUID -> getUuid().toString();
             case START_NODE -> Long.toString(getStartNode());

@@ -61,7 +61,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Node ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.Node.NodeBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case NODE_ID -> builder.nodeID(Long.parseLong(value));
             case XCOORD -> builder.xcoord(Integer.parseInt(value));
             case YCOORD -> builder.ycoord(Integer.parseInt(value));
@@ -83,6 +85,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Node ref){
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case NODE_ID -> Long.toString(getNodeID());
             case XCOORD -> Integer.toString(getXcoord());

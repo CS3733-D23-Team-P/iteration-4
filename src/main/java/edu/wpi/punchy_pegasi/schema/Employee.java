@@ -43,7 +43,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Employee ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.Employee.EmployeeBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case EMPLOYEE_ID -> builder.employeeID(Long.parseLong(value));
             case FIRST_NAME -> builder.firstName(value);
             case LAST_NAME -> builder.lastName(value);
@@ -61,6 +63,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Employee ref){
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case EMPLOYEE_ID -> Long.toString(getEmployeeID());
             case FIRST_NAME -> getFirstName();

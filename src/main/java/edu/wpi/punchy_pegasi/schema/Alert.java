@@ -78,7 +78,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Alert ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.Alert.AlertBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case UUID -> builder.uuid(java.util.UUID.fromString(value));
             case ALERT_TYPE -> builder.alertType(AlertType.valueOf(value));
             case ALERT_TITLE -> builder.alertTitle(value);
@@ -108,6 +110,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Alert ref){
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case UUID -> getUuid().toString();
             case ALERT_TYPE -> getAlertType().name();
