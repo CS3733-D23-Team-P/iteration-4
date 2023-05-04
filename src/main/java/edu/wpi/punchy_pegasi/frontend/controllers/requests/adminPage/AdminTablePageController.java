@@ -48,6 +48,8 @@ public class AdminTablePageController {
         put("Furniture", new AdminTable<>("Furniture Service Request", TableType.FURNITUREREQUESTS, facade::getAllAsListFurnitureRequestEntry));
         put("Food", new AdminTable<>("Food Service Request", TableType.FOODREQUESTS, facade::getAllAsListFoodServiceRequestEntry));
         put("Flower", new AdminTable<>("Flower Service Request", TableType.FLOWERREQUESTS, facade::getAllAsListFlowerDeliveryRequestEntry));
+        put("Alert", new AdminTable<>("Alerts", TableType.ALERT, facade::getAllAsListAlert));
+        put("Signage", new AdminTable<>("Signage", TableType.SIGNAGE, facade::getAllAsListSignage));
     }};
     public PFXButton importButton;
     public PFXButton exportButton;
@@ -123,7 +125,7 @@ public class AdminTablePageController {
         displayDatabaseComboBox.setOnAction(e -> {
             PdbController.Source source = displayDatabaseComboBox.getSelectedItem();
 
-            if(!(source == App.getSingleton().getPdb().source)) {
+            if (!(source == App.getSingleton().getPdb().source)) {
                 refreshInit();
                 App.getSingleton().getExecutorService().execute(() -> Platform.runLater(() -> App.getSingleton().getLayout().showOverlay(vC, false)));
 
@@ -153,14 +155,13 @@ public class AdminTablePageController {
 
             if (selectedFile != null && displayTableTypeComboBox.getSelectedItem() != null) {
                 filePath = selectedFile.getAbsolutePath();
-                if (filePath.contains("Node.csv") || filePath.contains("Move.csv") || filePath.contains("LocationName.csv") || filePath.contains("Edge.csv")) {
-                    fileText.setText(filePath);
-                    try {
-                        pdb.importTable(currentTable.tableType, filePath);
-                    } catch (PdbController.DatabaseException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                fileText.setText(filePath);
+                try {
+                    pdb.importTable(currentTable.tableType, filePath);
+                } catch (PdbController.DatabaseException ex) {
+                    throw new RuntimeException(ex);
                 }
+
             }
         });
 
@@ -169,7 +170,7 @@ public class AdminTablePageController {
             if (selectedDir != null) {
                 fileText.setText(selectedDir.getAbsolutePath());
                 try {
-                    pdb.exportTable(selectedDir + "\\" + currentTable.humanReadableName + ".csv", currentTable.tableType);
+                    pdb.exportTable(selectedDir + "/" + currentTable.humanReadableName + ".csv", currentTable.tableType);
                     selectedDir = null;
                 } catch (PdbController.DatabaseException ex) {
                     throw new RuntimeException(ex);
