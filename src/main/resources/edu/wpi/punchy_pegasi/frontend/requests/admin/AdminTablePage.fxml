@@ -27,7 +27,7 @@
                                 <PFXButton styleClass="admin-container-buttons" text="Import" fx:id="importButton"/>
                                 <PFXButton styleClass="admin-container-buttons" text="Export" fx:id="exportButton"/>
                             </HBox>
-                            <Label styleClass="admin-container-text-size" text="Table Options" VBox.vgrow="ALWAYS"/>
+                            <Label styleClass="admin-container-text-size" text="Table Options" VBox.vgrow="ALWAYS" />
                             <HBox spacing="10.0" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                                 <PFXButton styleClass="admin-container-buttons-add" text="Add" fx:id="addButton"/>
                                 <PFXButton styleClass="admin-container-buttons-clear" text="Remove"
@@ -36,8 +36,8 @@
                             <HBox spacing="10.0" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                                 <PFXButton styleClass="admin-container-buttons-add" text="Submit "
                                            fx:id="submitEditButton"/>
-                                <PFXButton styleClass="admin-container-buttons-clear" text="Clear Table"
-                                           fx:id="clearButton"/>
+<!--                                <PFXButton styleClass="admin-container-buttons-clear" text="Clear Table"-->
+<!--                                           fx:id="clearButton"/>-->
                             </HBox>
                         </VBox>
                         <GridPane hgap="5" fx:id="editContainer" alignment="CENTER_LEFT"/>

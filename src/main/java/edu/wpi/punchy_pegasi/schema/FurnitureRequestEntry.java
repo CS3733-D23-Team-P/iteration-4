@@ -47,7 +47,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.FurnitureRequestEntr
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.FurnitureRequestEntry.FurnitureRequestEntryBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case SERVICE_ID -> builder.serviceID(java.util.UUID.fromString(value));
             case LOCATION_NAME -> builder.locationName(Long.parseLong(value));
             case STAFF_ASSIGNMENT -> builder.staffAssignment(Long.parseLong(value));
@@ -73,6 +75,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.FurnitureRequestEntr
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case SERVICE_ID -> getServiceID().toString();
             case LOCATION_NAME -> Long.toString(getLocationName());

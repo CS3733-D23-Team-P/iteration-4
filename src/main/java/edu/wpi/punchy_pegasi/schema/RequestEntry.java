@@ -56,6 +56,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.RequestEntry ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(Class<?> builder, String value){
+        if(value == null)
+            return;
 return;        }
         public int oridinal(){
             return ordinal();
@@ -72,6 +74,8 @@ return;        }
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case SERVICE_ID -> getServiceID().toString();
             case LOCATION_NAME -> Long.toString(getLocationName());

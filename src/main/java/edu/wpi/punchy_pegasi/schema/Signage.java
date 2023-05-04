@@ -49,7 +49,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Signage ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.Signage.SignageBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case UUID -> builder.uuid(Long.parseLong(value));
             case SIGN_NAME -> builder.signName(value);
             case LONG_NAME -> builder.longName(value);
@@ -69,6 +71,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.Signage ref){
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case UUID -> Long.toString(getUuid());
             case SIGN_NAME -> getSignName();

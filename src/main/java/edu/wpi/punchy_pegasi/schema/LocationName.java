@@ -55,7 +55,9 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.LocationName ref){
     return ref.getFromFieldAsString(this);
 }
     public void setValueFromString(edu.wpi.punchy_pegasi.schema.LocationName.LocationNameBuilder builder, String value){
-            switch (this) {
+        if(value == null)
+            return;
+        switch (this) {
             case UUID -> builder.uuid(Long.parseLong(value));
             case LONG_NAME -> builder.longName(value);
             case SHORT_NAME -> builder.shortName(value);
@@ -75,6 +77,8 @@ public String getValueAsString(edu.wpi.punchy_pegasi.schema.LocationName ref){
         };
     }
     public String getFromFieldAsString(Field field) {
+        if(getFromField(field) == null)
+            return null;
         return switch (field) {
             case UUID -> Long.toString(getUuid());
             case LONG_NAME -> getLongName();

@@ -221,9 +221,11 @@ public class SleepThroughTheWinter {
                         }
                             public void setValueFromString(""" + builder.orElse("Class<?>") + """
                          builder, String value){
+                                if(value == null)
+                                    return;
                         """ + (builder.isEmpty() ? "return;" :
                         """
-                                    switch (this) {
+                                switch (this) {
                         """ + "            " + String.join("            ",
                         fields.stream().map(f -> "case " + camelToSnake(f.getName()).toUpperCase() + " -> builder." + firstLower(f.getName()) + "(" + objectFromString(f.getType()) + ");\n").toList()) + """
                                     }
@@ -240,6 +242,8 @@ public class SleepThroughTheWinter {
                                 };
                             }
                             public String getFromFieldAsString(Field field) {
+                                if(getFromField(field) == null)
+                                    return null;
                                 return switch (field) {
                         """ + "            " + String.join("            ",
                         fields.stream().map(f -> "case " + camelToSnake(f.getName()).toUpperCase() + " -> " + objectToString(f.getType(), "get" + firstUpper(f.getName()) + "()") + ";\n").toList()) + """
