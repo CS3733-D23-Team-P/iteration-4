@@ -12,7 +12,6 @@ import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
@@ -94,14 +93,6 @@ public class HomePageController {
         noAlertsLabel.managedProperty().bind(Bindings.createBooleanBinding(alerts::isEmpty, alerts));
         alertScrollPane.visibleProperty().bind(Bindings.createBooleanBinding(() -> !alerts.isEmpty(), alerts));
         alertScrollPane.managedProperty().bind(Bindings.createBooleanBinding(() -> !alerts.isEmpty(), alerts));
-
-
-        showServiceRequestTable(true);
-    }
-
-    private void showServiceRequestTable(boolean show) {
-        requestTable.setVisible(show);
-        requestTable.setManaged(show);
     }
 
     private void rowClicked(GenericRequestEntry entry) {

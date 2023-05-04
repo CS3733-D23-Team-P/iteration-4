@@ -1,6 +1,7 @@
 package edu.wpi.punchy_pegasi.frontend.controllers;
 
 import edu.wpi.punchy_pegasi.App;
+import edu.wpi.punchy_pegasi.frontend.Screen;
 import edu.wpi.punchy_pegasi.frontend.components.PFXButton;
 import edu.wpi.punchy_pegasi.frontend.components.PFXListView;
 import edu.wpi.punchy_pegasi.frontend.icons.MaterialSymbols;
@@ -16,7 +17,6 @@ import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -27,7 +27,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -37,16 +36,18 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SignageController {
-    private static final Facade facade = App.getSingleton().getFacade();
-    private static final ObservableList<String> signageNames = FXCollections.observableArrayList();
-    private static ObservableBooleanValue editing = Bindings.createBooleanBinding(() -> false);
+public class SignageController implements PropertyChangeListener {
+    private final Facade facade = App.getSingleton().getFacade();
+    private final ObservableList<String> signageNames = FXCollections.observableArrayList();
+    private final ObservableBooleanValue editing = Bindings.createBooleanBinding(() -> App.getSingleton().getAccount().getAccountType().getShieldLevel() >= Account.AccountType.ADMIN.getShieldLevel());
     private final String lightTheme = Objects.requireNonNull(getClass().getResource("/edu/wpi/punchy_pegasi/frontend/css/SignageLight.css")).toExternalForm();
     private final String darkTheme = Objects.requireNonNull(getClass().getResource("/edu/wpi/punchy_pegasi/frontend/css/SignageDark.css")).toExternalForm();
     private final Scene myScene = App.getSingleton().getScene();
@@ -87,21 +88,11 @@ public class SignageController {
     private VBox signageBodyLeft;
     @FXML
     private HBox signageHeader;
-    private Rectangle maxRectangle = new Rectangle(0, 0, 0, 0);
     private FilteredList<Signage> filteredList;
 
-    private static String nodeToLocation(Node node) {
+    private String nodeToLocation(Node node) {
         var locID = facade.getMove(Move.Field.NODE_ID, node.getNodeID()).values().iterator().next().getLocationID();
         return facade.getLocationName(LocationName.Field.UUID, locID).values().iterator().next().getLongName();
-    }
-
-    private static ObservableList<Node> signageToNodes(ObservableList<Signage> signageList) {
-        var locationNames = facade.getAllAsListLocationName().filtered(
-                locationName -> signageList.stream().map(Signage::getLongName).distinct().toList().contains(locationName.getLongName()));
-        var moves = facade.getAllAsListMove().filtered(
-                move -> locationNames.stream().map(LocationName::getUuid).toList().contains(move.getLocationID()));
-        return facade.getAllAsListNode().filtered(
-                node -> moves.stream().map(Move::getNodeID).toList().contains(node.getNodeID()));
     }
 
     public static double computeTextWidth(Font font, String text, double wrappingWidth) {
@@ -141,33 +132,32 @@ public class SignageController {
         deleteBtn.managedProperty().bind(App.getSingleton().getPrimaryStage().fullScreenProperty().not().and(editing));
     }
 
+    private ObservableList<Node> signageToNodes(ObservableList<Signage> signageList) {
+        var locationNames = facade.getAllAsListLocationName().filtered(
+                locationName -> signageList.stream().map(Signage::getLongName).distinct().toList().contains(locationName.getLongName()));
+        var moves = facade.getAllAsListMove().filtered(
+                move -> locationNames.stream().map(LocationName::getUuid).toList().contains(move.getLocationID()));
+        return facade.getAllAsListNode().filtered(
+                node -> moves.stream().map(Move::getNodeID).toList().contains(node.getNodeID()));
+    }
+
     @FXML
     private void initialize() {
-        editing = Bindings.createBooleanBinding
-                (() -> App.getSingleton().getAccount().getAccountType().getShieldLevel() >= Account.AccountType.ADMIN.getShieldLevel());
+        App.getSingleton().addPropertyChangeListener(this);
         configTimer(1000);
         filteredList = facade.getAllAsListSignage().filtered(s -> false);
 
-
         filteredList.addListener((ListChangeListener<? super Signage>) s -> updateMapView());
         filteredList.addListener((InvalidationListener) l -> updateMapView());
-        ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) -> Platform.runLater(this::updateMapView);
 
-        App.getSingleton().getPrimaryStage().widthProperty().addListener(stageSizeListener);
-        App.getSingleton().getPrimaryStage().heightProperty().addListener(stageSizeListener);
-        Platform.runLater(()-> {
+        Platform.runLater(() -> {
             initIcons();
             initHeader();
             buildSignage();
             initSignSelector();
             buildEditSignage();
             buildSignageMap();
-            myScene.setOnKeyPressed(event -> {
-                if (event.getCode().equals(KeyCode.F11))
-                    setFullScreen(true);
-                else if (event.getCode().equals(KeyCode.ESCAPE))
-                    setFullScreen(false);
-            });
+            setFullScreen(App.getSingleton().getPrimaryStage().isFullScreen());
         });
     }
 
@@ -184,33 +174,6 @@ public class SignageController {
     }
 
     private void updateMapView() {
-//        var nodesList = getNode(signageList);
-//        signageList.addListener((ListChangeListener<Signage>) c -> {
-//            if (editing) return;
-//            var nodes = getNode(signageList);
-//            var minX = nodes.stream().mapToDouble(Node::getXcoord).min().orElse(0);
-//            var maxX = nodes.stream().mapToDouble(Node::getXcoord).max().orElse(0);
-//            var minY = nodes.stream().mapToDouble(Node::getYcoord).min().orElse(0);
-//            var maxY = nodes.stream().mapToDouble(Node::getYcoord).max().orElse(0);
-//            hospitalMap.showRectangle(new Rectangle(minX - 100, minY - 100, maxX - minX + 200, maxY - minY + 200));
-////            hospitalMap.addNode()
-//        });
-//        signageList.addListener((ListChangeListener<Signage>) c -> {
-//            if (editing.get()) return;
-//            var nodes = signageToNodes(signageList);
-//            var minX = nodes.stream().mapToDouble(Node::getXcoord).min().orElse(0);
-//            var maxX = nodes.stream().mapToDouble(Node::getXcoord).max().orElse(0);
-//            var minY = nodes.stream().mapToDouble(Node::getYcoord).min().orElse(0);
-//            var maxY = nodes.stream().mapToDouble(Node::getYcoord).max().orElse(0);
-//            Platform.runLater(() -> {
-//                hospitalMap.clearMap();
-//                if (nodes.size() == 0) return;
-//                hospitalMap.showLayer(HospitalFloor.floorMap.get(nodes.get(0).getFloor()));
-//                nodes.forEach(n -> hospitalMap.addNode(n, "#fffb00", Bindings.createStringBinding(() -> nodeToLocation(n)), Bindings.createStringBinding(() -> "")));
-//                hospitalMap.showRectangle(new Rectangle(minX - 100, minY - 100, maxX - minX + 200, maxY - minY + 200));
-//            });
-//        });
-
         var signageHere = filteredList.filtered(signage -> signage.getDirectionType().equals(Signage.DirectionType.HERE));
         var signageRest = filteredList.filtered(signage -> !signage.getDirectionType().equals(Signage.DirectionType.HERE));
         if (signageHere.size() > 0) {
@@ -249,18 +212,10 @@ public class SignageController {
     }
 
     private void setFullScreen(boolean setFullScreen) {
-        if (setFullScreen) {
-            switchTheme(true);
-            App.getSingleton().getPrimaryStage().setFullScreen(true);
-            App.getSingleton().getLayout().showLeftLayout(false);
-            App.getSingleton().getLayout().showTopLayout(false);
-
-        } else {
-            switchTheme(false);
-            App.getSingleton().getPrimaryStage().setFullScreen(false);
-            App.getSingleton().getLayout().showLeftLayout(true);
-            App.getSingleton().getLayout().showTopLayout(true);
-        }
+        switchTheme(setFullScreen);
+        App.getSingleton().getPrimaryStage().setFullScreen(setFullScreen);
+        App.getSingleton().getLayout().showLeftLayout(!setFullScreen);
+        App.getSingleton().getLayout().showTopLayout(!setFullScreen);
     }
 
     private void initIcons() {
@@ -477,9 +432,6 @@ public class SignageController {
             separator.managedProperty().bind(Bindings.greaterThan(Bindings.size(signageList), 0));
             signageBodyLeft.getChildren().add(separator);
         }
-
-//        signageBodyLeft.prefWidthProperty().bind(Bindings.createDoubleBinding(() -> signageBodyLeft.getChildren().stream().mapToDouble(node -> node.getBoundsInParent().getWidth()).max().orElse(0), signageBodyLeft.getChildren()));
-//        signageBodyLeft.getChildren().remove(signageBodyLeft.getChildren().size() - 1);  // remove the last separator
     }
 
     private void switchTheme(boolean setDark) {
@@ -492,4 +444,15 @@ public class SignageController {
         }
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("page")) {
+            if (evt.getNewValue() != Screen.SIGNAGE)
+                App.getSingleton().removePropertyChangeListener(this);
+        } else if (evt.getPropertyName().equals("windowResize")) {
+            Platform.runLater(this::updateMapView);
+        } else if (evt.getPropertyName().equals("fullscreen")) {
+            setFullScreen((boolean) evt.getNewValue());
+        }
+    }
 }

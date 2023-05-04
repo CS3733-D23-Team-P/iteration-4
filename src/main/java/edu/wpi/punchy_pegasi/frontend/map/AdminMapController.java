@@ -272,18 +272,19 @@ public class AdminMapController {
         var movesList = FacadeUtils.getFutureMoves(node, locations, moves, adminDatePicker.valueProperty());
         var futureMovesList = new PFXListView<>(movesList, renderMove, locationKey);
 
-        var button = new MFXToggleButton("Disabled");
+        var disabledButton = new MFXToggleButton("Disabled");
         var disableNodeDatepicker = new MFXDatePicker();
         disableNodeDatepicker.setValue(disableNodeDatepicker.getCurrentDate());
         disableNodeDatepicker.setText("Disabled Until");
         var alert = Bindings.createObjectBinding(() -> App.getSingleton().getFacade().getAllAsListAlert().stream().filter(a -> a.getAlertType() == Alert.AlertType.MAP_DISABLED && Objects.equals(a.getNodeID(), node.getNodeID())).findFirst(), App.getSingleton().getFacade().getAllAsListAlert());
         alert.addListener((o, ol, ne) -> {
-            button.setSelected(alert.get().isPresent());
+            disabledButton.setSelected(alert.get().isPresent());
             alert.get().ifPresent(a -> disableNodeDatepicker.setValue(a.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate()));
         });
-        button.setSelected(alert.get().isPresent());
-        button.setOnAction(e -> {
-            if (button.isSelected()) {
+        var setDisabledDate = new PFXButton("Set date");
+        disabledButton.setSelected(alert.get().isPresent());
+        disabledButton.setOnAction(e -> {
+            if (disabledButton.isSelected()) {
                 App.getSingleton().getFacade().saveAlert(Alert.builder()
                         .uuid(UUID.randomUUID())
                         .nodeID(node.getNodeID())
@@ -293,15 +294,15 @@ public class AdminMapController {
                         .alertTitle(nodeToLocation(node).get().getLongName())
                         .description("This location will be inaccessible until " + disableNodeDatepicker.getValue().toString())
                         .startDate(Instant.now().minus(Duration.ofMinutes(1)))
-                        .endDate(LocalDateTime.of(disableNodeDatepicker.getValue(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant())
+                        .endDate(LocalDateTime.of(disableNodeDatepicker.getValue(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().minus(Duration.ofSeconds(1)))
                         .build());
             } else if (alert.get().isPresent()) {
                 App.getSingleton().getFacade().deleteAlert(alert.get().get());
             }
         });
-        disableNodeDatepicker.valueProperty().addListener((o, ol, ne) -> {
+        setDisabledDate.setOnAction(e -> {
             if (alert.get().isPresent())
-                App.getSingleton().getFacade().updateAlert(alert.get().get().toBuilder().endDate(LocalDateTime.of(disableNodeDatepicker.getValue(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant()).build(), new Alert.Field[]{Alert.Field.END_DATE});
+                App.getSingleton().getFacade().updateAlert(alert.get().get().toBuilder().endDate(LocalDateTime.of(disableNodeDatepicker.getValue(), LocalTime.MAX).atZone(ZoneId.systemDefault()).withNano(0).toInstant()).build(), new Alert.Field[]{Alert.Field.END_DATE});
         });
 
         var delete = new PFXButton("Delete Node");
@@ -328,6 +329,25 @@ public class AdminMapController {
                 Platform.runLater(popOver::hide);
             }
         });
+        var currentMove = FXCollections.observableArrayList(
+                new Label("Current Move"),
+                currentMovesList,
+                new Separator());
+        var futureMove = FXCollections.observableArrayList(
+                new Label("Future Moves"),
+                futureMovesList,
+                new Separator());
+        ObservableList<Move> finalLocation = location;
+        currentMove.forEach(e->{
+            var bool = Bindings.createBooleanBinding(()-> finalLocation.size() > 0, finalLocation);
+            e.visibleProperty().bind(bool);
+            e.managedProperty().bind(bool);
+        });
+        futureMove.forEach(e->{
+            var bool = Bindings.createBooleanBinding(()->movesList.size() > 0, movesList);
+            e.visibleProperty().bind(bool);
+            e.managedProperty().bind(bool);
+        });
         editNode.getChildren().addAll(
                 buildingDropdown,
                 new Separator(),
@@ -335,15 +355,13 @@ public class AdminMapController {
                 locationDropdown,
                 date,
                 makeMove,
-                new Separator(),
-                new Label("Current Move"),
-                currentMovesList,
-                new Separator(),
-                new Label("Future Moves"),
-                futureMovesList,
-                new Separator(),
-                button,
+                new Separator());
+        editNode.getChildren().addAll(currentMove);
+        editNode.getChildren().addAll(futureMove);
+        editNode.getChildren().addAll(
+                disabledButton,
                 disableNodeDatepicker,
+                setDisabledDate,
                 new Separator(),
                 delete);
         // sort locations by long name

@@ -5,6 +5,7 @@
     -pfx-button-selected: -pfx-accent;
     -pfx-button-selected-hover: derive(-pfx-accent, -20%);
     -pfx-button-selected-text: white;
+    -fx-cursor: HAND;
 }
 .pfx-button:armed,
 .pfx-button:hover,
