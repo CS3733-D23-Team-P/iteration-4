@@ -120,8 +120,12 @@
 .pathfinding-direction-highlighted {
     -fx-background-color: -pfx-accent;
 }
-
-
+.pathfinding-direction-highlighted Label {
+    -fx-text-fill: white;
+}
+.pathfinding-direction-highlighted PFXIcon {
+    -fx-fill: white;
+}
 .pathfinding-direction-highlighted:hover {
     -fx-background-color: -pfx-accent;
 }
