@@ -33,15 +33,9 @@ dependencies {
     api 'io.github.typhon0:AnimateFX:1.2.4-SNAPSHOT'
 
     implementation(
-//            'compile group: \'org.ejml\', name: \'ejml-all\', version: \'0.43\'',
-            'org.ejml:ejml-all:0.43',
             'io.github.palexdev:materialfx:11.15.0',
             'net.kurobako:gesturefx:0.7.1',
             'org.controlsfx:controlsfx:11.1.2',
-
-            'org.apache.lucene:lucene-core:9.5.0',
-            'org.apache.lucene:lucene-analysis-common:9.5.0',
-            'org.apache.lucene:lucene-queryparser:9.5.0',
 
             'org.javatuples:javatuples:1.2',
             'org.jetbrains:annotations:24.0.0',
@@ -59,15 +53,8 @@ dependencies {
             'com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9',
             'com.jsoniter:jsoniter:0.9.23',
 
-            'de.mkammerer:argon2-jvm:2.11',
-            'com.github.hervegirod:fxsvgimage:1.1',
-            'com.github.phoenicisorg:javafx-collections:1.2.5',
-            'net.java.dev.jna:jna:5.12.1',
-
             'net.sf.sociaal:freetts:1.2.2',
-
             'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
-
     )
     implementation project(path: ':generator')
 
