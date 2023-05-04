@@ -191,7 +191,7 @@ public class App extends Application {
     }
 
     public synchronized void navigate(final Screen screen) {
-        if (screen == null) return;
+        if (screen == null || screen == currentScreen) return;
         if (loadingThread != null) loadingThread.interrupt();
         if (account.getAccountType().getShieldLevel() >= screen.getShield().getShieldLevel()) {
             getLayout().showTopLayout(screen.isHeader());
@@ -200,14 +200,12 @@ public class App extends Application {
             var loadingPage = new PageLoading();
             loadingPage.getStyleClass().add("page-loading");
             getViewPane().setCenter(loadingPage);
-            if (loadingThread != null)
-                loadingThread.interrupt();
+            setCurrentScreen(screen);
             getExecutorService().execute(() -> {
                 loadingThread = Thread.currentThread();
                 var loaded = screen.get();
                 if (!Thread.interrupted())
                     Platform.runLater(() -> {
-                        setCurrentScreen(screen);
                         getViewPane().setCenter(loaded);
                     });
             });
