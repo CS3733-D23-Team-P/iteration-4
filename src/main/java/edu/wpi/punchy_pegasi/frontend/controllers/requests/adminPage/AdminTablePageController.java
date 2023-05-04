@@ -214,6 +214,12 @@ public class AdminTablePageController {
                     case FLOWERREQUESTS:
                         facade.updateFlowerDeliveryRequestEntry(commit(FlowerDeliveryRequestEntry.builder()).build(), Arrays.stream(FlowerDeliveryRequestEntry.Field.values()).filter(f -> f != FlowerDeliveryRequestEntry.Field.SERVICE_ID).toArray(FlowerDeliveryRequestEntry.Field[]::new));
                         break;
+                    case SIGNAGE:
+                        facade.updateSignage(commit(Signage.builder()).build(), Arrays.stream(Signage.Field.values()).filter(f -> f != Signage.Field.UUID).toArray(Signage.Field[]::new));
+                        break;
+                    case ALERT:
+                        facade.updateAlert(commit(Alert.builder()).build(), Arrays.stream(Alert.Field.values()).filter(f -> f != Alert.Field.EMPLOYEE_ID).toArray(Alert.Field[]::new));
+                        break;
                 }
             } catch (InvalidArgumentException ex) {
                 App.getSingleton().getLayout().notify("One of the fields is not valid", "");
@@ -255,6 +261,12 @@ public class AdminTablePageController {
                         break;
                     case FLOWERREQUESTS:
                         facade.deleteFlowerDeliveryRequestEntry(commit(FlowerDeliveryRequestEntry.builder()).build());
+                        break;
+                    case SIGNAGE:
+                        facade.deleteSignage(commit(Signage.builder()).build());
+                        break;
+                    case ALERT:
+                        facade.deleteAlert(commit(Alert.builder()).build());
                         break;
                 }
             } catch (InvalidArgumentException ex) {
@@ -322,6 +334,19 @@ public class AdminTablePageController {
                     case FLOWERREQUESTS:
                         facade.saveFlowerDeliveryRequestEntry(serviceIdCommit(FlowerDeliveryRequestEntry.builder()).build());
                         break;
+                    case SIGNAGE:
+                        var signage = Signage.builder();
+                        var newSignageId = facade.getAllSignage().values().stream().mapToLong(Signage::getUuid).max().orElse(0) + 1;
+                        idCommit(newSignageId);
+                        signage.uuid(newSignageId);
+                        facade.saveSignage(signage.build());
+                        break;
+                    case ALERT:
+                        var alert = Alert.builder();
+                        var newAlertId = UUID.randomUUID();
+                        idCommit(newAlertId);
+                        alert.uuid(newAlertId);
+                        facade.saveAlert(alert.build());
                 }
             } catch (InvalidArgumentException ex) {
                 App.getSingleton().getLayout().notify("One of the fields is not valid", "");
